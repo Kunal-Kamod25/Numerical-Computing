@@ -1,3 +1,6 @@
+//Declarations for helper / utility functions
+// Math helpers, Printing, validation, etc.
+
 #ifndef UTILS_HPP
 #define UTILS_HPP
 

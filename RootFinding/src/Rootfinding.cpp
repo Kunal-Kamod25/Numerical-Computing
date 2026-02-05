@@ -4,18 +4,12 @@
 #include "../Include/Rootfinding.hpp"
 #include "../Include/Utils.hpp"
 
-using namespace std;
+using namespace std; // this tells compiler cout means std::cout
 
 void bisectionMethod(double a, double b, double tolerance)// fun declaration datatype double for decimal
 {
     double mid; // declare variable to store mid value 
-    int iteration = 1; // counter that tells how many times loop runs 
-
-    if (function(a) * function(b) >= 0) // method requires opposite signs
-    {
-        cout << "Invalid bracketing interval!" << endl;
-        return;
-    }
+    int iteration = 1; // declare integer varia counter that tells how many times loop runs 
 
     // print only headers in output like a table
     cout << setw(5)  << "Iter"

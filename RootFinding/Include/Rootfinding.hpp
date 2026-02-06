@@ -5,6 +5,19 @@
 #ifndef ROOTFINDING_HPP // not define yet
 #define ROOTFINDING_HPP
 
-void bisectionMethod(double a, double b, double tolerance); // Function declaration
+class bisectionMethod{
+public:
+    // data members
+    double a;
+    double b;
+    double tolerance;
+    int iteration;
+
+    // constructor
+    bisectionMethod(); // Deafult
+    bisectionMethod(double a, double b, double tolerance, int iteration);// Parameterized
+
+
+};
 
 #endif

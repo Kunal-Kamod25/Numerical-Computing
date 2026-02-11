@@ -1,49 +1,111 @@
 #include <iostream>
-#include <iomanip> // Use for set weidth and preceisions 0.0000.... like thid 
-#include <cmath> // this is for absolute values |f(mid)| include math functions
-#include "../Include/Rootfinding.hpp"
+#include <cmath>
+#include "../Include/RootFinding.hpp"
 #include "../Include/Utils.hpp"
 
-using namespace std; // this tells compiler cout means std::cout
+using namespace std;
 
-void bisectionMethod(double a, double b, double tolerance)// fun declaration datatype double for decimal
+
+// constructor of base class
+RootFinding::RootFinding(double tol, int maxIter)
 {
-    double mid; // declare variable to store mid value 
-    int iteration = 1; // declare integer varia counter that tells how many times loop runs 
-
-    // print only headers in output like a table
-    cout << setw(5)  << "Iter"
-         << setw(10) << "a"
-         << setw(10) << "b"
-         << setw(10) << "mid"
-         << setw(15) << "|f(mid)|"
-         << endl;
+    tolerance = tol;          // set stopping condition
+    maxIteration = maxIter;   // set maximum iterations
+}
 
 
-    // print root values and mid approximate root value
-    while (true)
+// ---------------- Bisection Method ----------------
+
+Bisection::Bisection(double left, double right, double tol, int maxIter)
+    : RootFinding(tol, maxIter)   // calling parent constructor
+{
+    a = left;     // set left interval
+    b = right;    // set right interval
+}
+
+void Bisection::solve()
+{
+    double mid;       // to store midpoint
+    int iteration = 1;
+
+    // loop until max iterations
+    while (iteration <= maxIteration)
     {
-        mid = (a + b) / 2; // mid point calculation formula
+        mid = (a + b) / 2;   // formula for midpoint
 
-        cout << setw(5) << iteration
-                     << setw(10) << a
-                     << setw(10) << b
-                     << setw(10) << mid
-                     << setw(15) << fixed // Fixed decimal format 
-                                << setprecision(4) // set precision means 4 digit after decimal . 
-                                << abs(function(mid)) // absolute value no -ve value
-                     << defaultfloat // reset formating to default
-                     << endl;
+        // if result is accurate enough, stop
+        if (abs(function(mid)) < tolerance)
+            break;
 
-        if (abs(function(mid)) < tolerance) // |f(mid)| < tolerance // the root is accurate
-             break;
-        if (function(a) * function(mid) < 0) // If root lies in [a, mid] → move b
+        // check which side root exists
+        if (function(a) * function(mid) < 0)
             b = mid;
         else
-            a = mid; // If root lies in [mid, b] → move a
+            a = mid;
 
         iteration++;
     }
 
-    cout << "\nApproximate Root = " << mid << endl;
+    cout << "Bisection Root = " << mid << endl;
+}
+
+
+
+// ---------------- Newton Raphson Method ----------------
+
+NewtonRaphson::NewtonRaphson(double initialGuess, double tol, int maxIter)
+    : RootFinding(tol, maxIter)
+{
+    x0 = initialGuess;   // set starting value
+}
+
+void NewtonRaphson::solve()
+{
+    double x1;
+    int iteration = 1;
+
+    while (iteration <= maxIteration)
+    {
+        // Newton formula
+        x1 = x0 - function(x0) / derivative(x0);
+
+        // stop if accurate
+        if (abs(function(x1)) < tolerance)
+            break;
+
+        x0 = x1;   // update value
+        iteration++;
+    }
+
+    cout << "Newton Raphson Root = " << x1 << endl;
+}
+
+
+
+// ---------------- Fixed Point Method ----------------
+
+FixedPoint::FixedPoint(double initialGuess, double tol, int maxIter)
+    : RootFinding(tol, maxIter)
+{
+    x0 = initialGuess;
+}
+
+void FixedPoint::solve()
+{
+    double x1;
+    int iteration = 1;
+
+    while (iteration <= maxIteration)
+    {
+        x1 = g(x0);   // fixed point formula
+
+        // stop if difference small
+        if (abs(x1 - x0) < tolerance)
+            break;
+
+        x0 = x1;
+        iteration++;
+    }
+
+    cout << "Fixed Point Root = " << x1 << endl;
 }

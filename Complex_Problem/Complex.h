@@ -7,6 +7,7 @@ public:
     float a, b, c;
 
     //Constructors
+    
     //(1)Default Constructor
     myComplex();
 

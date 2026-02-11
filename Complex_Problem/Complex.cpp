@@ -48,13 +48,13 @@ myComplex myComplex::multiply(myComplex tmp) {
 }
 
 myComplex myComplex::divide(myComplex tmp) {
-    // Formula: Multiply by conjugate of denominator
     float denominator = (tmp.a * tmp.a) + (tmp.b * tmp.b);
     myComplex ans;
     ans.a = ((a * tmp.a) + (b * tmp.b)) / denominator;
     ans.b = ((b * tmp.a) - (a * tmp.b)) / denominator;
     return ans;
 }
+
 
 myComplex myComplex::complexConjugate() {
     // Conjugate of a + bi is a - bi

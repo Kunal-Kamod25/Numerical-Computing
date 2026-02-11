@@ -1,19 +1,22 @@
 #include <iostream>
-#include "../Include/Rootfinding.hpp"
+#include "../Include/RootFinding.hpp"
 
-using namespace std; // this tells compiler cout means std::cout
+using namespace std;
 
 int main()
 {
-    double a = 0.5; // left interval end
-    double b = 1.0; // Right interval end
-    double tolerance = 0.0001; // stoping conditions
+    double tolerance = 0.0001;   // stopping condition
+    int maxIter = 100;           // safety limit
 
-    cout << "Bisection Method for f(x) = 4x^3 - 3x\n";
-    cout << "Initial Interval: [0.5 , 1]\n";
-    cout << "Tolerance: " << tolerance << "\n\n"; // prints tollerance value
+    // creating objects of each class
+    Bisection b(0.5, 1.0, tolerance, maxIter);
+    NewtonRaphson n(0.7, tolerance, maxIter);
+    FixedPoint f(0.7, tolerance, maxIter);
 
-    bisectionMethod(a, b, tolerance); // calls the fun bisection pass three parameters left end  right end and stoping condition
+    // calling solve function for each object
+    b.solve();
+    n.solve();
+    f.solve();
 
     return 0;
 }

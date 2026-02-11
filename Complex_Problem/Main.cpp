@@ -12,7 +12,7 @@ int main() {
 
     // 1) Addition
     c3 = c1.add(c2);
-    cout << "Addition: " << c3.a << " + " << c3.b << "i" << endl;
+    cout << "\n Addition: " << c3.a << " + " << c3.b << "i" << endl;
 
     // 2) Subtraction
     myComplex sub = c1.subtract(c2);
@@ -31,7 +31,7 @@ int main() {
     cout << "Conjugate of c1: " << conj.a << " + (" << conj.b << "i)" << endl;
 
     // 6) Norm (Magnitude)
-    cout << "Norm of c1: " << c1.norm() << endl;
+    cout << "\n Norm of c1: " << c1.norm() << endl;
 
     return 0;
 }

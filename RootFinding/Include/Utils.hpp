@@ -1,4 +1,4 @@
-// Contains only function declarations for mathematical helper functions used by different root-finding algorithms.
+// In this Contains only function declarations for mathematical helper functions used by different root-finding algorithms.
 #ifndef UTILS_HPP
 #define UTILS_HPP
 

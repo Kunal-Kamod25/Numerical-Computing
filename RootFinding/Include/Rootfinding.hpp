@@ -1,7 +1,7 @@
 #ifndef ROOTFINDING_HPP      // this avoids including file multiple times
 #define ROOTFINDING_HPP
 
-// base class (parent class)
+// abstract base class (parent class)
 class RootFinding
 {
     protected:
@@ -12,15 +12,15 @@ class RootFinding
     // constructor to set tolerance and max iterations
     RootFinding(double tol, int maxIter);
 
-    // pure virtual function (forces child classes to write their own solve function)
-    virtual void solve() = 0;
-};
+    // pure virtual function 
+    virtual void solve() = 0;// line 16 33 // Virtual function is a Member fun // no implementation in the base class
+}; 
 
 
 // Bisection Class
 
 // Bisection inherits from RootFinding
-class Bisection : public RootFinding 
+class Bisection : public RootFinding  // sir this is a Is-A relationship (bisection Is-A rootfinding method)
 {
     private:
     double a;    // left interval
@@ -34,8 +34,8 @@ class Bisection : public RootFinding
 };
 
 
-// Newton Raphson Class
-class NewtonRaphson : public RootFinding 
+// Newton-Raphson class
+class NewtonRaphson : public RootFinding // newtonraphson Is-A rootfinding method
 {
     private:
     double x0;   // initial guess

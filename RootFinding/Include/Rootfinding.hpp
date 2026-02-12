@@ -4,7 +4,7 @@
 // abstract base class (parent class)
 class RootFinding
 {
-    protected:
+    protected: 
     double tolerance;        // stopping condition
     int maxIteration;        // safety limit so loop does not run forever
 

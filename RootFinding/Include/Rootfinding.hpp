@@ -4,11 +4,11 @@
 // base class (parent class)
 class RootFinding
 {
-protected:
+    protected:
     double tolerance;        // stopping condition
     int maxIteration;        // safety limit so loop does not run forever
 
-public:
+    public:
     // constructor to set tolerance and max iterations
     RootFinding(double tol, int maxIter);
 
@@ -17,49 +17,44 @@ public:
 };
 
 
-// ---------------- Bisection Class ----------------
+// Bisection Class
 
 // Bisection inherits from RootFinding
-class Bisection : public RootFinding
+class Bisection : public RootFinding 
 {
-private:
+    private:
     double a;    // left interval
     double b;    // right interval
 
-public:
+    public:
     // constructor
     Bisection(double left, double right, double tol, int maxIter);
-
     // override solve function
     void solve();
 };
 
 
-// ---------------- Newton Raphson Class ----------------
-
-class NewtonRaphson : public RootFinding
+// Newton Raphson Class
+class NewtonRaphson : public RootFinding 
 {
-private:
+    private:
     double x0;   // initial guess
 
-public:
+    public:
     NewtonRaphson(double initialGuess, double tol, int maxIter);
-
     void solve();
 };
 
 
-// ---------------- Fixed Point Class ----------------
-
-class FixedPoint : public RootFinding
+// Fixed Point Class
+class FixedPoint : public RootFinding 
 {
-private:
+    private:
     double x0;   // initial guess
 
-public:
+    public:
     FixedPoint(double initialGuess, double tol, int maxIter);
-
     void solve();
 };
 
-#endif
+#endif   // ROOTFINDING_HPP

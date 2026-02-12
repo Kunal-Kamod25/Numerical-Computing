@@ -1,10 +1,9 @@
 #include <iostream>
 #include <cmath>
-#include "../Include/RootFinding.hpp"
+#include "../Include/Rootfinding.hpp"
 #include "../Include/Utils.hpp"
 
 using namespace std;
-
 
 // constructor of base class
 RootFinding::RootFinding(double tol, int maxIter)
@@ -13,9 +12,7 @@ RootFinding::RootFinding(double tol, int maxIter)
     maxIteration = maxIter;   // set maximum iterations
 }
 
-
-// ---------------- Bisection Method ----------------
-
+// Bisection Method 
 Bisection::Bisection(double left, double right, double tol, int maxIter)
     : RootFinding(tol, maxIter)   // calling parent constructor
 {
@@ -45,18 +42,15 @@ void Bisection::solve()
 
         iteration++;
     }
-
     cout << "Bisection Root = " << mid << endl;
 }
 
 
-
-// ---------------- Newton Raphson Method ----------------
-
+// Newton Raphson Method
 NewtonRaphson::NewtonRaphson(double initialGuess, double tol, int maxIter)
     : RootFinding(tol, maxIter)
 {
-    x0 = initialGuess;   // set starting value
+    x0 = initialGuess;   // set starting bvalue
 }
 
 void NewtonRaphson::solve()
@@ -66,7 +60,7 @@ void NewtonRaphson::solve()
 
     while (iteration <= maxIteration)
     {
-        // Newton formula
+        // Newton formulab
         x1 = x0 - function(x0) / derivative(x0);
 
         // stop if accurate
@@ -81,8 +75,7 @@ void NewtonRaphson::solve()
 }
 
 
-
-// ---------------- Fixed Point Method ----------------
+//Fixed Point Method
 
 FixedPoint::FixedPoint(double initialGuess, double tol, int maxIter)
     : RootFinding(tol, maxIter)
@@ -106,6 +99,5 @@ void FixedPoint::solve()
         x0 = x1;
         iteration++;
     }
-
     cout << "Fixed Point Root = " << x1 << endl;
 }

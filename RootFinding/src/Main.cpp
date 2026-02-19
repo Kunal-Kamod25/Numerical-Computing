@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../Include/RootFinding.hpp"
+#include "../Include/Rootfinding.hpp"
 
 using namespace std;
 
@@ -9,14 +9,14 @@ int main()
     int maxIter = 100;           // safety limit
 
     // creating objects of each class
-    Bisection b(0.5, 1.0, tolerance, maxIter);
-    NewtonRaphson n(0.7, tolerance, maxIter);
-    FixedPoint f(0.7, tolerance, maxIter);
+    Bisection Bisection(0.5, 1.0, tolerance, maxIter);
+    NewtonRaphson Newton_Raphson(0.7, tolerance, maxIter);
+    FixedPoint Fixed_Point(0.7, tolerance, maxIter);
 
     // calling solve function for each object
-    b.solve();
-    n.solve();
-    f.solve();
+    Bisection.solve();
+    Newton_Raphson.solve();
+    Fixed_Point.solve();
 
     return 0;
 }

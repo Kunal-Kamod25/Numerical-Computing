@@ -1,65 +1,60 @@
 #ifndef ROOTFINDING_HPP      // this avoids including file multiple times
 #define ROOTFINDING_HPP
 
-// base class (parent class)
+// abstract base class (parent class)
 class RootFinding
 {
-protected:
+    protected: 
     double tolerance;        // stopping condition
     int maxIteration;        // safety limit so loop does not run forever
 
-public:
+    public:
     // constructor to set tolerance and max iterations
     RootFinding(double tol, int maxIter);
 
-    // pure virtual function (forces child classes to write their own solve function)
-    virtual void solve() = 0;
-};
+    // pure virtual function 
+    virtual void solve() = 0;// line 16 33 // Virtual function is a Member fun // no implementation in the base class
+}; 
 
 
-// ---------------- Bisection Class ----------------
+// Bisection Class
 
 // Bisection inherits from RootFinding
-class Bisection : public RootFinding
+class Bisection : public RootFinding  // sir this is a Is-A relationship (bisection Is-A rootfinding method)
 {
-private:
+    private:
     double a;    // left interval
     double b;    // right interval
 
-public:
+    public:
     // constructor
     Bisection(double left, double right, double tol, int maxIter);
-
     // override solve function
     void solve();
 };
 
 
-// ---------------- Newton Raphson Class ----------------
-
-class NewtonRaphson : public RootFinding
+// Newton-Raphson class
+class NewtonRaphson : public RootFinding // newtonraphson Is-A rootfinding method
 {
-private:
+    private:
     double x0;   // initial guess
 
-public:
+    public:
     NewtonRaphson(double initialGuess, double tol, int maxIter);
-
     void solve();
 };
 
 
-// ---------------- Fixed Point Class ----------------
-
-class FixedPoint : public RootFinding
+// Fixed Point Class
+class FixedPoint : public RootFinding 
 {
-private:
+    private:
     double x0;   // initial guess
 
-public:
+    public:
     FixedPoint(double initialGuess, double tol, int maxIter);
-
     void solve();
 };
 
-#endif
+#endif   // ROOTFINDING_HPP

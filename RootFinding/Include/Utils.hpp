@@ -1,5 +1,4 @@
-//Declarations for helper / utility functions
-// Math helpers, Printing, validation, etc.
+// In this Contains only function declarations for mathematical helper functions used by different root-finding algorithms.
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
@@ -13,4 +12,3 @@ double derivative(double x);
 double g(double x);
 
 #endif
-

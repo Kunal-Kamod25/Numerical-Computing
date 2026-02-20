@@ -22,11 +22,11 @@ int main() {
         cout << "\nEnter second matrix for addition/subtraction:\n";
         m2.readMatrix();
 
-        cout << "\nFirst Matrix:\n";
-        m1.display();
+        // cout << "\nFirst Matrix:\n";
+        // m1.display();
 
-        cout << "\nSecond Matrix:\n";
-        m2.display();
+        // cout << "\nSecond Matrix:\n";
+        // m2.display();
 
         // addition
         Matrix addResult = m1 + m2;
@@ -39,9 +39,9 @@ int main() {
         subResult.display();
 
         // polymorphism example
-        MatrixBase* ptr = &m1;
-        cout << "\nDisplaying first matrix using base class pointer:\n";
-        ptr->display();
+        // MatrixBase* ptr = &m1;
+        // cout << "\nDisplaying first matrix using base class pointer:\n";
+        // ptr->display();
 
         // gaussian on first matrix only
         cout << "\nPerforming Gaussian Elimination:\n";

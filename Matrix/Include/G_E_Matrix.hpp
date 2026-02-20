@@ -2,8 +2,8 @@
 #define G_E_MATRIX_HPP
 
 #include <iostream>
-#include <vector>
-#include <stdexcept>
+#include <vector> //create dynamic 2D matrix:
+#include <stdexcept> //handle runtime  errors
 
 using namespace std;
 
@@ -27,29 +27,30 @@ class Matrix : public MatrixBase {
 
 private:
     vector<vector<double>> data;   // matrix values
-    vector<double> solution;       // solution for AX=B
+    vector<double> solution;       // solution for augumented matrix
 
 public:
     // constructor
     Matrix(int r, int c);
 
     // read matrix
-    void readMatrix();
+    void readMatrix(); // take input from user
 
     // display matrix
-    void display() const override;
+    void display() const override; // const-does not change object //override-ensures it override base class functions
 
     // gaussian elimination
-    void gaussianElimination();
+    void gaussianElimination(); // convert matrix to upper tringular form
 
     // back substitution
-    void backSubstitution();
+    void backSubstitution(); // final value for variables
 
     // operator overloading
-    Matrix operator+(const Matrix& other);
-    Matrix operator-(const Matrix& other);
+    Matrix operator+(const Matrix& other); // const - we dont modify other matrix
+    Matrix operator-(const Matrix& other); // & pass by reference
 
-    ~Matrix();
+    // destructor
+    ~Matrix(); // when an object is destroyed it is used to release resources 
 };
 
 #endif

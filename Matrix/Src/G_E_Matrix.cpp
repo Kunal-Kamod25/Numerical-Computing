@@ -4,38 +4,39 @@
 Matrix::Matrix(int r, int c) {
 
     // using this pointer
-    this->rows = r;
+    this->rows = r; //this always refers to object that called function.
     this->cols = c;
 
     // resize matrix
-    data.resize(rows);
+    data.resize(rows); //Creates rows number of vectors.
+    
     for(int i = 0; i < rows; i++) {
-        data[i].resize(cols);
+        data[i].resize(cols); //Creates cols number of columns in each row.
     }
 }
 
 
 // read matrix
-void Matrix::readMatrix() {
+void Matrix::readMatrix() { // take input from user
 
     cout << "Enter matrix elements row wise:\n";
 
     for(int i = 0; i < rows; i++) {
         for(int j = 0; j < cols; j++) {
 
-            cin >> data[i][j];   // taking input from user
+            cin >> data[i][j];   // Stores user input into matrix.
         }
     }
 }
 
 
 // display matrix
-void Matrix::display() const {
+void Matrix::display() const { // const-this fun does not change matrix values.
 
     for(int i = 0; i < rows; i++) {
         for(int j = 0; j < cols; j++) {
 
-            cout << data[i][j] << " ";
+            cout << data[i][j] << " "; // prints elements by elements
         }
         cout << endl;
     }
@@ -43,7 +44,7 @@ void Matrix::display() const {
 
 
 // operator +
-Matrix Matrix::operator+(const Matrix& other) {
+Matrix Matrix::/*fun belongs to class matrix*/operator+(const Matrix& other) { // it will overloads + operator
 
     // check size
     if(this->rows != other.rows || this->cols != other.cols) {
@@ -64,7 +65,7 @@ Matrix Matrix::operator+(const Matrix& other) {
 
 
 // operator -
-Matrix Matrix::operator-(const Matrix& other) {
+Matrix Matrix::operator-(const Matrix& other) { // it will overloads - operator
 
     // check size
     if(this->rows != other.rows || this->cols != other.cols) {
@@ -85,7 +86,7 @@ Matrix Matrix::operator-(const Matrix& other) {
 
 
 // gaussian elimination (no pivoting)
-void Matrix::gaussianElimination() {
+void Matrix::gaussianElimination() { // it will convert matrix to upper tringular form
 
     if(cols != rows + 1) {
         throw runtime_error("Matrix must be augmented (n x n+1)");

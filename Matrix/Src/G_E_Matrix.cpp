@@ -1,108 +1,60 @@
-#include "../Include/G_E_Matrix.hpp"
+#include "../include/G_E_Matrix.hpp"
 
 // constructor
-G_E_Matrix::G_E_Matrix(int r, int c) {
-    // use this pointer to assign values
+Matrix::Matrix(int r, int c) {
+
+    // using this pointer
     this->rows = r;
     this->cols = c;
-    
-    // resize the matrix
-    data.resize(rows, vector<double>(cols));
+
+    // resize matrix
+    data.resize(rows);
+    for(int i = 0; i < rows; i++) {
+        data[i].resize(cols);
+    }
 }
 
-// read matrix in terminal
-void G_E_Matrix::readMatrix() {
-    cout << "Enter the elements of the matrix: " << endl;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            cin >> data[i][j];    // get input from user
-        }
-    }
-} 
 
-// display given matrix 
-void G_E_Matrix::displayMatrix() const {
-    cout << "Matrix: \n";
+// read matrix
+void Matrix::readMatrix() {
+
+    cout << "Enter matrix elements row wise:\n";
+
     for(int i = 0; i < rows; i++) {
         for(int j = 0; j < cols; j++) {
+
+            cin >> data[i][j];   // taking input from user
+        }
+    }
+}
+
+
+// display matrix
+void Matrix::display() const {
+
+    for(int i = 0; i < rows; i++) {
+        for(int j = 0; j < cols; j++) {
+
             cout << data[i][j] << " ";
         }
         cout << endl;
     }
 }
 
-// Guass-Elimination forward without pivoting
-void G_E_Matrix::guassElimination() {
 
-    // check if matrix is augmented 
-    if(cols != rows + 1) {
-        throw runtime_error("Matrix must be augmented ");
-    }
+// operator +
+Matrix Matrix::operator+(const Matrix& other) {
 
-    for(int k = 0; k < rows - 1; k ++) {
-        
-        // if pivot is zero then division error
-        if(data[k][k] == 0) {
-            throw runtime_error("Pivot element is zero");
-        }
-
-        for(int i = k + 1; i < rows; i++) {
-            double factor = data[i][k] / data[k][k];
-            for(int j = k; j < cols; j++) {
-                // subtracting row
-                data[i][j] = data[i][j] - factor * data[k][j];
-            }
-        }
-    }
-
-    cout << "After Gaussian Elimination (Upper triangular):\n";
-    this->displayMatrix();  // calling using this pointer
-}
-
-// back substitution
-void G_E_Matrix::backSubstitution() {
-
-    sol.resize(rows);
-
-    for(int i = rows - 1; i >= 0; i--) {
-
-        double sum = 0;
-        for(int j = i + 1; j < rows; j++) {
-            sum = sum + data[i][j] * sol[j];
-        }
-
-        if(data[i][i] == 0) {
-            throw runtime_error("Division by zero in back substitution");
-        }
-
-        sol[i] = (data[i][cols - 1] - sum) / data[i][i];
-    }
-
-    cout << "Solution is:\n";
-    for(int i = 0; i < rows; i++) {
-        cout << "x" << i + 1 << " = " << sol[i] << endl;
-    }
-}
-
-// overriding base class function
-void G_E_Matrix::performGaussianElimination() {
-    guassElimination();
-    backSubstitution();
-}
-
-// operator overloading
-G_E_Matrix G_E_Matrix::operator+(const G_E_Matrix& other) {
-
-    // checking dimension
+    // check size
     if(this->rows != other.rows || this->cols != other.cols) {
         throw runtime_error("Matrix size mismatch for addition");
     }
 
-    G_E_Matrix result(this->rows, this->cols);
+    Matrix result(this->rows, this->cols);
+
     for(int i = 0; i < rows; i++) {
         for(int j = 0; j < cols; j++) {
 
-            // using this pointer
             result.data[i][j] = this->data[i][j] + other.data[i][j];
         }
     }
@@ -110,7 +62,85 @@ G_E_Matrix G_E_Matrix::operator+(const G_E_Matrix& other) {
     return result;
 }
 
+
+// operator -
+Matrix Matrix::operator-(const Matrix& other) {
+
+    // check size
+    if(this->rows != other.rows || this->cols != other.cols) {
+        throw runtime_error("Matrix size mismatch for subtraction");
+    }
+
+    Matrix result(this->rows, this->cols);
+
+    for(int i = 0; i < rows; i++) {
+        for(int j = 0; j < cols; j++) {
+
+            result.data[i][j] = this->data[i][j] - other.data[i][j];
+        }
+    }
+
+    return result;
+}
+
+
+// gaussian elimination (no pivoting)
+void Matrix::gaussianElimination() {
+
+    if(cols != rows + 1) {
+        throw runtime_error("Matrix must be augmented (n x n+1)");
+    }
+
+    for(int k = 0; k < rows - 1; k++) {
+
+        if(data[k][k] == 0) {
+            throw runtime_error("Division by zero at pivot");
+        }
+
+        for(int i = k + 1; i < rows; i++) {
+
+            double factor = data[i][k] / data[k][k];
+
+            for(int j = k; j < cols; j++) {
+
+                data[i][j] = data[i][j] - factor * data[k][j];
+            }
+        }
+    }
+
+    cout << "\nUpper Triangular Matrix:\n";
+    this->display();
+}
+
+
+// back substitution
+void Matrix::backSubstitution() {
+
+    solution.resize(rows);
+
+    for(int i = rows - 1; i >= 0; i--) {
+
+        double sum = 0;
+
+        for(int j = i + 1; j < rows; j++) {
+            sum = sum + data[i][j] * solution[j];
+        }
+
+        if(data[i][i] == 0) {
+            throw runtime_error("Division by zero in back substitution");
+        }
+
+        solution[i] = (data[i][cols - 1] - sum) / data[i][i];
+    }
+
+    cout << "\nSolution of AX = B:\n";
+    for(int i = 0; i < rows; i++) {
+        cout << "x" << i + 1 << " = " << solution[i] << endl;
+    }
+}
+
+
 // destructor
-G_E_Matrix::~G_E_Matrix() {
-    // nothing special to delete because vector handles memory
+Matrix::~Matrix() {
+    // nothing to delete becuse vector handles memory
 }

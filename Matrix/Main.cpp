@@ -9,32 +9,48 @@ int main() {
         cout << "Enter number of rows: ";
         cin >> r;
 
-        cout << "Enter number of columns: ";
+        cout << "Enter number of columns (should be rows + 1 for AX=B): ";
         cin >> c;
 
-        // base class pointer (runtime polymorphism)
-        G_E_Matrix_Base* ptr = new G_E_Matrix(r, c);
+        // matrix for gaussian
+        Matrix m1(r, c);
+        cout << "\nEnter augmented matrix for Gaussian (AX=B):\n";
+        m1.readMatrix();
 
-        // downcasting so we can access derived functions
-        G_E_Matrix* mat = dynamic_cast<G_E_Matrix*>(ptr);
+        // second matrix for operations
+        Matrix m2(r, c);
+        cout << "\nEnter second matrix for addition/subtraction:\n";
+        m2.readMatrix();
 
-        if(mat == nullptr) {
-            throw runtime_error("Casting failed");
-        }
+        cout << "\nFirst Matrix:\n";
+        m1.display();
 
-        mat->readMatrix();
+        cout << "\nSecond Matrix:\n";
+        m2.display();
 
-        cout << "Original Matrix:\n";
-        ptr->displayMatrix();  // polymorphism working here
+        // addition
+        Matrix addResult = m1 + m2;
+        cout << "\nAddition Result:\n";
+        addResult.display();
 
-        mat->guassElimination();
+        // subtraction
+        Matrix subResult = m1 - m2;
+        cout << "\nSubtraction Result:\n";
+        subResult.display();
 
-        mat->backSubstitution();
+        // polymorphism example
+        MatrixBase* ptr = &m1;
+        cout << "\nDisplaying first matrix using base class pointer:\n";
+        ptr->display();
 
-        delete ptr;  // freeing memory
+        // gaussian on first matrix only
+        cout << "\nPerforming Gaussian Elimination:\n";
+        m1.gaussianElimination();
+        m1.backSubstitution();
     }
     catch(const exception& e) {
-        cout << "Error: " << e.what() << endl;
+
+        cout << "\nError: " << e.what() << endl;
     }
 
     return 0;

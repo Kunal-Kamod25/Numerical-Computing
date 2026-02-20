@@ -1,5 +1,5 @@
-#ifndef G_E_Matrix_hpp
-#define G_E_Matrix_hpp
+#ifndef G_E_MATRIX_HPP
+#define G_E_MATRIX_HPP
 
 #include <iostream>
 #include <vector>
@@ -7,53 +7,49 @@
 
 using namespace std;
 
-// this is a base class or parent class for abstraction
-class G_E_Matrix_Base {
+// base class for abstraction
+class MatrixBase {
+
 protected:
-    int rows; // number of rows
-    int cols; // number of columns
+    int rows;   // store number of rows
+    int cols;   // store number of columns
 
 public:
-    // pure virtual function so this class become abstract class
-    virtual void performGaussianElimination() = 0; // cannot create object of base class ovrride in base class
+    // pure virtual function
+    virtual void display() const = 0;
 
-    // added so polymorphism works correctly
-    virtual void displayMatrix() const = 0; //const → guarantees it does not modify object.
-
-    // virtual destructor
-    virtual ~G_E_Matrix_Base() = default;
+    virtual ~MatrixBase() {}
 };
 
-// this is a child class
-class G_E_Matrix : public G_E_Matrix_Base {
+
+// derived class
+class Matrix : public MatrixBase {
+
 private:
-    vector<vector<double>> data;  // Matrix data
-    vector<double> sol;           // Solution vector
+    vector<vector<double>> data;   // matrix values
+    vector<double> solution;       // solution for AX=B
 
 public:
     // constructor
-    G_E_Matrix(int row, int col);
+    Matrix(int r, int c);
 
-    // fun to read matrix from user
+    // read matrix
     void readMatrix();
 
-    // fun to display matrix 'override parent class'
-    void displayMatrix() const override;
+    // display matrix
+    void display() const override;
 
-    // fun to guass elimination 'forward'
-    void guassElimination();
+    // gaussian elimination
+    void gaussianElimination();
 
     // back substitution
     void backSubstitution();
 
-    // overriding base class function
-    void performGaussianElimination() override;
+    // operator overloading
+    Matrix operator+(const Matrix& other);
+    Matrix operator-(const Matrix& other);
 
-    // operator overloading for matrix addition
-    G_E_Matrix operator+(const G_E_Matrix& other);
-
-    // destructor
-    ~G_E_Matrix();  // represents "NOT" or negation.
+    ~Matrix();
 };
 
 #endif

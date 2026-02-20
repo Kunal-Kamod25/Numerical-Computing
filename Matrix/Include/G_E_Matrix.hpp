@@ -3,13 +3,12 @@
 
 #include <iostream>
 #include <vector> //create dynamic 2D matrix:
-#include <stdexcept> //handle runtime  errors
+#include <stdexcept> //handle runtime  errors exception handling
 
 using namespace std;
 
 // base class for abstraction
 class MatrixBase {
-
 protected:
     int rows;   // store number of rows
     int cols;   // store number of columns
@@ -18,16 +17,14 @@ public:
     // pure virtual function
     virtual void display() const = 0;
 
-    virtual ~MatrixBase() {}
+    virtual ~MatrixBase() {} // Virtual destructor it will run when object destroyed
 };
-
 
 // derived class
 class Matrix : public MatrixBase {
-
 private:
-    vector<vector<double>> data;   // matrix values
-    vector<double> solution;       // solution for augumented matrix
+    vector<vector<double>> matrix;   // matrix values
+    vector<double> solutionVector;       // solution for augumented matrix
 
 public:
     // constructor

@@ -8,39 +8,32 @@
 class Matrix
 {
 public:
-    int rows, cols;  // number of rows and columns
-
-    // 2D matrix using vector (automatic memory handling)
+    int rows, cols;
     std::vector<std::vector<long double>> mat;
 
     // Constructors
-    Matrix();                                // Default constructor
-    Matrix(int r, int c);                    // Parameterized constructor
-    Matrix(const Matrix &other);             // Copy Constructor
+    Matrix();
+    Matrix(int r, int c);
+    Matrix(const Matrix &other);
 
     // Operator Overloading
-    Matrix operator+(const Matrix &other);
-    Matrix operator-(const Matrix &other);
+    Matrix operator+(const Matrix &other) const;
+    Matrix operator-(const Matrix &other) const;
 
     // File I/O
-    void readFromFile(std::string filename);
+    void readFromFile(const std::string &filename);
     void display() const;
-
-    // Matrix Properties
-    bool isSymmetric() const;
-    bool isDiagonallyDominant() const;
-    bool makeDiagonallyDominant();
 
     // Gaussian Elimination
     void basicPivoting(int currIndex);
     void upperTriangularWithoutPivot();
     void upperTriangularWithPivot();
-    Matrix backSubstitution();
+    Matrix backSubstitution() const;
     Matrix solveWithoutPivot();
     Matrix solveWithPivot();
 
-    // 🔥 Added for GNUPlot
-    void saveSolution(std::string filename);
+    // For GNUPlot
+    void saveSolution(const std::string &filename) const;
 };
 
 #endif

@@ -2,78 +2,84 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <stdexcept>
 
 using namespace std;
 
 // ================= DEFAULT CONSTRUCTOR =================
 Matrix::Matrix()
 {
-    rows = 0;   // initialize rows to 0
-    cols = 0;   // initialize cols to 0
+    rows = 0;
+    cols = 0;
 }
 
 // ================= PARAMETERIZED CONSTRUCTOR =================
 Matrix::Matrix(int r, int c)
 {
-    rows = r;   // set number of rows
-    cols = c;   // set number of columns
+    if (r <= 0 || c <= 0)
+        throw invalid_argument("Matrix size must be positive.");
 
-    // allocate matrix with 0 initial values
+    rows = r;
+    cols = c;
+
     mat.resize(rows, vector<long double>(cols, 0));
 }
 
 // ================= COPY CONSTRUCTOR =================
 Matrix::Matrix(const Matrix &other)
 {
-    rows = other.rows;   // copy rows
-    cols = other.cols;   // copy cols
-    mat = other.mat;     // vector automatically deep copies
+    rows = other.rows;
+    cols = other.cols;
+    mat = other.mat;
 }
 
 // ================= OPERATOR + =================
-Matrix Matrix::operator+(const Matrix &other)
+Matrix Matrix::operator+(const Matrix &other) const
 {
-    Matrix result(rows, cols);  // create result matrix
+    if (rows != other.rows || cols != other.cols)
+        throw invalid_argument("Matrix size mismatch for addition.");
+
+    Matrix result(rows, cols);
 
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
-            result.mat[i][j] = mat[i][j] + other.mat[i][j];  // element-wise addition
+            result.mat[i][j] = mat[i][j] + other.mat[i][j];
 
     return result;
 }
 
 // ================= OPERATOR - =================
-Matrix Matrix::operator-(const Matrix &other)
+Matrix Matrix::operator-(const Matrix &other) const
 {
-    Matrix result(rows, cols);  // create result matrix
+    if (rows != other.rows || cols != other.cols)
+        throw invalid_argument("Matrix size mismatch for subtraction.");
+
+    Matrix result(rows, cols);
 
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
-            result.mat[i][j] = mat[i][j] - other.mat[i][j];  // element-wise subtraction
+            result.mat[i][j] = mat[i][j] - other.mat[i][j];
 
     return result;
 }
 
 // ================= READ FROM FILE =================
-void Matrix::readFromFile(string filename)
+void Matrix::readFromFile(const string &filename)
 {
-    ifstream file(filename);  // open input file
+    ifstream file(filename);
 
     if (!file)
-    {
-        cout << "Error opening file!\n";
-        exit(1);
-    }
+        throw runtime_error("Error opening file.");
 
-    // read matrix values from file
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
-            file >> mat[i][j];
+            if (!(file >> mat[i][j]))
+                throw runtime_error("Error reading matrix data.");
 
-    file.close();  // close file
+    file.close();
 }
 
-// ================= DISPLAY MATRIX =================
+// ================= DISPLAY =================
 void Matrix::display() const
 {
     for (int i = 0; i < rows; i++)
@@ -82,49 +88,6 @@ void Matrix::display() const
             cout << setw(12) << mat[i][j] << " ";
         cout << endl;
     }
-}
-
-// ================= CHECK SYMMETRIC =================
-bool Matrix::isSymmetric() const
-{
-    if (rows != cols)  // must be square
-        return false;
-
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            if (mat[i][j] != mat[j][i])
-                return false;
-
-    return true;
-}
-
-// ================= CHECK DIAGONALLY DOMINANT =================
-bool Matrix::isDiagonallyDominant() const
-{
-    for (int i = 0; i < rows; i++)
-    {
-        long double sum = 0;
-
-        for (int j = 0; j < cols; j++)
-            if (i != j)
-                sum += abs(mat[i][j]);
-
-        if (abs(mat[i][i]) < sum)
-            return false;
-    }
-
-    return true;
-}
-
-// ================= MAKE DIAGONALLY DOMINANT =================
-bool Matrix::makeDiagonallyDominant()
-{
-    for (int i = 0; i < rows; i++)
-        for (int j = i + 1; j < rows; j++)
-            if (abs(mat[j][i]) > abs(mat[i][i]))
-                swap(mat[i], mat[j]);
-
-    return isDiagonallyDominant();
 }
 
 // ================= BASIC PIVOTING =================
@@ -138,6 +101,8 @@ void Matrix::basicPivoting(int currIndex)
             return;
         }
     }
+
+    throw runtime_error("Matrix is singular. Cannot pivot.");
 }
 
 // ================= WITHOUT PIVOT =================
@@ -145,6 +110,9 @@ void Matrix::upperTriangularWithoutPivot()
 {
     for (int i = 0; i < rows; i++)
     {
+        if (mat[i][i] == 0)
+            throw runtime_error("Zero pivot encountered.");
+
         long double diag = mat[i][i];
 
         for (int j = 0; j < cols; j++)
@@ -168,6 +136,9 @@ void Matrix::upperTriangularWithPivot()
         if (mat[i][i] == 0)
             basicPivoting(i);
 
+        if (mat[i][i] == 0)
+            throw runtime_error("Matrix is singular after pivoting.");
+
         long double diag = mat[i][i];
 
         for (int j = 0; j < cols; j++)
@@ -184,7 +155,7 @@ void Matrix::upperTriangularWithPivot()
 }
 
 // ================= BACK SUBSTITUTION =================
-Matrix Matrix::backSubstitution()
+Matrix Matrix::backSubstitution() const
 {
     Matrix sol(rows, 1);
 
@@ -213,9 +184,12 @@ Matrix Matrix::solveWithPivot()
 }
 
 // ================= SAVE FOR GNUPLOT =================
-void Matrix::saveSolution(string filename)
+void Matrix::saveSolution(const string &filename) const
 {
     ofstream file(filename);
+
+    if (!file)
+        throw runtime_error("Error creating output file.");
 
     for (int i = 0; i < rows; i++)
         file << i + 1 << " " << mat[i][0] << endl;

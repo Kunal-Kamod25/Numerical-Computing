@@ -1,76 +1,82 @@
-#include "Matrix.hpp"  // including our matrix header file
-#include <fstream>      // for writing solution file
-#include <cstdlib>      // for system() function
+#include "Matrix.hpp"   //contains Gaussian elimination functions
+#include <fstream>      // for file handling
+#include <cstdlib>      // for system() command to run gnuplot script
+#include <iostream>  
 
 using namespace std;
 
 int main()
 {
-    int n;  // variable to store size of system
-
-    cout << "Enter size of system: "; 
-    cin >> n;  // user enters n (example 500)
-
-    Matrix A(n, n);   // create matrix A (left side)
-    Matrix B(n, 1);   // create matrix B (right side column)
-
-    A.readFromFile("A.txt");
-    B.readFromFile("B.txt");
-
-    // Create augmented matrix [A | B]
-    Matrix Aug(n, n + 1);  // n rows and n+1 columns
-
-    // copying A and B into augmented matrix
-    for (int i = 0; i < n; i++)
+    try
     {
-        // copy A part
-        for (int j = 0; j < n; j++)
-            Aug.mat[i][j] = A.mat[i][j];
+        int n;  // size of the linear system (number of equations)
 
-        // copy B part (last column)
-        Aug.mat[i][n] = B.mat[i][0];
+        // asking user to enter size
+        cout << "Enter size of system: ";
+        cin >> n;
+
+        // creating coefficient matrix A (n x n)
+        Matrix A(n, n);
+
+        // creating RHS matrix B (n x 1)
+        Matrix B(n, 1);
+
+        // reading matrix data from files
+        // make sure A.txt and B.txt exist in same folder
+        A.readFromFile("A.txt");
+        B.readFromFile("B.txt");
+
+        // creating augmented matrix [A | B]
+        // it will have n rows and n+1 columns
+        Matrix Aug(n, n + 1);
+
+        // copying A and B into augmented matrix manually
+        // this loop basically forms [A | B]
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+                Aug.mat[i][j] = A.mat[i][j];   // copying A values
+
+            Aug.mat[i][n] = B.mat[i][0];       // putting B in last column
+        }
+
+        cout << "\nSolving WITHOUT Pivoting:\n";
+
+        // making a copy of augmented matrix
+        // so original Aug does not change
+        Matrix sol1 = Aug;
+
+        // solving using normal Gaussian elimination
+        // this may fail if pivot element becomes zero
+        sol1 = sol1.solveWithoutPivot();
+
+        // printing solution
+        sol1.display();
+
+        cout << "\nSolving WITH Pivoting:\n";
+
+        // again copying original augmented matrix
+        Matrix sol2 = Aug;
+
+        // solving using partial pivoting (safer and more stable)
+        sol2 = sol2.solveWithPivot();
+
+        // displaying final solution
+        sol2.display();
+
+        // saving solution in file (used for plotting)
+        sol2.saveSolution("solution.dat");
+
+        // running gnuplot script automatically
+        system("gnuplot plot.gnu");
+    }
+    catch (const exception &e)
+    {
+        // if any error occurs (like zero pivot), it will come here
+        cout << "\nError occurred: " << e.what() << endl;
+        cout << "Check your matrix values or try pivoting method.\n";
     }
 
-    cout << "\nSolving WITHOUT Pivoting:\n";
-
-    Matrix sol1 = Aug;  // copy constructor used here
-    sol1 = sol1.solveWithoutPivot();  // solving
-    sol1.display();  // printing solution
-
-    cout << "\nSolving WITH Pivoting:\n";
-
-    Matrix sol2 = Aug;  // again copy constructor used
-    sol2 = sol2.solveWithPivot();  // solving with pivot
-    sol2.display();  // printing solution
-
-    // ==============================
-    // GNU PLOT SECTION STARTS HERE
-    // ==============================
-
-    ofstream outfile("solution.dat");  // file to store results
-
-    // writing solution with pivot to file
-    for (int i = 0; i < n; i++)
-    {
-        // writing index and solution value
-        outfile << i + 1 << " " << sol2.mat[i][0] << endl;
-    }
-
-    outfile.close();  // close file
-
-    // creating gnuplot command file
-    ofstream plotfile("plot.gnu");
-
-    plotfile << "set title 'Solution of Linear System'\n";
-    plotfile << "set xlabel 'Variable Index'\n";
-    plotfile << "set ylabel 'Solution Value'\n";
-    plotfile << "plot 'solution.dat' using 1:2 with linespoints\n";
-    plotfile << "pause -1\n";
-
-    plotfile.close();  // close plot file
-
-    // run gnuplot automatically
-    system("gnuplot plot.gnu");
-
-    return 0;  // program ends
+    // program finished successfully
+    return 0;
 }

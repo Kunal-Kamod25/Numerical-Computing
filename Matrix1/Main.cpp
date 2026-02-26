@@ -15,14 +15,17 @@ int main()
         cout << "Enter number of RHS columns: ";
         cin >> m;
 
+        // Create coefficient matrix A (n x n) and RHS matrix B (n x m)
         Matrix A(n, n);
         Matrix B(n, m);
 
-        A.readFromFile("225left.txt");
-        B.readFromFile("225right.txt");
+        // Read matrices from files 
+        A.readFromFile("49l.txt");
+        B.readFromFile("49r.txt");
 
         Matrix Aug(n, n + m);
 
+        // coping A and B into augmented matrix [A | B]
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 Aug.mat[i][j] = A.mat[i][j];
@@ -31,15 +34,18 @@ int main()
             for (int j = 0; j < m; j++)
                 Aug.mat[i][n + j] = B.mat[i][j];
 
-        cout << "\nSolving WITH Partial Pivoting...\n";
+        cout << "\nSolving with partial pivoting...\n";
 
+        // uppertriangular withpivot()
         Matrix solution = Aug.solveWithPivot();
 
         cout << "\nSolution:\n";
 
-        solution.saveSolution("solution.dat");
-        cout << "\nSolution saved to solution.dat\n";
+        // output file
+        solution.saveSolution("solution.data");
+        cout << "\nSolution saved to solution.data\n";
 
+        // graph solution using gnuplot
         system("gnuplot plot.gnu_graph");
 
     }

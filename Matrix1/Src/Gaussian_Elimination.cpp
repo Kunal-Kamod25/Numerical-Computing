@@ -34,34 +34,34 @@ Matrix::Matrix(const Matrix &other)
 }
 
 // ================= OPERATOR + =================
-Matrix Matrix::operator+(const Matrix &other) const
-{
-    if (rows != other.rows || cols != other.cols)
-        throw invalid_argument("Matrix size mismatch for addition.");
+// Matrix Matrix::operator+(const Matrix &other) const
+// {
+//     if (rows != other.rows || cols != other.cols)
+//         throw invalid_argument("Matrix size mismatch for addition.");
 
-    Matrix result(rows, cols);
+//     Matrix result(rows, cols);
 
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            result.mat[i][j] = mat[i][j] + other.mat[i][j];
+//     for (int i = 0; i < rows; i++)
+//         for (int j = 0; j < cols; j++)
+//             result.mat[i][j] = mat[i][j] + other.mat[i][j];
 
-    return result;
-}
+//     return result;
+// }
 
 // ================= OPERATOR - =================
-Matrix Matrix::operator-(const Matrix &other) const
-{
-    if (rows != other.rows || cols != other.cols)
-        throw invalid_argument("Matrix size mismatch for subtraction.");
+// Matrix Matrix::operator-(const Matrix &other) const
+// {
+//     if (rows != other.rows || cols != other.cols)
+//         throw invalid_argument("Matrix size mismatch for subtraction.");
 
-    Matrix result(rows, cols);
+//     Matrix result(rows, cols);
 
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            result.mat[i][j] = mat[i][j] - other.mat[i][j];
+//     for (int i = 0; i < rows; i++)
+//         for (int j = 0; j < cols; j++)
+//             result.mat[i][j] = mat[i][j] - other.mat[i][j];
 
-    return result;
-}
+//     return result;
+// }
 
 // ================= READ FROM FILE =================
 void Matrix::readFromFile(const string &filename)
@@ -78,7 +78,7 @@ void Matrix::readFromFile(const string &filename)
 
     file.close();
 }
-// ================= BASIC PIVOTING =================
+// ================= BASIC/PARTIAL PIVOTING =================
 void Matrix::basicPivoting(int currIndex)
 {
     int maxRow = currIndex;
@@ -95,7 +95,7 @@ void Matrix::basicPivoting(int currIndex)
         if (rowMax == 0.0)
             throw runtime_error("Zero row encountered.");
 
-        long double ratio = fabsl(mat[i][currIndex]) / rowMax;
+        long double ratio = fabsl(mat[i][currIndex]) / rowMax; // check 
 
         if (ratio > maxRatio)
         {
@@ -104,14 +104,14 @@ void Matrix::basicPivoting(int currIndex)
         }
     }
 
-    if (fabsl(mat[maxRow][currIndex]) < 1e-18)
-        throw runtime_error("Matrix is singular or nearly singular.");
+    if (fabsl(mat[maxRow][currIndex]) < 1e-18) // check for zero pivot after scaling
+        throw runtime_error("Matrix is singular or nearly singular."); 
 
     if (maxRow != currIndex)
         swap(mat[currIndex], mat[maxRow]);
 }
 
-// ================= WITH PIVOT =================
+// ================= UPPER TRIANGULAR WITH PIVOT =================
 void Matrix::upperTriangularWithPivot()
 {
     for (int i = 0; i < rows; i++)
@@ -169,7 +169,7 @@ Matrix Matrix::solveWithPivot()
     return backSubstitution();
 }
 
-// ================= SAVE SOLUTION (Formatted x,y,z style) =================
+// ================= SAVE SOLUTION  =================
 void Matrix::saveSolution(const string &filename) const
 {
     ofstream file(filename);

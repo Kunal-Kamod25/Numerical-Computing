@@ -93,16 +93,22 @@ void Matrix::display() const
 // ================= BASIC PIVOTING =================
 void Matrix::basicPivoting(int currIndex)
 {
+    int maxRow = currIndex;
+    // Look for the LARGEST absolute value to ensure stability
     for (int i = currIndex + 1; i < rows; i++)
     {
-        if (mat[i][currIndex] != 0)
+        if (std::abs(mat[i][currIndex]) > std::abs(mat[maxRow][currIndex]))
         {
-            swap(mat[i], mat[currIndex]);
-            return;
+            maxRow = i;
         }
     }
 
-    throw runtime_error("Matrix is singular. Cannot pivot.");
+    if (std::abs(mat[maxRow][currIndex]) < 1e-20) // Effectively zero
+        throw runtime_error("Matrix is singular. Cannot pivot.");
+
+    if (maxRow != currIndex)
+        swap(mat[currIndex], mat[maxRow]);
+
 }
 
 // ================= WITHOUT PIVOT =================
@@ -157,14 +163,25 @@ void Matrix::upperTriangularWithPivot()
 // ================= BACK SUBSTITUTION =================
 Matrix Matrix::backSubstitution() const
 {
+    // rows is 225, cols is 226 (Augmented)
     Matrix sol(rows, 1);
 
     for (int i = rows - 1; i >= 0; i--)
     {
-        sol.mat[i][0] = mat[i][cols - 1];
+        // Start with the value in the augmented column (the RHS)
+        long double sum = mat[i][cols - 1];
 
+        // Subtract known values. Note: j stops at rows (which is cols-1)
         for (int j = i + 1; j < rows; j++)
-            sol.mat[i][0] -= mat[i][j] * sol.mat[j][0];
+        {
+            sum -= mat[i][j] * sol.mat[j][0];
+        }
+
+        // Divide by the diagonal element
+        if (std::abs(mat[i][i]) < 1e-20)
+            throw runtime_error("Division by zero in back substitution.");
+            
+        sol.mat[i][0] = sum / mat[i][i];
     }
 
     return sol;

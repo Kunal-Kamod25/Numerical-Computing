@@ -22,9 +22,8 @@ int main()
         Matrix B(n, 1);
 
         // reading matrix data from files
-        // make sure A.txt and B.txt exist in same folder
-        A.readFromFile("A.txt");
-        B.readFromFile("B.txt");
+        A.readFromFile("225left.txt");
+        B.readFromFile("225right.txt");
 
         // creating augmented matrix [A | B]
         // it will have n rows and n+1 columns

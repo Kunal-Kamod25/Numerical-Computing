@@ -1,7 +1,5 @@
-#include "Matrix.hpp"   //contains Gaussian elimination functions
-#include <fstream>      // for file handling
-#include <cstdlib>      // for system() command to run gnuplot script
-#include <iostream>  
+#include "Matrix.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -9,73 +7,136 @@ int main()
 {
     try
     {
-        int n;  // size of the linear system (number of equations)
-
-        // asking user to enter size
+        int n;
         cout << "Enter size of system: ";
         cin >> n;
 
-        // creating coefficient matrix A (n x n)
+        int m;
+        cout << "Enter number of RHS columns: ";
+        cin >> m;
+
         Matrix A(n, n);
+        Matrix B(n, m);
 
-        // creating RHS matrix B (n x 1)
-        Matrix B(n, 1);
-
-        // reading matrix data from files
         A.readFromFile("225left.txt");
         B.readFromFile("225right.txt");
 
-        // creating augmented matrix [A | B]
-        // it will have n rows and n+1 columns
-        Matrix Aug(n, n + 1);
+        Matrix Aug(n, n + m);
 
-        // copying A and B into augmented matrix manually
-        // this loop basically forms [A | B]
         for (int i = 0; i < n; i++)
-        {
             for (int j = 0; j < n; j++)
-                Aug.mat[i][j] = A.mat[i][j];   // copying A values
+                Aug.mat[i][j] = A.mat[i][j];
 
-            Aug.mat[i][n] = B.mat[i][0];       // putting B in last column
-        }
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                Aug.mat[i][n + j] = B.mat[i][j];
 
-        cout << "\nSolving WITHOUT Pivoting:\n";
+        cout << "\nSolving WITH Partial Pivoting...\n";
 
-        // making a copy of augmented matrix
-        // so original Aug does not change
-        Matrix sol1 = Aug;
+        Matrix solution = Aug.solveWithPivot();
 
-        // solving using normal Gaussian elimination
-        // this may fail if pivot element becomes zero
-        sol1 = sol1.solveWithoutPivot();
+        cout << "\nSolution:\n";
 
-        // printing solution
-        sol1.display();
+        solution.saveSolution("solution.dat");
+        cout << "\nSolution saved to solution.dat\n";
 
-        cout << "\nSolving WITH Pivoting:\n";
+        system("gnuplot plot.gnu_graph");
 
-        // again copying original augmented matrix
-        Matrix sol2 = Aug;
-
-        // solving using partial pivoting (safer and more stable)
-        sol2 = sol2.solveWithPivot();
-
-        // displaying final solution
-        sol2.display();
-
-        // saving solution in file (used for plotting)
-        sol2.saveSolution("solution.dat");
-
-        // running gnuplot script automatically
-        system("gnuplot plot.gnu");
     }
     catch (const exception &e)
     {
-        // if any error occurs (like zero pivot), it will come here
-        cout << "\nError occurred: " << e.what() << endl;
-        cout << "Check your matrix values or try pivoting method.\n";
+        cout << "\nError: " << e.what() << endl;
     }
 
-    // program finished successfully
     return 0;
 }
+
+
+
+
+
+
+// #include "Matrix.hpp"   //contains Gaussian elimination functions
+// #include <fstream>      // for file handling
+// #include <cstdlib>      // for system() command to run gnuplot script
+// #include <iostream>  
+
+// using namespace std;
+
+// int main()
+// {
+//     try
+//     {
+//         int n;  // size of the linear system (number of equations)
+
+//         // asking user to enter size
+//         cout << "Enter size of system: ";
+//         cin >> n;
+
+//         // creating coefficient matrix A (n x n)
+//         Matrix A(n, n);
+
+//         // creating RHS matrix B (n x 1)
+//         Matrix B(n, 1);
+
+//         // reading matrix data from files
+//         A.readFromFile("225left.txt");
+//         B.readFromFile("225right.txt");
+
+//         // creating augmented matrix [A | B]
+//         // it will have n rows and n+1 columns
+//         Matrix Aug(n, n + 1);
+
+//         // copying A and B into augmented matrix manually
+//         // this loop basically forms [A | B]
+//         for (int i = 0; i < n; i++)
+//         {
+//             for (int j = 0; j < n; j++)
+//                 Aug.mat[i][j] = A.mat[i][j];   // copying A values
+
+//             Aug.mat[i][n] = B.mat[i][0];       // putting B in last column
+//         }
+
+//         cout << "\nSolving WITHOUT Pivoting:\n";
+
+//         // making a copy of augmented matrix
+//         // so original Aug does not change
+//         Matrix sol1 = Aug;
+
+//         // solving using normal Gaussian elimination
+//         // this may fail if pivot element becomes zero
+//         sol1 = sol1.solveWithoutPivot();
+
+//         // printing solution
+//         sol1.display();
+
+//         cout << "\nSolving WITH Pivoting:\n";
+
+//         // again copying original augmented matrix
+//         Matrix sol2 = Aug;
+
+//         // solving using partial pivoting (safer and more stable)
+//         sol2 = sol2.solveWithPivot();
+
+//         // displaying final solution
+//         sol2.display();
+
+//         // saving solution in file (used for plotting)
+//         sol2.saveSolution("solution.dat");
+
+//         // running gnuplot script automatically
+//         system("gnuplot plot.gnu");
+//     }
+//     catch (const exception &e)
+//     {
+//         // if any error occurs (like zero pivot), it will come here
+//         cout << "\nError occurred: " << e.what() << endl;
+//         cout << "Check your matrix values or try pivoting method.\n";
+//     }
+
+//     // program finished successfully
+//     return 0;
+// }
+
+
+

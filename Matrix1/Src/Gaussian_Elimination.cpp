@@ -78,60 +78,37 @@ void Matrix::readFromFile(const string &filename)
 
     file.close();
 }
-
-// ================= DISPLAY =================
-void Matrix::display() const
-{
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-            cout << setw(12) << mat[i][j] << " ";
-        cout << endl;
-    }
-}
-
 // ================= BASIC PIVOTING =================
 void Matrix::basicPivoting(int currIndex)
 {
     int maxRow = currIndex;
-    // Look for the LARGEST absolute value to ensure stability
-    for (int i = currIndex + 1; i < rows; i++)
+    long double maxRatio = 0.0;
+
+    for (int i = currIndex; i < rows; i++)
     {
-        if (std::abs(mat[i][currIndex]) > std::abs(mat[maxRow][currIndex]))
+        long double rowMax = 0.0;
+
+        // Find largest element in row
+        for (int j = currIndex; j < cols; j++)
+            rowMax = max(rowMax, fabsl(mat[i][j]));
+
+        if (rowMax == 0.0)
+            throw runtime_error("Zero row encountered.");
+
+        long double ratio = fabsl(mat[i][currIndex]) / rowMax;
+
+        if (ratio > maxRatio)
         {
+            maxRatio = ratio;
             maxRow = i;
         }
     }
 
-    if (std::abs(mat[maxRow][currIndex]) < 1e-20) // Effectively zero
-        throw runtime_error("Matrix is singular. Cannot pivot.");
+    if (fabsl(mat[maxRow][currIndex]) < 1e-18)
+        throw runtime_error("Matrix is singular or nearly singular.");
 
     if (maxRow != currIndex)
         swap(mat[currIndex], mat[maxRow]);
-
-}
-
-// ================= WITHOUT PIVOT =================
-void Matrix::upperTriangularWithoutPivot()
-{
-    for (int i = 0; i < rows; i++)
-    {
-        if (mat[i][i] == 0)
-            throw runtime_error("Zero pivot encountered.");
-
-        long double diag = mat[i][i];
-
-        for (int j = 0; j < cols; j++)
-            mat[i][j] /= diag;
-
-        for (int j = i + 1; j < rows; j++)
-        {
-            long double factor = mat[j][i];
-
-            for (int k = 0; k < cols; k++)
-                mat[j][k] -= factor * mat[i][k];
-        }
-    }
 }
 
 // ================= WITH PIVOT =================
@@ -139,22 +116,21 @@ void Matrix::upperTriangularWithPivot()
 {
     for (int i = 0; i < rows; i++)
     {
-        if (mat[i][i] == 0)
-            basicPivoting(i);
+        basicPivoting(i);
 
-        if (mat[i][i] == 0)
-            throw runtime_error("Matrix is singular after pivoting.");
+        if (abs(mat[i][i]) < 1e-18)
+            throw runtime_error("Matrix is singular or nearly singular.");
 
         long double diag = mat[i][i];
 
-        for (int j = 0; j < cols; j++)
+        for (int j = i; j < cols; j++)
             mat[i][j] /= diag;
 
         for (int j = i + 1; j < rows; j++)
         {
             long double factor = mat[j][i];
 
-            for (int k = 0; k < cols; k++)
+            for (int k = i; k < cols; k++)
                 mat[j][k] -= factor * mat[i][k];
         }
     }
@@ -163,35 +139,28 @@ void Matrix::upperTriangularWithPivot()
 // ================= BACK SUBSTITUTION =================
 Matrix Matrix::backSubstitution() const
 {
-    // rows is 225, cols is 226 (Augmented)
-    Matrix sol(rows, 1);
+    int n = rows;
+    int m = cols - n;
 
-    for (int i = rows - 1; i >= 0; i--)
+    Matrix sol(n, m);
+
+    for (int k = 0; k < m; k++)
     {
-        // Start with the value in the augmented column (the RHS)
-        long double sum = mat[i][cols - 1];
-
-        // Subtract known values. Note: j stops at rows (which is cols-1)
-        for (int j = i + 1; j < rows; j++)
+        for (int i = n - 1; i >= 0; i--)
         {
-            sum -= mat[i][j] * sol.mat[j][0];
-        }
+            long double sum = mat[i][n + k];
 
-        // Divide by the diagonal element
-        if (std::abs(mat[i][i]) < 1e-20)
-            throw runtime_error("Division by zero in back substitution.");
-            
-        sol.mat[i][0] = sum / mat[i][i];
+            for (int j = i + 1; j < n; j++)
+                sum -= mat[i][j] * sol.mat[j][k];
+
+            if (abs(mat[i][i]) < 1e-18)
+                throw runtime_error("Division by zero in back substitution.");
+
+            sol.mat[i][k] = sum / mat[i][i];
+        }
     }
 
     return sol;
-}
-
-// ================= SOLVE =================
-Matrix Matrix::solveWithoutPivot()
-{
-    upperTriangularWithoutPivot();
-    return backSubstitution();
 }
 
 Matrix Matrix::solveWithPivot()
@@ -200,16 +169,20 @@ Matrix Matrix::solveWithPivot()
     return backSubstitution();
 }
 
-// ================= SAVE FOR GNUPLOT =================
+// ================= SAVE SOLUTION (Formatted x,y,z style) =================
 void Matrix::saveSolution(const string &filename) const
 {
     ofstream file(filename);
-
     if (!file)
         throw runtime_error("Error creating output file.");
 
+    long double maxVal = 0.0;
+
     for (int i = 0; i < rows; i++)
-        file << i + 1 << " " << mat[i][0] << endl;
+        maxVal = max(maxVal, fabsl(mat[i][0]));
+
+    for (int i = 0; i < rows; i++)
+        file << i << " " << mat[i][0] / maxVal << endl;
 
     file.close();
 }

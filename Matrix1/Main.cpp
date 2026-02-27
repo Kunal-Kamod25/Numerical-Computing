@@ -20,8 +20,8 @@ int main()
         Matrix B(n, m);
 
         // ================= READ FROM FILE =================
-        A.readFromFile("225left.txt");
-        B.readFromFile("225right.txt");
+        A.readFromFile("49l.txt");
+        B.readFromFile("49r.txt");
 
         // ================= CREATE AUGMENTED MATRIX =================
         Matrix Aug(n, n + m);
@@ -56,8 +56,7 @@ int main()
             cout << "Without pivoting failed: " << e.what() << endl;
             cout << "Switching to partial pivoting...\n";
 
-            // again deep copy of Aug — safe because of how vector copies work
-            Matrix temp = Aug;
+            Matrix temp = Aug; // Fresh dep copy of original aug
             solution = temp.solveWithPivot();
             cout << "Solved WITH pivoting.\n";
         }

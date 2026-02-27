@@ -1,3 +1,5 @@
+set terminal x11
+
 set title "X vs Y Graph"
 set xlabel "X"
 set ylabel "Y"

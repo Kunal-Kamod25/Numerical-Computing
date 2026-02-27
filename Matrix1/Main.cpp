@@ -52,10 +52,17 @@ int main()
                 cout << "Without pivoting failed: " << e.what() << endl;
                 cout << "Switching to partial pivoting...\n";
 
+<<<<<<< HEAD
                 Matrix temp = Aug;
                 solution = temp.solveWithPivot();
                 cout << "Solved WITH pivoting.\n";
             }
+=======
+            Matrix temp = Aug; // Fresh dep copy of original aug
+            solution = temp.solveWithPivot();
+            cout << "Solved WITH pivoting.\n";
+        }
+>>>>>>> 0248e923e3fabefa515a8d2f46adb40e4c7bc3a1
 
             catch (const exception &e)
             {

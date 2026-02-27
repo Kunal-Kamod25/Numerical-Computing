@@ -5,30 +5,38 @@
 #include <vector>
 #include <string>
 
-// define class
-class Matrix
+// ================= BASE CLASS =================
+class BaseMatrix
 {
-public: // accessible outside the class
+public:
     int rows, cols;
     std::vector<std::vector<long double>> mat;
-    
-    // SMF initilizes the object
-    Matrix(); // Default constructor
-    Matrix(int r, int c); // Parameterized constructor
-    Matrix(const Matrix &other); // Copy constructor
 
-    // Matrix operator+(const Matrix &other) const;
-    // Matrix operator-(const Matrix &other) const;
+    BaseMatrix();
+    BaseMatrix(int r, int c);
+    BaseMatrix(const BaseMatrix &other);
 
     void readFromFile(const std::string &filename);
-    // void display() const;
+};
+
+// ================= DERIVED CLASS =================
+class Matrix : public BaseMatrix
+{
+public:
+    Matrix();
+    Matrix(int r, int c);
+    Matrix(const Matrix &other);
+
+    // Operator Overloading
+    Matrix operator+(const Matrix &other) const;
+    Matrix operator-(const Matrix &other) const;
 
     void basicPivoting(int currIndex);
+    void upperTriangularWithoutPivot();
     void upperTriangularWithPivot();
     Matrix backSubstitution() const;
-    Matrix solveWithPivot(); // solve function
-
-    // Modified for formatted solution output
+    Matrix solveWithPivot();
+    Matrix solveWithoutPivot();
     void saveSolution(const std::string &filename) const;
 };
 

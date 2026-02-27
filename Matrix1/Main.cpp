@@ -43,7 +43,11 @@ int main()
 
         try
         {
-            Matrix temp = Aug;   // fresh copy
+            // Matrix temp = Aug uses copy constructor
+            // this is a DEEP COPY — temp.mat is brand new, Aug.mat is untouched
+            // so when solveWithoutPivot() modifies temp, Aug stays the same
+            // this lets us try again with pivot using the original Aug
+            Matrix temp = Aug;
             solution = temp.solveWithoutPivot();
             cout << "Solved WITHOUT pivoting.\n";
         }
@@ -52,9 +56,28 @@ int main()
             cout << "Without pivoting failed: " << e.what() << endl;
             cout << "Switching to partial pivoting...\n";
 
-            Matrix temp = Aug;   // fresh copy again
+            // again deep copy of Aug — safe because of how vector copies work
+            Matrix temp = Aug;
             solution = temp.solveWithPivot();
             cout << "Solved WITH pivoting.\n";
+        }
+
+        // ================= DEMO: * and / operators =================
+        // just showing how to use them if you have two same-size matrices
+        // A * A  = matrix multiplication
+        // A / A  = element-wise division (diagonal must be non-zero)
+        try
+        {
+            Matrix AA = A * A;
+            cout << "A * A computed successfully.\n";
+
+            // element-wise A / A would give 1s if no zeros on diagonal
+            // Matrix AD = A / A;
+            // cout << "A / A computed successfully.\n";
+        }
+        catch (const exception &e)
+        {
+            cout << "Operator demo error: " << e.what() << endl;
         }
 
         // ================= SAVE SOLUTION =================

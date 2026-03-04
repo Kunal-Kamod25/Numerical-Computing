@@ -26,31 +26,6 @@ BaseMatrix::BaseMatrix(int r, int c)
 
     mat.resize(rows, vector<long double>(cols, 0));
 }
-
-// -----------------------------------------------------------------------
-// COPY CONSTRUCTOR - DEEP COPY EXPLANATION
-// -----------------------------------------------------------------------
-// In C++, there are two kinds of copies:
-//
-// SHALLOW COPY:
-//   - Just copies the pointer or reference, not the actual data
-//   - Both objects point to the SAME memory
-//   - If one changes data, the other is affected too — dangerous!
-//   - C++ default copy does shallow copy for raw pointers (int*, etc.)
-//
-// DEEP COPY:
-//   - Actually copies all the data into a NEW memory location
-//   - Both objects are fully independent
-//   - Changing one does NOT affect the other
-//
-// In OUR program:
-//   - We use std::vector<std::vector<long double>> for mat
-//   - std::vector already manages its own memory and copies deeply by default
-//   - So when we write:  mat = other.mat;
-//     it creates a brand new 2D vector with all values copied
-//     this IS a deep copy — not just copying a pointer
-//
-// Example in our code:
 //   Matrix temp = Aug;  <-- this calls copy constructor
 //   Now temp.mat and Aug.mat are completely separate
 //   When temp gets modified by solveWithoutPivot(), Aug stays unchanged
@@ -63,7 +38,7 @@ BaseMatrix::BaseMatrix(const BaseMatrix &other)
 {
     rows = other.rows;
     cols = other.cols;
-    mat = other.mat; // deep copy because std::vector copies all elements
+    mat = other.mat; // deep copy because std::vector copies all elements // new 2d matrix
 }
 
 // Read From File
@@ -80,6 +55,12 @@ void BaseMatrix::readFromFile(const string &filename)
                 throw runtime_error("Error reading matrix data.");
 
     file.close();
+}
+
+// Provide concrete implementation for Matrix::readFromFile
+void Matrix::readFromFile(const string &filename)
+{
+    BaseMatrix::readFromFile(filename);
 }
 
 
@@ -117,7 +98,7 @@ Matrix Matrix::operator-(const Matrix &other) const
     if (rows != other.rows || cols != other.cols)
         throw invalid_argument("Matrix size mismatch for subtraction.");
 
-    Matrix result(rows, cols);
+    Matrix result(rows, cols);// object created
 
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
@@ -128,9 +109,6 @@ Matrix Matrix::operator-(const Matrix &other) const
 
 
 // ================= OPERATOR * (MATRIX MULTIPLICATION) =================
-// Standard matrix multiplication: result[i][j] = sum of row i of A * col j of B
-// A must have same number of cols as B has rows
-// We copy *this into a local object to show how copy works here
 Matrix Matrix::operator*(const Matrix &other) const
 {
     // cols of left matrix must equal rows of right matrix
@@ -172,7 +150,6 @@ Matrix Matrix::operator/(const Matrix &other) const
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
         {
-            // BUG FIX: must check for zero before dividing
             if (fabsl(other.mat[i][j]) < 1e-18)
                 throw runtime_error("Division by zero in operator/.");
 
@@ -184,7 +161,6 @@ Matrix Matrix::operator/(const Matrix &other) const
 
 
 // ================= BASIC/PARTIAL PIVOTING =================
-// BUG NOTE: original code was fine here
 // just making sure cols check uses full augmented width — it does, ok
 void Matrix::basicPivoting(int currIndex)
 {
@@ -303,12 +279,10 @@ Matrix Matrix::backSubstitution() const
             for (int j = i + 1; j < n; j++)
                 sum -= mat[i][j] * sol.mat[j][k];
 
-            // BUG FIX: was abs(), should be fabsl() for long double
             if (fabsl(mat[i][i]) < 1e-18)
                 throw runtime_error("Division by zero in back substitution.");
 
             // after upper triangular, diagonal should be 1.0 (we divided by diag earlier)
-            // but we still divide here for safety in case it wasnt normalized
             // sol[i][k] = (rhs - known terms) / diagonal coefficient
             sol.mat[i][k] = sum / mat[i][i];
         }
@@ -347,3 +321,28 @@ void Matrix::saveSolution(const string &filename) const
 
     file.close();
 }
+
+
+
+
+
+// Backsubstitution two
+Matrix Matrix::backsubstitution2() const
+{
+    int n = rows;
+    int m = cols - n;
+
+    //sol matrix
+    Matrix sol2(n, m);
+
+    for(int k = 0; k < m; k++) // outer loop for right side coloumns
+        for(int i = n-1; i >= 0; i--) // bottom se up 
+        {
+        double sum = mat[i][n+k]; // start with rhs value
+        for(int j= i + 1; j<n; j++)// subtract already solverd part
+            sum = sum - mat[i][j] * sol2.mat[j][k];
+            sol2.mat[i][k] = sum / mat[i][i]; //divide by diagonal element
+        }
+        return sol2;
+}
+

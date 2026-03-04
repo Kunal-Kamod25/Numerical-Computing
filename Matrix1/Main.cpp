@@ -20,8 +20,8 @@ int main()
         Matrix B(n, m);
 
         // ================= READ FROM FILE =================
-        A.readFromFile("49l.txt");
-        B.readFromFile("49r.txt");
+        A.readFromFile("Large_Matrix/225left.txt");
+        B.readFromFile("Large_Matrix/225right.txt");
 
         // ================= CREATE AUGMENTED MATRIX =================
         Matrix Aug(n, n + m);
@@ -43,7 +43,7 @@ int main()
 
        try
             {
-                Matrix temp = Aug;
+                Matrix temp = Aug; // copy constructor called here to create a local copy for solving
                 solution = temp.solveWithoutPivot();
                 cout << "Solved WITHOUT pivoting.\n";
             }
@@ -52,22 +52,11 @@ int main()
                 cout << "Without pivoting failed: " << e.what() << endl;
                 cout << "Switching to partial pivoting...\n";
 
-<<<<<<< HEAD
-                Matrix temp = Aug;
+                Matrix temp = Aug; // create a fresh copy again for pivoting solution
                 solution = temp.solveWithPivot();
                 cout << "Solved WITH pivoting.\n";
             }
-=======
-            Matrix temp = Aug; // Fresh dep copy of original aug
-            solution = temp.solveWithPivot();
-            cout << "Solved WITH pivoting.\n";
-        }
->>>>>>> 0248e923e3fabefa515a8d2f46adb40e4c7bc3a1
-
-            catch (const exception &e)
-            {
-                cout << "Operator demo error: " << e.what() << endl;
-            }
+            
 
         // ================= SAVE SOLUTION =================
         solution.saveSolution("solution.dat");

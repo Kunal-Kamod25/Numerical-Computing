@@ -1,0 +1,135 @@
+#include "Matrix.hpp"
+#include "LU.hpp"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int main()
+{
+    int n;
+
+    cout<<"Enter size of system: ";
+    cin>>n;
+
+    Matrix A(n,n);
+    Matrix B(n,1);
+
+    // ================= READ MATRIX FILES =================
+    if(n==49)
+    {
+        A.readFromFile("Large_Matrix/49l.txt");
+        B.readFromFile("Large_Matrix/49r.txt");
+    }
+    else if(n==225)
+    {
+        A.readFromFile("Large_Matrix/225left.txt");
+        B.readFromFile("Large_Matrix/225right.txt");
+    }
+    else
+    {
+        cout<<"Unsupported matrix size\n";
+        return 0;
+    }
+
+    ofstream file("LU_Solution_File.dat");
+
+    //////////////////////////////////////////////////////
+    // DOOLITTLE METHOD
+    //////////////////////////////////////////////////////
+
+    try
+    {
+        LU lu(n);
+
+        cout<<"\nSolving using LU Doolittle\n";
+
+        lu.doolittle(A);
+
+        Matrix solution = lu.solve(B);
+
+        file<<"==== DOOLITTLE METHOD ====\n";
+
+        for(int i=0;i<n;i++)
+        {
+            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+        }
+
+        file<<"\n";
+    }
+    catch(const exception &e)
+    {
+        cout<<"Doolittle failed: "<<e.what()<<endl;
+        file<<"==== DOOLITTLE FAILED ====\n\n";
+    }
+
+    //////////////////////////////////////////////////////
+    // CROUT METHOD
+    //////////////////////////////////////////////////////
+
+    try
+    {
+        LU lu(n);
+
+        cout<<"\nSolving using LU Crout\n";
+
+        lu.crout(A);
+
+        Matrix solution = lu.solve(B);
+
+        file<<"==== CROUT METHOD ====\n";
+
+        for(int i=0;i<n;i++)
+        {
+            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+        }
+
+        file<<"\n";
+    }
+    catch(const exception &e)
+    {
+        cout<<"Crout failed: "<<e.what()<<endl;
+        file<<"==== CROUT FAILED ====\n\n";
+    }
+
+    //////////////////////////////////////////////////////
+    // CHOLESKY METHOD
+    //////////////////////////////////////////////////////
+
+    try
+    {
+        LU lu(n);
+
+        cout<<"\nSolving using LU Cholesky\n";
+
+        lu.cholesky(A);
+
+        Matrix solution = lu.solve(B);
+
+        file<<"==== CHOLESKY METHOD ====\n";
+
+        for(int i=0;i<n;i++)
+        {
+            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+        }
+
+        file<<"\n";
+    }
+    catch(const exception &e)
+    {
+        cout<<"Cholesky failed: "<<e.what()<<endl;
+        file<<"==== CHOLESKY FAILED (Matrix not SPD) ====\n\n";
+    }
+
+    file.close();
+
+    cout<<"\nResults saved to LU_Solution_File.dat\n";
+
+    // ================= RUN GNUPLOT =================
+    system("gnuplot plot_lu.gnu");
+
+    return 0;
+}

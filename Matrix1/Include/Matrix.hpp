@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <stdexcept>
 
 // ================= BASE CLASS =================
 class BaseMatrix
@@ -16,11 +18,9 @@ public:
     BaseMatrix(int r, int c);
     BaseMatrix(const BaseMatrix &other);
 
-    // made virtual so derived class Matrix can override it if needed
-    // without virtual, even if Matrix overrides it, base pointer would call base version
+    // virtual so derived class can override it if needed; Base provides a default
     virtual void readFromFile(const std::string &filename);
 
-    // virtual destructor is important when using inheritance
     // without this, deleting a derived object through base pointer causes undefined behavior
     virtual ~BaseMatrix() {}
 };
@@ -36,21 +36,24 @@ public:
     // Operator Overloading
     Matrix operator+(const Matrix &other) const;
     Matrix operator-(const Matrix &other) const;
-
-    // ---- NEW ----
-    // operator* : matrix multiplication (uses a copy of the object internally)
     Matrix operator*(const Matrix &other) const;
-
-    // operator/ : element-wise division by another matrix (must be same size)
     Matrix operator/(const Matrix &other) const;
-    // ---- END NEW ----
 
+    // Gaussian elimination functions
     void basicPivoting(int currIndex);
     void upperTriangularWithoutPivot();
     void upperTriangularWithPivot();
+
+    // File IO
+    void readFromFile(const std::string &filename) override;
+
     Matrix backSubstitution() const;
+    Matrix backsubstitution2() const;
+
     Matrix solveWithPivot();
     Matrix solveWithoutPivot();
+
+    // Save solution to file
     void saveSolution(const std::string &filename) const;
 };
 

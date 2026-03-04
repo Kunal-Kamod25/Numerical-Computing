@@ -2,6 +2,7 @@
 #include "LU.hpp"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ int main()
     Matrix A(n,n);
     Matrix B(n,1);
 
-    // ================= READ MATRIX FILES =================
+    // ================= READ FILES =================
     if(n==49)
     {
         A.readFromFile("Large_Matrix/49l.txt");
@@ -26,6 +27,11 @@ int main()
         A.readFromFile("Large_Matrix/225left.txt");
         B.readFromFile("Large_Matrix/225right.txt");
     }
+    else if(n==4)
+    {
+        A.readFromFile("Large_Matrix/Kl.txt");
+        B.readFromFile("Large_Matrix/Kr.txt");
+    }
     else
     {
         cout<<"Unsupported matrix size\n";
@@ -34,17 +40,22 @@ int main()
 
     ofstream file("LU_Solution_File.dat");
 
+    cout<<fixed<<setprecision(6);
+    file<<fixed<<setprecision(6);
+
     //////////////////////////////////////////////////////
-    // DOOLITTLE METHOD
+    // DOOLITTLE
     //////////////////////////////////////////////////////
 
     try
     {
+        Matrix temp = A;
+
         LU lu(n);
 
-        cout<<"\nSolving using LU Doolittle\n";
+        cout<<"\nSolving using Doolittle\n";
 
-        lu.doolittle(A);
+        lu.doolittle(temp);
 
         Matrix solution = lu.solve(B);
 
@@ -52,7 +63,7 @@ int main()
 
         for(int i=0;i<n;i++)
         {
-            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
             file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
         }
 
@@ -65,16 +76,18 @@ int main()
     }
 
     //////////////////////////////////////////////////////
-    // CROUT METHOD
+    // CROUT
     //////////////////////////////////////////////////////
 
     try
     {
+        Matrix temp = A;
+
         LU lu(n);
 
-        cout<<"\nSolving using LU Crout\n";
+        cout<<"\nSolving using Crout\n";
 
-        lu.crout(A);
+        lu.crout(temp);
 
         Matrix solution = lu.solve(B);
 
@@ -82,7 +95,7 @@ int main()
 
         for(int i=0;i<n;i++)
         {
-            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
             file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
         }
 
@@ -95,16 +108,18 @@ int main()
     }
 
     //////////////////////////////////////////////////////
-    // CHOLESKY METHOD
+    // CHOLESKY
     //////////////////////////////////////////////////////
 
     try
     {
+        Matrix temp = A;
+
         LU lu(n);
 
-        cout<<"\nSolving using LU Cholesky\n";
+        cout<<"\nSolving using Cholesky\n";
 
-        lu.cholesky(A);
+        lu.cholesky(temp);
 
         Matrix solution = lu.solve(B);
 
@@ -112,7 +127,7 @@ int main()
 
         for(int i=0;i<n;i++)
         {
-            cout<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
             file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
         }
 
@@ -126,9 +141,8 @@ int main()
 
     file.close();
 
-    cout<<"\nResults saved to LU_Solution_File.dat\n";
+    cout<<"\nSolution stored in LU_Solution_File.dat\n";
 
-    // ================= RUN GNUPLOT =================
     system("gnuplot plot_lu.gnu");
 
     return 0;

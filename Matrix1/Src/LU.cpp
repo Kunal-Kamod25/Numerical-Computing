@@ -21,10 +21,7 @@ LU::LU(int n)
         P[i] = i;
 }
 
-/////////////////////////////////////////////////////////
-//// DOOLITTLE METHOD (WITH PARTIAL PIVOTING)
-/////////////////////////////////////////////////////////
-
+// DOOLITTLE METHOD (WITH PARTIAL PIVOTING)
 void LU::doolittle(const Matrix &A)
 {
     int n = A.rows;
@@ -68,25 +65,21 @@ void LU::doolittle(const Matrix &A)
             swap(temp.mat[k], temp.mat[pivotRow]);
             swap(P[k], P[pivotRow]);
         }
-
         // Compute U
         for(int j = k; j < n; j++)
         {
             long double sum = 0;
-
             for(int s = 0; s < k; s++)
                 sum += L.mat[k][s] * U.mat[s][j];
 
             U.mat[k][j] = temp.mat[k][j] - sum;
         }
-
         // Compute L
         L.mat[k][k] = 1;
 
         for(int i = k + 1; i < n; i++)
         {
             long double sum = 0;
-
             for(int s = 0; s < k; s++)
                 sum += L.mat[i][s] * U.mat[s][k];
 
@@ -95,10 +88,7 @@ void LU::doolittle(const Matrix &A)
     }
 }
 
-/////////////////////////////////////////////////////////
-//// CROUT METHOD (WITH PARTIAL PIVOTING)
-/////////////////////////////////////////////////////////
-
+//CROUT METHOD (WITH PARTIAL PIVOTING)
 void LU::crout(const Matrix &A)
 {
     int n = A.rows;
@@ -107,7 +97,6 @@ void LU::crout(const Matrix &A)
     U = Matrix(n,n);
 
     Matrix temp = A;
-
     for(int i=0;i<n;i++)
         P[i] = i;
 
@@ -139,20 +128,17 @@ void LU::crout(const Matrix &A)
         for(int i = j; i < n; i++)
         {
             long double sum = 0;
-
             for(int k = 0; k < j; k++)
                 sum += L.mat[i][k] * U.mat[k][j];
 
             L.mat[i][j] = temp.mat[i][j] - sum;
         }
-
         U.mat[j][j] = 1;
 
         // Compute U
         for(int i = j + 1; i < n; i++)
         {
             long double sum = 0;
-
             for(int k = 0; k < j; k++)
                 sum += L.mat[j][k] * U.mat[k][i];
 
@@ -161,10 +147,7 @@ void LU::crout(const Matrix &A)
     }
 }
 
-/////////////////////////////////////////////////////////
-//// CHOLESKY METHOD
-/////////////////////////////////////////////////////////
-
+// CHOLESKY METHOD
 void LU::cholesky(const Matrix &A)
 {
     int n = A.rows;
@@ -177,14 +160,12 @@ void LU::cholesky(const Matrix &A)
         for(int j = 0; j <= i; j++)
         {
             long double sum = 0;
-
             for(int k = 0; k < j; k++)
                 sum += L.mat[i][k] * L.mat[j][k];
 
             if(i == j)
             {
                 long double value = A.mat[i][i] - sum;
-
                 if(value <= 0)
                     throw runtime_error("Matrix not positive definite.");
 
@@ -196,21 +177,16 @@ void LU::cholesky(const Matrix &A)
             }
         }
     }
-
     // U is transpose of L
     for(int i=0;i<n;i++)
         for(int j=0;j<n;j++)
             U.mat[i][j] = L.mat[j][i];
 }
 
-/////////////////////////////////////////////////////////
-//// SOLVE SYSTEM
-/////////////////////////////////////////////////////////
-
+// SOLVE SYSTEM
 Matrix LU::solve(const Matrix &B)
 {
     int n = L.rows;
-
     Matrix y(n,1);
 
     /*
@@ -227,7 +203,6 @@ Matrix LU::solve(const Matrix &B)
     for(int i = 0; i < n; i++)
     {
         long double sum = PB.mat[i][0];
-
         for(int j = 0; j < i; j++)
             sum -= L.mat[i][j] * y.mat[j][0];
 
@@ -246,6 +221,5 @@ Matrix LU::solve(const Matrix &B)
 
         x.mat[i][0] = sum / U.mat[i][i];
     }
-
     return x;
 }

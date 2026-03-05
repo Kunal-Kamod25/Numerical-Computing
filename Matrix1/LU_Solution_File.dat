@@ -1,14 +1,14 @@
 ==== DOOLITTLE METHOD ====
-x1 = nan
-x2 = nan
-x3 = inf
-x4 = -inf
+x1 = 0.214286
+x2 = -2.142857
+x3 = -3.714286
+x4 = 1.285714
 
 ==== CROUT METHOD ====
-x1 = nan
-x2 = nan
-x3 = inf
-x4 = -inf
+x1 = 0.214286
+x2 = -2.142857
+x3 = -3.714286
+x4 = 1.285714
 
 ==== CHOLESKY FAILED (Matrix not SPD) ====
 

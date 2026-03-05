@@ -20,8 +20,8 @@ int main()
         Matrix B(n, m);
 
         // ================= READ FROM FILE =================
-        A.readFromFile("Large_Matrix/Kl.txt");
-        B.readFromFile("Large_Matrix/Kr.txt");
+        A.readFromFile("Large_Matrix/Sl.txt");
+        B.readFromFile("Large_Matrix/Sr.txt");
 
         // ================= CREATE AUGMENTED MATRIX =================
         Matrix Aug(n, n + m);

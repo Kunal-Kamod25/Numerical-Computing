@@ -29,38 +29,30 @@ int main()
     }
     else if(n==4)
     {
-        A.readFromFile("Large_Matrix/Kl.txt");
-        B.readFromFile("Large_Matrix/Kr.txt");
+        A.readFromFile("Large_Matrix/Sl.txt");
+        B.readFromFile("Large_Matrix/Sr.txt");
     }
     else
     {
         cout<<"Unsupported matrix size\n";
         return 0;
     }
-
     ofstream file("LU_Solution_File.dat");
-
     cout<<fixed<<setprecision(6);
     file<<fixed<<setprecision(6);
 
-    //////////////////////////////////////////////////////
     // DOOLITTLE
-    //////////////////////////////////////////////////////
-
     try
     {
         Matrix temp = A;
-
         LU lu(n);
 
         cout<<"\nSolving using Doolittle\n";
 
         lu.doolittle(temp);
-
         Matrix solution = lu.solve(B);
 
         file<<"==== DOOLITTLE METHOD ====\n";
-
         for(int i=0;i<n;i++)
         {
             cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
@@ -75,30 +67,23 @@ int main()
         file<<"==== DOOLITTLE FAILED ====\n\n";
     }
 
-    //////////////////////////////////////////////////////
     // CROUT
-    //////////////////////////////////////////////////////
-
     try
     {
         Matrix temp = A;
-
         LU lu(n);
 
         cout<<"\nSolving using Crout\n";
 
         lu.crout(temp);
-
         Matrix solution = lu.solve(B);
 
         file<<"==== CROUT METHOD ====\n";
-
         for(int i=0;i<n;i++)
         {
             cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
             file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
         }
-
         file<<"\n";
     }
     catch(const exception &e)
@@ -107,30 +92,23 @@ int main()
         file<<"==== CROUT FAILED ====\n\n";
     }
 
-    //////////////////////////////////////////////////////
     // CHOLESKY
-    //////////////////////////////////////////////////////
-
     try
     {
         Matrix temp = A;
-
         LU lu(n);
 
         cout<<"\nSolving using Cholesky\n";
 
         lu.cholesky(temp);
-
         Matrix solution = lu.solve(B);
 
         file<<"==== CHOLESKY METHOD ====\n";
-
         for(int i=0;i<n;i++)
         {
             cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
             file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
         }
-
         file<<"\n";
     }
     catch(const exception &e)

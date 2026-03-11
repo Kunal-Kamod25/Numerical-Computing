@@ -3,9 +3,8 @@
 
 #include "Matrix.hpp"
 
-// ===========================================
 // Class for Gaussian Elimination algorithms
-// ===========================================
+
 class GaussianElimination : public Matrix
 {
 public:

@@ -1,16 +1,23 @@
 #ifndef GAUSS_ELIMINATION_HPP
 #define GAUSS_ELIMINATION_HPP
 
-// =====================================================
-// Gaussian Elimination member functions
-// =====================================================
+#include "Matrix.hpp"
 
-// Pivoting
-void basicPivoting(int currIndex);
+// Class for Gaussian Elimination algorithms
 
-// Convert matrix to upper triangular form
-void upperTriangularWithoutPivot();
+class GaussianElimination : public Matrix
+{
+public:
+    GaussianElimination() : Matrix() {}
+    GaussianElimination(int r, int c) : Matrix(r, c) {}
+    GaussianElimination(const Matrix &other) : Matrix(other) {}
 
-void upperTriangularWithPivot();
+    // Pivoting
+    void basicPivoting(int currIndex);
+
+    // Convert matrix to upper triangular form
+    virtual void upperTriangularWithoutPivot();
+    virtual void upperTriangularWithPivot();
+};
 
 #endif

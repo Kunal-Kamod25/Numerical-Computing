@@ -10,7 +10,7 @@ using namespace std;
     Initializes L and U matrices
     and prepares permutation vector.
 */
-LU::LU(int n)
+LU::LU(int n) : Matrix(n, n)
 {
     L = Matrix(n,n);
     U = Matrix(n,n);
@@ -19,6 +19,15 @@ LU::LU(int n)
 
     for(int i=0;i<n;i++)
         P[i] = i;
+}
+
+LU::LU(const Matrix &A) : Matrix(A)
+{
+    int n = A.rows;
+    L = Matrix(n,n);
+    U = Matrix(n,n);
+    P.resize(n);
+    for(int i=0;i<n;i++) P[i] = i;
 }
 
 // DOOLITTLE METHOD (WITH PARTIAL PIVOTING)
@@ -64,6 +73,9 @@ void LU::doolittle(const Matrix &A)
         {
             swap(temp.mat[k], temp.mat[pivotRow]);
             swap(P[k], P[pivotRow]);
+            // Also swap already computed elements of L
+            for(int s = 0; s < k; s++)
+                swap(L.mat[k][s], L.mat[pivotRow][s]);
         }
         // Compute U
         for(int j = k; j < n; j++)
@@ -122,6 +134,9 @@ void LU::crout(const Matrix &A)
         {
             swap(temp.mat[j], temp.mat[pivotRow]);
             swap(P[j], P[pivotRow]);
+            // Also swap already computed elements of L
+            for(int k = 0; k < j; k++)
+                swap(L.mat[j][k], L.mat[pivotRow][k]);
         }
 
         // Compute L
@@ -184,15 +199,10 @@ void LU::cholesky(const Matrix &A)
 }
 
 // SOLVE SYSTEM
-Matrix LU::solve(const Matrix &B)
+vector<long double> LU::solve(const Matrix &B)
 {
     int n = L.rows;
     Matrix y(n,1);
-
-    /*
-        Apply permutation to RHS vector
-        because pivoting changed row order
-    */
 
     Matrix PB(n,1);
 
@@ -209,7 +219,7 @@ Matrix LU::solve(const Matrix &B)
         y.mat[i][0] = sum / L.mat[i][i];
     }
 
-    Matrix x(n,1);
+    solution_vec.resize(n);
 
     // Back substitution: Ux = y
     for(int i = n-1; i >= 0; i--)
@@ -217,9 +227,9 @@ Matrix LU::solve(const Matrix &B)
         long double sum = y.mat[i][0];
 
         for(int j = i+1; j < n; j++)
-            sum -= U.mat[i][j] * x.mat[j][0];
+            sum -= U.mat[i][j] * solution_vec[j];
 
-        x.mat[i][0] = sum / U.mat[i][i];
+        solution_vec[i] = sum / U.mat[i][i];
     }
-    return x;
+    return solution_vec;
 }

@@ -20,7 +20,7 @@
     The permutation vector P stores row swaps.
 */
 
-class LU
+class LU : public Matrix
 {
 public:
 
@@ -30,6 +30,7 @@ public:
     std::vector<int> P;   // Permutation vector (for pivoting)
 
     LU(int n);
+    LU(const Matrix &A);
 
     // LU Methods
     void doolittle(const Matrix &A);
@@ -37,7 +38,7 @@ public:
     void cholesky(const Matrix &A);
 
     // Solve Ax = B
-    Matrix solve(const Matrix &B);
+    std::vector<long double> solve(const Matrix &B);
 };
 
 #endif

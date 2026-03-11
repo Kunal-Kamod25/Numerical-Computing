@@ -41,80 +41,52 @@ int main()
     cout<<fixed<<setprecision(6);
     file<<fixed<<setprecision(6);
 
-    // DOOLITTLE
-    try
-    {
-        Matrix temp = A;
-        LU lu(n);
+    int choice;
+    cout << "\nChoose LU Decomposition method:\n";
+    cout << "1. Doolittle\n";
+    cout << "2. Crout\n";
+    cout << "3. Cholesky\n";
+    cout << "Enter choice (1-3): ";
+    cin >> choice;
 
-        cout<<"\nSolving using Doolittle\n";
+    LU lu(n);
 
-        lu.doolittle(temp);
-        Matrix solution = lu.solve(B);
-
-        file<<"==== DOOLITTLE METHOD ====\n";
-        for(int i=0;i<n;i++)
-        {
-            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
-            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+    if (choice == 1) {
+        // DOOLITTLE
+        try {
+            cout << "\nSolving using Doolittle...\n";
+            lu.doolittle(A);
+            vector<long double> solution = lu.solve(B);
+            file << "==== DOOLITTLE METHOD ====\n";
+            for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
+            cout << "Solution saved to LU_Solution_File.dat\n";
+        } catch (const exception &e) {
+            cout << "Doolittle failed: " << e.what() << endl;
         }
-
-        file<<"\n";
-    }
-    catch(const exception &e)
-    {
-        cout<<"Doolittle failed: "<<e.what()<<endl;
-        file<<"==== DOOLITTLE FAILED ====\n\n";
-    }
-
-    // CROUT
-    try
-    {
-        Matrix temp = A;
-        LU lu(n);
-
-        cout<<"\nSolving using Crout\n";
-
-        lu.crout(temp);
-        Matrix solution = lu.solve(B);
-
-        file<<"==== CROUT METHOD ====\n";
-        for(int i=0;i<n;i++)
-        {
-            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
-            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+    } else if (choice == 2) {
+        // CROUT
+        try {
+            cout << "\nSolving using Crout...\n";
+            lu.crout(A);
+            vector<long double> solution = lu.solve(B);
+            file << "==== CROUT METHOD ====\n";
+            for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
+            cout << "Solution saved to LU_Solution_File.dat\n";
+        } catch (const exception &e) {
+            cout << "Crout failed: " << e.what() << endl;
         }
-        file<<"\n";
-    }
-    catch(const exception &e)
-    {
-        cout<<"Crout failed: "<<e.what()<<endl;
-        file<<"==== CROUT FAILED ====\n\n";
-    }
-
-    // CHOLESKY
-    try
-    {
-        Matrix temp = A;
-        LU lu(n);
-
-        cout<<"\nSolving using Cholesky\n";
-
-        lu.cholesky(temp);
-        Matrix solution = lu.solve(B);
-
-        file<<"==== CHOLESKY METHOD ====\n";
-        for(int i=0;i<n;i++)
-        {
-            cout<<"x"<<setw(3)<<i+1<<" = "<<setw(12)<<solution.mat[i][0]<<endl;
-            file<<"x"<<i+1<<" = "<<solution.mat[i][0]<<endl;
+    } else if (choice == 3) {
+        // CHOLESKY
+        try {
+            cout << "\nSolving using Cholesky...\n";
+            lu.cholesky(A);
+            vector<long double> solution = lu.solve(B);
+            file << "==== CHOLESKY METHOD ====\n";
+            for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
+            cout << "Solution saved to LU_Solution_File.dat\n";
+        } catch (const exception &e) {
+            cout << "Cholesky failed: " << e.what() << endl;
         }
-        file<<"\n";
-    }
-    catch(const exception &e)
-    {
-        cout<<"Cholesky failed: "<<e.what()<<endl;
-        file<<"==== CHOLESKY FAILED (Matrix not SPD) ====\n\n";
     }
 
     file.close();

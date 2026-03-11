@@ -1,21 +1,32 @@
 #ifndef SLE_HPP
 #define SLE_HPP
 
-// =====================================================
-// Solve Linear Equation functions
-// =====================================================
+#include "gauss_elimination.hpp"
 
-// Back substitution
-Matrix backSubstitution() const;
+// ===========================================
+// Class for solving Systems of Linear Equations
+// ===========================================
+class SLE : public GaussianElimination
+{
+public:
+    SLE() : GaussianElimination() {}
+    SLE(int r, int c) : GaussianElimination(r, c) {}
+    SLE(const Matrix &other) : GaussianElimination(other) {}
 
-Matrix backsubstitution2() const;
+    enum SolverType { GAUSSIAN, LU_METHOD };
+    enum LUMethod { DOOLITTLE, CROUT, CHOLESKY };
 
-// Solve system
-Matrix solveWithPivot();
+    // Back substitution to vector
+    std::vector<long double> backSubstitutionToVec() const;
 
-Matrix solveWithoutPivot();
+    // Solve system
+    std::vector<long double> solve(SolverType method = GAUSSIAN, LUMethod lu_m = DOOLITTLE);
+    
+    // Existing methods (updated to use vector if needed, or kept for compatibility)
+    Matrix solveWithPivot();
+    Matrix solveWithoutPivot();
 
-// Save solution
-void saveSolution(const std::string &filename) const;
+    // Save solution
+};
 
 #endif

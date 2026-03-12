@@ -229,11 +229,11 @@ const std::vector<long double>& Matrix::getSolutionVec() const {
 
 void Matrix::displayProperties() const {
     cout << "\n--- Matrix Properties ---\n";
-    cout << "Symmetric:           " << (isSymmetric() ? "yes" : "no") << endl;
-    cout << "Square:              " << (isSquare() ? "yes" : "no") << endl;
-    cout << "Diagonal:            " << (isDiagonal() ? "yes" : "no") << endl;
-    cout << "Identity:            " << (isIdentity() ? "yes" : "no") << endl;
-    cout << "Null:                " << (isNull() ? "yes" : "no") << endl;
-    cout << "Diagonally Dominant: " << (isDiagonallyDominant() ? "yes" : "no") << endl;
+    cout << "Symmetric Matrix:           " << (isSymmetric() ? "yes" : "no") << endl;
+    cout << "Square Matrix:              " << (isSquare() ? "yes" : "no") << endl;
+    cout << "Diagonal Matrix:            " << (isDiagonal() ? "yes" : "no") << endl;
+    cout << "Identity Matrix:            " << (isIdentity() ? "yes" : "no") << endl;
+    cout << "Null Matrix:                " << (isNull() ? "yes" : "no") << endl;
+    cout << "Diagonally Dominant Matrix: " << (isDiagonallyDominant() ? "yes" : "no") << endl;
     cout << "-------------------------\n";
 }

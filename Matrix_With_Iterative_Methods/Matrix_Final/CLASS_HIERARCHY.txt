@@ -1,0 +1,242 @@
+===============================================
+  CLASS INHERITANCE HIERARCHY DIAGRAM
+===============================================
+
+                    BaseMatrix (Abstract)
+                         |
+                    [rows, cols, mat, solution_vec]
+                    [virtual readFromFile()]
+                         |
+                         |
+                    +----+----+
+                    |         |
+                  Matrix    (other potential derived classes)
+                    |
+         [All matrix operations: +, -, *, /]
+         [Properties: isSquare, isSymmetric, etc.]
+         [Algorithms: transpose, determinant, inverse]
+                    |
+                    |
+        +-----------+-----------+
+        |                       |
+        |                       |
+  GaussianElimination      LinearSystem (Abstract)
+        |                       |
+  [basicPivoting]         [b_vec, max_iterations, tolerance]
+  [upperTriangular...]    [extractRHS(), residualNorm()]
+        |                 [Pure virtual solve()]
+        |                       |
+        |                       |
+       SLE              IterativeSolver (Abstract)
+        |                       |
+  [Main Interface]        [x_current, x_previous]
+  [solve() with all]      [checkDiagonalDominance()]
+  [method options]        [hasConverged()]
+        |                 [Common solve() framework]
+        |                 [Pure virtual performIteration()]
+        |                       |
+        |                       |
+        |          +------------+------------+
+        |          |                         |
+        |     JacobiSolver           GaussSeidelSolver
+        |          |                         |
+        |    [Jacobi iteration]      [Gauss-Seidel iteration]
+        |    [Uses all OLD values]   [Uses NEW values for j<i]
+        |                                    |
+        |                                    |
+        +------------------------------------+
+                         |
+                   (Both can solve
+                    linear systems)
+
+
+                    LU (Separate Branch)
+                         |
+                    [Inherits Matrix]
+                    [L, U matrices, P vector]
+                    [doolittle(), crout(), cholesky()]
+
+
+===============================================
+  METHOD FLOW DIAGRAM
+===============================================
+
+User Creates SLE Object
+         |
+         v
+   Calls solve()
+         |
+         v
+    Which method?
+         |
+    +----+----+----+----+
+    |    |    |    |    |
+    v    v    v    v    v
+   GE   LU   LU   JAC  GS
+        D    C    O
+        O    R    B
+        O    O    I
+        L    U
+        I    T
+        T
+        T
+        L
+        E
+
+GE  = Gaussian Elimination (direct)
+LU  = LU Decomposition (direct)
+JAC = Jacobi (iterative)
+GS  = Gauss-Seidel (iterative)
+
+
+===============================================
+  DATA FLOW - ITERATIVE METHODS
+===============================================
+
+1. User creates SLE with augmented matrix [A|b]
+         |
+         v
+2. Calls solve(SLE::JACOBI or SLE::GAUSS_SEIDEL)
+         |
+         v
+3. SLE creates JacobiSolver or GaussSeidelSolver
+         |
+         v
+4. Sets max_iterations and tolerance
+         |
+         v
+5. Solver.solve() is called
+         |
+         v
+6. extractRHS() → separates b from [A|b]
+         |
+         v
+7. checkDiagonalDominance() → warns if not satisfied
+         |
+         v
+8. initializeSolution() → x = [0, 0, ..., 0]
+         |
+         v
+9. ITERATION LOOP
+   |
+   +---> performIteration() (Jacobi or Gauss-Seidel)
+   |            |
+   |            v
+   |     Update x_current based on method formula
+   |            |
+   |            v
+   |     hasConverged()? (check ||x_current - x_previous||)
+   |            |
+   |       No   |   Yes
+   +------------+    |
+                     v
+              Return solution
+
+
+===============================================
+  JACOBI vs GAUSS-SEIDEL COMPARISON
+===============================================
+
+JACOBI METHOD:
+--------------
+For each component i:
+    sum = 0
+    for j = 0 to n-1:
+        if j ≠ i:
+            sum += A[i][j] * x_previous[j]  ← Uses OLD values
+    
+    x_current[i] = (b[i] - sum) / A[i][i]
+
+Update ALL components, THEN copy to previous
+
+Characteristics:
+  ✓ Can parallelize (all updates independent)
+  ✓ Simple to implement
+  ✗ Slower convergence
+  ✗ More iterations needed
+
+
+GAUSS-SEIDEL METHOD:
+--------------------
+For each component i:
+    sum = 0
+    
+    for j = 0 to i-1:
+        sum += A[i][j] * x_current[j]  ← Uses NEW values (j < i)
+    
+    for j = i+1 to n-1:
+        sum += A[i][j] * x_current[j]  ← Uses OLD values (j > i)
+    
+    x_current[i] = (b[i] - sum) / A[i][i]
+
+Update component i IMMEDIATELY before moving to i+1
+
+Characteristics:
+  ✓ Faster convergence
+  ✓ Fewer iterations needed
+  ✗ Sequential (hard to parallelize)
+  ✗ More complex data dependencies
+
+
+===============================================
+  MEMORY LAYOUT
+===============================================
+
+BaseMatrix:
+┌─────────────────────────────────────┐
+│ rows: int                           │
+│ cols: int                           │
+│ mat: vector<vector<long double>>   │
+│ solution_vec: vector<long double>  │
+└─────────────────────────────────────┘
+
+Matrix (inherits BaseMatrix + adds):
+┌─────────────────────────────────────┐
+│ ... inherited fields ...            │
+│ + operator overloads                │
+│ + utility methods                   │
+└─────────────────────────────────────┘
+
+IterativeSolver (inherits LinearSystem + adds):
+┌─────────────────────────────────────┐
+│ ... inherited fields ...            │
+│ b_vec: vector<long double>          │
+│ max_iterations: int                 │
+│ tolerance: long double              │
+│ x_current: vector<long double>      │
+│ x_previous: vector<long double>     │
+│ iteration_count: int                │
+└─────────────────────────────────────┘
+
+Space Complexity for n×n system:
+  - Matrix A: O(n²) = n×n long doubles
+  - Iterative solver: O(n) = 3 vectors of size n
+  - Total: O(n²) + O(n) ≈ O(n²)
+
+For large n, iterative methods are MUCH more memory efficient
+than storing L and U matrices in LU decomposition (2×n² extra)!
+
+
+===============================================
+  CONVERGENCE VISUALIZATION
+===============================================
+
+Iteration Progress (Example: 10×10 system)
+
+Iteration | Jacobi Error | GS Error  | Status
+----------|--------------|-----------|--------
+    1     | 1.234e+00   | 1.234e+00 | Far
+    2     | 8.567e-01   | 4.123e-01 | GS faster
+    3     | 5.432e-01   | 1.876e-01 | GS faster
+    4     | 3.210e-01   | 8.234e-02 | GS faster
+    5     | 1.876e-01   | 3.421e-02 | GS faster
+   ...    |    ...      |    ...    |   ...
+   11     | 1.123e-10   | CONVERGED | GS done!
+   ...    |    ...      |     -     |   ...
+   29     | CONVERGED   |     -     | Jacobi done
+
+Note: Gauss-Seidel converged in 11 iterations
+      Jacobi took 29 iterations (2.6× slower)
+
+
+===============================================

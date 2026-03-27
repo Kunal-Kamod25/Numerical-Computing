@@ -1,0 +1,11 @@
+set terminal x11
+
+set title "X vs Y Graph"
+set xlabel "X"
+set ylabel "Y"
+set grid
+set key off
+
+plot "solution.dat" using 1:2 with lines lw 2
+
+pause -1

@@ -1,0 +1,550 @@
+===============================================
+  MATRIX LIBRARY SYSTEM DOCUMENTATION
+  Linear System Solvers with OOP Design
+===============================================
+
+Author: [Your Name]
+Date: 2026
+Version: 2.0 with Iterative Solvers
+
+===============================================
+TABLE OF CONTENTS
+===============================================
+1. System Overview
+2. Class Hierarchy
+3. Inheritance Structure
+4. Solver Methods
+5. Usage Guide
+6. File Structure
+7. Compilation & Execution
+8. Performance Considerations
+9. Code Examples
+
+===============================================
+1. SYSTEM OVERVIEW
+===============================================
+
+This is a comprehensive C++ library for solving systems of linear equations (Ax = b)
+using both DIRECT and ITERATIVE methods. The system is built using Object-Oriented
+Programming (OOP) principles with proper inheritance hierarchies.
+
+Key Features:
+- Multiple solving methods (Direct + Iterative)
+- Optimized for large matrices
+- Diagonal dominance checking
+- Convergence monitoring
+- Flexible solver selection
+- Comprehensive error handling
+
+===============================================
+2. CLASS HIERARCHY
+===============================================
+
+The system uses a multi-level inheritance structure:
+
+BaseMatrix (Abstract Base)
+    |
+    +-- Matrix (Concrete Operations)
+            |
+            +-- GaussianElimination (Direct Methods)
+            |       |
+            |       +-- SLE (System of Linear Equations - Main Interface)
+            |
+            +-- LinearSystem (Base for Iterative Methods)
+                    |
+                    +-- IterativeSolver (Iterative Base)
+                            |
+                            +-- JacobiSolver (Jacobi Method)
+                            |
+                            +-- GaussSeidelSolver (Gauss-Seidel Method)
+
+Also Available:
+    Matrix ---> LU (LU Decomposition: Doolittle, Crout, Cholesky)
+
+===============================================
+3. INHERITANCE STRUCTURE EXPLANATION
+===============================================
+
+3.1 BaseMatrix
+--------------
+Purpose: Foundation for all matrix operations
+Contains:
+  - rows, cols: Matrix dimensions
+  - mat: 2D vector storing matrix elements (long double for precision)
+  - solution_vec: Stores computed solutions
+  - Virtual readFromFile() for polymorphism
+
+3.2 Matrix : public BaseMatrix
+-------------------------------
+Purpose: Concrete matrix with full operations
+Provides:
+  - Arithmetic operators (+, -, *, /)
+  - Access operators: operator()(i, j)
+  - Comparison: operator==
+  - Matrix properties: isSquare(), isSymmetric(), isDiagonallyDominant()
+  - Matrix algorithms: transpose(), determinant(), inverse()
+  - File I/O operations
+
+3.3 GaussianElimination : public Matrix
+----------------------------------------
+Purpose: Direct solution methods using elimination
+Provides:
+  - basicPivoting(): Partial pivoting for numerical stability
+  - upperTriangularWithPivot(): Gaussian elimination with pivoting
+  - upperTriangularWithoutPivot(): Gaussian elimination without pivoting
+
+3.4 SLE : public GaussianElimination
+-------------------------------------
+Purpose: Main interface for solving linear systems
+Provides:
+  - solve(): Unified interface for all solver methods
+  - backSubstitutionToVec(): Extract solution from upper triangular form
+  - Support for: GAUSSIAN, LU_METHOD, JACOBI, GAUSS_SEIDEL
+  - Automatic method selection and parameter passing
+
+3.5 LinearSystem : public Matrix
+---------------------------------
+Purpose: Base class for iterative methods
+Provides:
+  - b_vec: Right-hand side vector
+  - max_iterations, tolerance: Convergence parameters
+  - extractRHS(): Extract b from augmented matrix [A|b]
+  - residualNorm(): Calculate ||Ax - b|| for convergence checking
+  - Pure virtual solve(): Must be implemented by derived classes
+
+3.6 IterativeSolver : public LinearSystem
+------------------------------------------
+Purpose: Common framework for iterative methods
+Provides:
+  - x_current, x_previous: Solution vectors for iterations
+  - iteration_count: Track number of iterations
+  - checkDiagonalDominance(): Verify convergence conditions
+  - hasConverged(): Check ||x_current - x_previous|| < tolerance
+  - initializeSolution(): Initialize with zeros or custom guess
+  - solve(): Common iterative loop framework
+  - Pure virtual performIteration(): Method-specific iteration step
+
+3.7 JacobiSolver : public IterativeSolver
+------------------------------------------
+Purpose: Jacobi iterative method implementation
+Formula: x_i^(k+1) = (b_i - Σ(a_ij * x_j^k)) / a_ii  for j ≠ i
+
+Key Points:
+  - Uses OLD values from previous iteration for ALL components
+  - All x values updated simultaneously
+  - Simpler to parallelize
+  - Generally slower convergence than Gauss-Seidel
+
+3.8 GaussSeidelSolver : public IterativeSolver
+-----------------------------------------------
+Purpose: Gauss-Seidel iterative method implementation
+Formula: x_i^(k+1) = (b_i - Σ(a_ij * x_j^(k+1)) - Σ(a_ij * x_j^k)) / a_ii
+                     for j < i (new)         for j > i (old)
+
+Key Points:
+  - Uses NEW values (already computed in current iteration) for j < i
+  - Uses OLD values (from previous iteration) for j > i
+  - Sequential updating of components
+  - Generally faster convergence than Jacobi
+  - Cannot be easily parallelized
+
+3.9 LU : public Matrix
+----------------------
+Purpose: LU decomposition methods
+Provides:
+  - doolittle(): LU decomposition (L has 1s on diagonal)
+  - crout(): LU decomposition (U has 1s on diagonal)
+  - cholesky(): For symmetric positive definite matrices
+  - solve(): Forward and back substitution
+
+===============================================
+4. SOLVER METHODS
+===============================================
+
+4.1 DIRECT METHODS
+------------------
+
+A. Gaussian Elimination with Pivoting
+   - Time Complexity: O(n³)
+   - Space Complexity: O(1) - in-place
+   - Best for: Small to medium dense matrices
+   - Pros: Simple, reliable
+   - Cons: Modifies original matrix
+
+B. LU Decomposition (Doolittle)
+   - Time Complexity: O(n³)
+   - Space Complexity: O(n²) - stores L and U
+   - Best for: Multiple RHS with same A
+   - Pros: Can reuse LU for different b vectors
+   - Cons: More memory usage
+
+C. LU Decomposition (Crout)
+   - Similar to Doolittle, different convention
+   - L has diagonal, U has 1s on diagonal
+
+D. LU Decomposition (Cholesky)
+   - Time Complexity: O(n³/2) - faster
+   - Requirements: Matrix must be symmetric positive definite
+   - Best for: Symmetric systems (common in physics/engineering)
+   - Pros: Faster, more numerically stable
+   - Cons: Limited applicability
+
+4.2 ITERATIVE METHODS
+---------------------
+
+A. Jacobi Method
+   - Time per iteration: O(n²)
+   - Convergence: Guaranteed if matrix is strictly diagonally dominant
+   - Best for: Sparse matrices, parallel computing
+   - Pros: Simple, parallelizable, low memory
+   - Cons: Slower convergence, may not converge for all matrices
+
+B. Gauss-Seidel Method
+   - Time per iteration: O(n²)
+   - Convergence: Guaranteed if matrix is strictly diagonally dominant
+   - Best for: Sparse matrices, sequential computing
+   - Pros: Faster convergence than Jacobi, low memory
+   - Cons: Sequential (hard to parallelize), may not converge
+
+Diagonal Dominance:
+  Matrix A is diagonally dominant if for each row i:
+    |a_ii| > Σ|a_ij| for all j ≠ i
+
+  This condition GUARANTEES convergence for iterative methods!
+
+===============================================
+5. USAGE GUIDE
+===============================================
+
+5.1 Basic Usage - Reading from Files
+-------------------------------------
+
+// Create matrices
+Matrix A(n, n);  // Coefficient matrix
+Matrix B(n, 1);  // RHS vector
+
+// Read from files
+A.readFromFile("matrix_A.txt");
+B.readFromFile("vector_b.txt");
+
+// Create augmented matrix [A|b]
+SLE system(n, n + 1);
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++)
+        system(i, j) = A(i, j);
+    system(i, n) = B(i, 0);
+}
+
+5.2 Solving with Different Methods
+-----------------------------------
+
+// Method 1: Gaussian Elimination
+vector<long double> sol1 = system.solve(SLE::GAUSSIAN);
+
+// Method 2: LU Decomposition (Doolittle)
+vector<long double> sol2 = system.solve(SLE::LU_METHOD, SLE::DOOLITTLE);
+
+// Method 3: Jacobi (with custom parameters)
+vector<long double> sol3 = system.solve(SLE::JACOBI, SLE::DOOLITTLE, 1000, 1e-10);
+//                                      method       LU_unused    max_iter  tolerance
+
+// Method 4: Gauss-Seidel (with custom parameters)
+vector<long double> sol4 = system.solve(SLE::GAUSS_SEIDEL, SLE::DOOLITTLE, 1000, 1e-10);
+
+5.3 Checking Matrix Properties
+-------------------------------
+
+A.displayProperties();  // Shows: square, symmetric, diagonal dominant, etc.
+
+if (A.isDiagonallyDominant()) {
+    cout << "Matrix is diagonally dominant - iterative methods will converge!\n";
+}
+
+5.4 Saving Solutions
+--------------------
+
+ofstream out("solution.dat");
+for (size_t i = 0; i < solution.size(); i++)
+    out << i << " " << solution[i] << endl;
+out.close();
+
+===============================================
+6. FILE STRUCTURE
+===============================================
+
+Matrix1/
+│
+├── Include/                      (Header files)
+│   ├── Matrix.hpp                - Base matrix classes
+│   ├── gauss_elimination.hpp     - Gaussian elimination
+│   ├── SLE.hpp                   - System of linear equations interface
+│   ├── LU.hpp                    - LU decomposition
+│   └── IterativeSolver.hpp       - NEW: Iterative solver classes
+│
+├── Src/                          (Implementation files)
+│   ├── Matrix_Methods.cpp        - Matrix operations
+│   ├── Matrix_Algorithms.cpp     - Solving algorithms
+│   └── LU.cpp                    - LU implementation
+│
+├── Main_Updated.cpp              - NEW: Interactive menu program
+├── Test_All_Methods.cpp          - NEW: Test all methods
+├── Main.cpp                      - Original main program
+├── Makefile                      - NEW: Build system
+│
+└── Large_Matrix/                 (Input data directory)
+    ├── Sl.txt                    - Coefficient matrix A
+    └── Sr.txt                    - RHS vector b
+
+===============================================
+7. COMPILATION & EXECUTION
+===============================================
+
+7.1 Using Makefile (Recommended)
+---------------------------------
+
+# Build all programs
+make
+
+# Build and run test program
+make test
+
+# Build and run main solver
+make run
+
+# Clean build files
+make clean
+
+# Clean all output files
+make cleanall
+
+7.2 Manual Compilation
+----------------------
+
+# Compile main program
+g++ -std=c++17 -Wall -O3 -IInclude -o main_solver \
+    Main_Updated.cpp \
+    Src/Matrix_Methods.cpp \
+    Src/Matrix_Algorithms.cpp \
+    Src/LU.cpp
+
+# Compile test program
+g++ -std=c++17 -Wall -O3 -IInclude -o test_methods \
+    Test_All_Methods.cpp \
+    Src/Matrix_Methods.cpp \
+    Src/Matrix_Algorithms.cpp \
+    Src/LU.cpp
+
+7.3 Running Programs
+--------------------
+
+# Run main solver (interactive menu)
+./main_solver
+
+# Run test program (automatic testing)
+./test_methods
+
+===============================================
+8. PERFORMANCE CONSIDERATIONS
+===============================================
+
+8.1 Large Matrix Optimization
+------------------------------
+
+For Large Matrices (n > 1000):
+- Use iterative methods (Jacobi/Gauss-Seidel) if matrix is diagonally dominant
+- Direct methods require O(n³) operations and O(n²) memory
+- Iterative methods require O(k*n²) operations and O(n) memory, where k = iterations
+- Sparse matrices: iterative methods significantly faster
+
+8.2 Choosing the Right Method
+------------------------------
+
+Use Gaussian Elimination when:
+  ✓ Matrix is dense and small/medium (n < 1000)
+  ✓ Need exact solution
+  ✓ Matrix is well-conditioned
+
+Use LU Decomposition when:
+  ✓ Need to solve for multiple RHS vectors
+  ✓ Want to reuse factorization
+  ✓ Matrix is symmetric positive definite (use Cholesky)
+
+Use Jacobi Method when:
+  ✓ Matrix is large and diagonally dominant
+  ✓ Matrix is sparse
+  ✓ Want to parallelize (multiple processors/GPUs)
+  ✓ Memory is limited
+
+Use Gauss-Seidel Method when:
+  ✓ Matrix is large and diagonally dominant
+  ✓ Matrix is sparse
+  ✓ Want faster convergence than Jacobi
+  ✓ Sequential computation is acceptable
+
+8.3 Memory Usage
+----------------
+
+Method              Memory Complexity    Memory for n=10000
+--------------------------------------------------------------
+Gaussian            O(n²)                ~800 MB (in-place)
+LU Decomposition    O(2n²)               ~1.6 GB (L + U)
+Jacobi              O(n)                 ~80 KB (x vectors)
+Gauss-Seidel        O(n)                 ~80 KB (x vectors)
+
+8.4 Numerical Stability
+-----------------------
+
+Most Stable:    Cholesky > LU with Pivoting > Gaussian with Pivoting
+Iterative:      Stability depends on matrix properties
+                (diagonal dominance ensures convergence)
+
+===============================================
+9. CODE EXAMPLES
+===============================================
+
+9.1 Complete Example - Small System
+------------------------------------
+
+#include "SLE.hpp"
+#include <iostream>
+using namespace std;
+
+int main() {
+    // System: 4x + 2y + z = 1
+    //         x + 5y + 2z = 2
+    //         2x + 3y + 8z = 3
+    
+    SLE system(3, 4);  // 3 equations, 4 columns (augmented)
+    
+    // Input augmented matrix [A|b]
+    system(0,0)=4; system(0,1)=2; system(0,2)=1; system(0,3)=1;
+    system(1,0)=1; system(1,1)=5; system(1,2)=2; system(1,3)=2;
+    system(2,0)=2; system(2,1)=3; system(2,2)=8; system(2,3)=3;
+    
+    // Solve using Gauss-Seidel
+    vector<long double> solution = system.solve(SLE::GAUSS_SEIDEL, 
+                                                SLE::DOOLITTLE, 
+                                                1000, 1e-10);
+    
+    // Display solution
+    cout << "Solution: ";
+    for (auto x : solution) cout << x << " ";
+    cout << endl;
+    
+    return 0;
+}
+
+9.2 Comparing Methods
+---------------------
+
+// Create multiple copies for different methods
+SLE system_gauss = augmented_matrix;
+SLE system_lu = augmented_matrix;
+SLE system_jacobi = augmented_matrix;
+
+// Solve with different methods
+auto sol1 = system_gauss.solve(SLE::GAUSSIAN);
+auto sol2 = system_lu.solve(SLE::LU_METHOD, SLE::DOOLITTLE);
+auto sol3 = system_jacobi.solve(SLE::JACOBI, SLE::DOOLITTLE, 1000, 1e-10);
+
+// All should give same solution!
+
+9.3 Handling Large Sparse Matrices
+-----------------------------------
+
+// For large sparse diagonally dominant systems
+int n = 10000;
+SLE large_system(n, n+1);
+
+// ... populate matrix from file ...
+large_system.readFromFile("large_sparse_system.txt");
+
+// Use iterative method (memory efficient)
+auto solution = large_system.solve(
+    SLE::GAUSS_SEIDEL,     // Method
+    SLE::DOOLITTLE,        // Unused for iterative
+    5000,                  // Max iterations
+    1e-8                   // Tolerance
+);
+
+===============================================
+10. MATHEMATICAL BACKGROUND
+===============================================
+
+10.1 Jacobi Iteration Formula
+------------------------------
+
+For system Ax = b, the Jacobi iteration is:
+
+x_i^(k+1) = (1/a_ii) * [b_i - Σ(a_ij * x_j^k)]  for j ≠ i
+
+Or in matrix form:
+x^(k+1) = D^(-1) * (b - (L+U)*x^k)
+
+where D = diagonal of A
+      L = strictly lower triangular part of A
+      U = strictly upper triangular part of A
+
+10.2 Gauss-Seidel Iteration Formula
+------------------------------------
+
+x_i^(k+1) = (1/a_ii) * [b_i - Σ(a_ij*x_j^(k+1)) - Σ(a_ij*x_j^k)]
+                            j<i               j>i
+
+Or in matrix form:
+x^(k+1) = (D+L)^(-1) * (b - U*x^k)
+
+10.3 Convergence Criteria
+--------------------------
+
+Sufficient condition for convergence (both methods):
+
+Matrix A is STRICTLY DIAGONALLY DOMINANT:
+  |a_ii| > Σ|a_ij| for all i
+           j≠i
+
+Additional note: Gauss-Seidel typically converges in fewer iterations
+than Jacobi for the same system.
+
+===============================================
+11. TROUBLESHOOTING
+===============================================
+
+Problem: "Matrix is singular"
+Solution: Check if determinant is near zero, matrix may not have unique solution
+
+Problem: "Zero pivot encountered"
+Solution: Use methods with pivoting (Gaussian with pivot, LU methods)
+
+Problem: "Iterative method not converging"
+Solutions:
+  - Check if matrix is diagonally dominant
+  - Increase max_iterations
+  - Try making matrix diagonally dominant (if possible)
+  - Use direct method instead
+  - Adjust tolerance parameter
+
+Problem: Out of memory for large matrices
+Solution: Use iterative methods instead of direct methods
+
+Problem: Compilation errors
+Solution: Ensure you're using C++17 or later (flag: -std=c++17)
+
+===============================================
+12. FUTURE ENHANCEMENTS
+===============================================
+
+Possible additions:
+- SOR (Successive Over-Relaxation) method
+- Conjugate Gradient method
+- BiCGSTAB for non-symmetric systems
+- Preconditioners for faster convergence
+- Sparse matrix storage formats
+- OpenMP parallelization
+- GPU acceleration (CUDA)
+- Adaptive tolerance
+- Better initial guess strategies
+
+===============================================
+END OF DOCUMENTATION
+===============================================

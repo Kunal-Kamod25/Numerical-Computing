@@ -1,0 +1,53 @@
+============================================================
+       MATRIX SYSTEM - FULL ARCHITECTURE EXPLANATION
+============================================================
+
+This system is built using C++ Object-Oriented Programming (OOP) 
+to solve complex math problems like Linear Systems. 
+
+Here is how the "Family Tree" (Inheritance) of classes works:
+
+1. BaseMatrix (The Grandfather)
+   - Handles the raw storage of numbers using vectors.
+   - It's the foundation of everything.
+
+2. Matrix (The Father)
+   - Adds math powers! 
+   - Overloads operators like +, -, *, / so you can do math 
+     on matrices just like normal numbers.
+   - Adds property checks (isSymmetric, isDiagonal, etc.).
+
+3. GaussianElimination (The Specialist)
+   - Inherits from Matrix.
+   - Adds the logic for "Row Operations" and "Pivoting".
+   - Turns a messy matrix into a "Triangular" one.
+
+4. SLE (System of Linear Equations - The Manager)
+   - Inherits from GaussianElimination.
+   - This is the main class you use for "Direct Solvers".
+   - It manages Gauss Elimination and LU Decomposition.
+
+5. Iterative (The New Base for Guessing)
+   - Inherits from SLE.
+   - Instead of doing one big calculation, it "guesses" 
+     the answer and keeps fixing it until it's perfect.
+
+6. Jacobi & GaussSeidel (The Smart Children)
+   - Jacobi: Updates all variables at the end of each round.
+   - GaussSeidel: Updates variables IMMEDIATELY as it finds them.
+     (Usually much faster!)
+
+------------------------------------------------------------
+HOW TO RUN:
+1. Open run_matrix.bat
+2. Select Option 5 for Iterative Solvers.
+3. It will load Sl.txt and Sr.txt (225x225 matrices).
+4. Results are saved separately as:
+   - solution_jacobi.dat
+   - solution_gs.dat
+
+COMPETITIVE ADVANTAGE:
+- Supports 16-byte long double precision for accuracy.
+- Handles large matrices (225x225 and beyond).
+- Code is modular - easy to add new methods later!
+============================================================

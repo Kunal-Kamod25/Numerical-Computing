@@ -3,7 +3,7 @@ CFLAGS = -std=c++17 -Wall -IInclude
 AR = ar rcs
 
 # Source files
-SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp
+SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 # Library names
@@ -27,13 +27,16 @@ $(DYNAMIC_LIB): $(OBJ_FILES)
 	$(CC) -shared -o $@ $(OBJ_FILES)
 
 # Build executables (Static linking by default)
-executables: main.exe main_lu.exe
+executables: main.exe main_lu.exe main_iterative.exe
 
 main.exe: Main.cpp $(STATIC_LIB)
 	$(CC) Main.cpp -L. -lmatrix $(CFLAGS) -o $@
 
 main_lu.exe: Main_LU.cpp $(STATIC_LIB)
 	$(CC) Main_LU.cpp -L. -lmatrix $(CFLAGS) -o $@
+
+main_iterative.exe: Main_Iterative.cpp $(STATIC_LIB)
+	$(CC) Main_Iterative.cpp -L. -lmatrix $(CFLAGS) -o $@
 
 # New target for dynamic executables
 dynamic_main.exe: Main.cpp $(DYNAMIC_LIB)

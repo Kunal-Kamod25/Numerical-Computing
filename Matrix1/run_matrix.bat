@@ -19,19 +19,21 @@ echo 1. Build Static Library (libmatrix.a)
 echo 2. Build Dynamic Library (matrix.dll)
 echo 3. Run Gaussian Elimination (using Static Lib)
 echo 4. Run LU Decomposition (using Static Lib)
-echo 5. Run Gaussian Elimination (using Dynamic Lib)
-echo 6. Clean Build Files
-echo 7. Exit
+echo 5. Run Iterative Solvers (Jacobi ^& GS)
+echo 6. Run Gaussian Elimination (using Dynamic Lib)
+echo 7. Clean Build Files
+echo 8. Exit
 echo.
-set /p choice="Choose an option (1-7): "
+set /p choice="Choose an option (1-8): "
 
 if "%choice%"=="1" goto build_static
 if "%choice%"=="2" goto build_dynamic
 if "%choice%"=="3" goto run_main_static
 if "%choice%"=="4" goto run_lu_static
-if "%choice%"=="5" goto run_main_dynamic
-if "%choice%"=="6" goto clean
-if "%choice%"=="7" exit /b 0
+if "%choice%"=="5" goto run_iterative_static
+if "%choice%"=="6" goto run_main_dynamic
+if "%choice%"=="7" goto clean
+if "%choice%"=="8" exit /b 0
 
 echo Invalid choice, try again.
 goto menu
@@ -42,8 +44,9 @@ echo Compiling object files...
 g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Methods.cpp -o Src/Matrix_Methods.o
 g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Algorithms.cpp -o Src/Matrix_Algorithms.o
 g++ -std=c++17 -Wall -IInclude -c Src/LU.cpp -o Src/LU.o
+g++ -std=c++17 -Wall -IInclude -c Src/Iterative.cpp -o Src/Iterative.o
 echo Creating Static Library (libmatrix.a)...
-ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o
+ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o
 echo SUCCESS: Static Library built!
 goto menu
 
@@ -53,8 +56,9 @@ echo Compiling object files with PIC...
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Matrix_Methods.cpp -o Src/Matrix_Methods.o
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Matrix_Algorithms.cpp -o Src/Matrix_Algorithms.o
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/LU.cpp -o Src/LU.o
+g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Iterative.cpp -o Src/Iterative.o
 echo Creating Dynamic Library (matrix.dll)...
-g++ -shared -o matrix.dll Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o
+g++ -shared -o matrix.dll Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o
 echo SUCCESS: Dynamic Library built!
 goto menu
 
@@ -74,6 +78,15 @@ echo Compiling Main_LU.cpp (Static)...
 g++ Main_LU.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_lu_static.exe
 echo Running...
 main_lu_static.exe
+goto menu
+
+:run_iterative_static
+if not exist libmatrix.a call :build_static
+echo.
+echo Compiling Main_Iterative.cpp (Static)...
+g++ Main_Iterative.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_iterative_static.exe
+echo Running...
+main_iterative_static.exe
 goto menu
 
 :run_main_dynamic

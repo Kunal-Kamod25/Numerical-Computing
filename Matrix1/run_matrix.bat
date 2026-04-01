@@ -19,8 +19,8 @@ echo 1. Build Static Library (libmatrix.a)
 echo 2. Build Dynamic Library (matrix.dll)
 echo 3. Run Gaussian Elimination (using Static Lib)
 echo 4. Run LU Decomposition (using Static Lib)
-echo 5. Run Iterative Solvers (Jacobi ^& GS)
-echo 6. Run Gaussian Elimination (using Dynamic Lib)
+echo 5. Run Gaussian Elimination (using Dynamic Lib)
+echo 6. Run All Solvers Menu (Iterative and Direct)
 echo 7. Clean Build Files
 echo 8. Exit
 echo.
@@ -30,8 +30,8 @@ if "%choice%"=="1" goto build_static
 if "%choice%"=="2" goto build_dynamic
 if "%choice%"=="3" goto run_main_static
 if "%choice%"=="4" goto run_lu_static
-if "%choice%"=="5" goto run_iterative_static
-if "%choice%"=="6" goto run_main_dynamic
+if "%choice%"=="5" goto run_main_dynamic
+if "%choice%"=="6" goto run_all_solvers_static
 if "%choice%"=="7" goto clean
 if "%choice%"=="8" exit /b 0
 
@@ -80,13 +80,14 @@ echo Running...
 main_lu_static.exe
 goto menu
 
-:run_iterative_static
+:run_all_solvers_static
 if not exist libmatrix.a call :build_static
 echo.
-echo Compiling Main_Iterative.cpp (Static)...
-g++ Main_Iterative.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_iterative_static.exe
-echo Running...
-main_iterative_static.exe
+echo Compiling Main_Updated.cpp (Static)...
+g++ Main_Updated.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_updated_static.exe
+echo Running Interactive Solvers Menu...
+main_updated_static.exe
+call :ask_open_latest_graph
 goto menu
 
 :run_main_dynamic
@@ -103,3 +104,21 @@ echo Cleaning...
 powershell -Command "Remove-Item -ErrorAction SilentlyContinue *.exe, *.a, *.dll, Src/*.o"
 echo Cleaned successfully.
 goto menu
+
+:ask_open_latest_graph
+set /p openGraph="Open latest generated graph image now? (y/n): "
+if /I "%openGraph%"=="y" goto open_latest_graph
+if /I "%openGraph%"=="yes" goto open_latest_graph
+goto :eof
+
+:open_latest_graph
+for /f "usebackq delims=" %%F in (`powershell -NoProfile -Command "$f = Get-ChildItem -Path . -Filter 'graph_*.png' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName; if ($f) { $f }"`) do set "LATEST_GRAPH=%%F"
+
+if not defined LATEST_GRAPH (
+    echo No graph_*.png file found in this folder.
+    goto :eof
+)
+
+echo Opening: %LATEST_GRAPH%
+start "" "%LATEST_GRAPH%"
+goto :eof

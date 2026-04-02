@@ -23,6 +23,12 @@ public:
     void setMaxIterations(int iter) { maxIterations = iter; }
     void setTolerance(long double tol) { tolerance = tol; }
 
+    // Prepare a matrix once before creating Jacobi/Gauss-Seidel objects
+    static void ensureDiagonallyDominant(Matrix &system);
+
+    // Optional instance helper for the current object
+    void ensureDiagonallyDominant();
+
     // This method will be implemented by Jacobi and Gauss-Seidel
     virtual std::vector<long double> solveIterative() = 0;
 };

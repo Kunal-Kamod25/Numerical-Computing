@@ -3,6 +3,27 @@
 #include <iomanip>
 
 // ============================================================
+// Shared Iterative Helper
+// ============================================================
+void Iterative::ensureDiagonallyDominant(Matrix &system)
+{
+    if (!system.isDiagonallyDominant())
+    {
+        std::cout << "Matrix is not diagonally dominant. Reordering rows..." << std::endl;
+        system.makeDiagonallyDominant();
+    }
+    else
+    {
+        std::cout << "Matrix is already diagonally dominant." << std::endl;
+    }
+}
+
+void Iterative::ensureDiagonallyDominant()
+{
+    Iterative::ensureDiagonallyDominant(static_cast<Matrix &>(*this));
+}
+
+// ============================================================
 // Implementation of Jacobi Method
 // ============================================================
 std::vector<long double> Jacobi::solveIterative()

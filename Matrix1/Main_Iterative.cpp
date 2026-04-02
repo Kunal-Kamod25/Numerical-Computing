@@ -59,6 +59,9 @@ int main() {
         cout << "Loading " << right << "..." << endl;
         loadFile(b, right, n, 1);
 
+        cout << "Preparing iterative matrix once..." << endl;
+        Iterative::ensureDiagonallyDominant(A);
+
         Jacobi jSolver(n, n + 1);
         GaussSeidel gsSolver(n, n + 1);
 
@@ -70,10 +73,6 @@ int main() {
             jSolver(i, n) = b(i, 0);
             gsSolver(i, n) = b(i, 0);
         }
-
-        cout << "Enhancing diagonal dominance..." << endl;
-        jSolver.makeDiagonallyDominant();
-        gsSolver.makeDiagonallyDominant();
 
         cout << "Solving with Jacobi..." << endl;
         saveResults("solution_jacobi.dat", jSolver.solveIterative());

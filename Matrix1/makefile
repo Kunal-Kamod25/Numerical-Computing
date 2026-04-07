@@ -3,7 +3,7 @@ CFLAGS = -std=c++17 -Wall -IInclude
 AR = ar rcs
 
 # Source files
-SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp Src/Interpolation.cpp
+SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp Src/Eigenvalues.cpp Src/Interpolation.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 # Library names
@@ -11,7 +11,7 @@ STATIC_LIB = libmatrix.a
 DYNAMIC_LIB = matrix.dll
 SOLVER = solver
 
-all: static dynamic executables solver
+all: static dynamic executables solver run_interpolation
 
 # Compile object files with Position Independent Code for dynamic library
 Src/%.o: Src/%.cpp
@@ -55,7 +55,7 @@ main_interpolation.exe: Main_Interpolation.cpp $(STATIC_LIB)
 dynamic_main.exe: Main.cpp $(DYNAMIC_LIB)
 	$(CC) Main.cpp -L. -lmatrix $(CFLAGS) -o $@
 
-.PHONY: clean all static dynamic executables run_all solver fresh rebuild
+.PHONY: clean all static dynamic executables run_all solver fresh rebuild run_interpolation
 
 clean:
 	rm -f solver *.exe *.a *.dll *.so Src/*.o
@@ -69,3 +69,7 @@ rebuild: fresh
 run_all: all
 	@echo "=== Running Gaussian Elimination ===" && LD_LIBRARY_PATH=. ./solver
 	@echo "\n=== Running LU Decomposition ===" && LD_LIBRARY_PATH=. ./main_lu.exe
+
+run_interpolation: main_interpolation.exe
+	@echo "=== Running Interpolation Demo (auto input n=49) ==="
+	@printf "49\n" | LD_LIBRARY_PATH=. ./main_interpolation.exe

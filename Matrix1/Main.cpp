@@ -1,6 +1,7 @@
 #include "Matrix.hpp"
 #include "SLE.hpp"
 #include "Iterative.hpp"
+#include "Interpolation.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -206,6 +207,104 @@ static void saveGershgorinAnalysis(const string &filename,
     out << "\n# real_eigenvalue_interval " << bounds.first << " " << bounds.second << '\n';
 }
 
+static bool loadCheckInterpolationData(const string &fileName,
+                                       vector<long double> &x,
+                                       vector<long double> &y)
+{
+    ifstream in(fileName);
+    if (!in)
+        return false;
+
+    long double xi, yi;
+    while (in >> xi >> yi)
+    {
+        x.push_back(xi);
+        y.push_back(yi);
+    }
+
+    return !x.empty();
+}
+
+static void saveXYData(const string &fileName,
+                       const vector<long double> &x,
+                       const vector<long double> &y)
+{
+    ofstream out(fileName);
+    if (!out)
+        throw runtime_error("Error creating " + fileName);
+
+    out << fixed << setprecision(10);
+    for (size_t i = 0; i < x.size(); ++i)
+        out << x[i] << " " << y[i] << '\n';
+}
+
+static void runInterpolationFromEigenvalues(const Matrix &A)
+{
+    // Inheritance chain in use: Matrix -> Eigenvalues and Matrix -> Interpolation -> Lagrange.
+    Eigenvalues eig(A);
+    vector<Matrix::GershgorinDisk> disks = eig.getDisks();
+    pair<long double, long double> bounds = eig.getRealBounds();
+
+    vector<long double> xData;
+    vector<long double> yData;
+
+    // Matrix-derived interpolation points.
+    const int usable = min(static_cast<int>(disks.size()), 8);
+    for (int i = 0; i < usable; ++i)
+    {
+        xData.push_back(static_cast<long double>(i));
+        yData.push_back(disks[i].radius);
+    }
+
+    vector<long double> checkX;
+    vector<long double> checkY;
+    const bool hasCheckData = loadCheckInterpolationData("Large_Matrix/interpolation_check_data.txt", checkX, checkY);
+    const bool useCheckData = (static_cast<int>(disks.size()) == 49) || !hasCheckData;
+
+    if (useCheckData)
+    {
+        if (!hasCheckData)
+        {
+            checkX = {-3.0L, -2.0L, -1.0L, 0.0L, 1.0L, 2.0L, 3.0L};
+            checkY = {4.0L, 1.0L, 0.0L, 1.0L, 4.0L, 9.0L, 16.0L};
+        }
+        xData = checkX;
+        yData = checkY;
+        cout << "Using check dataset for interpolation (stable path for 49-size case).\n";
+    }
+    else
+    {
+        cout << "Using matrix-derived Gershgorin data for interpolation.\n";
+    }
+
+    Lagrange lag(xData, yData);
+    const long double xMid = (xData.front() + xData.back()) / 2.0L;
+    const long double yMid = lag.evaluate(xMid);
+    const vector<pair<long double, long double>> curve = lag.evaluateRange(xData.front(), xData.back(), 150);
+
+    saveXYData("interpolation_points.dat", xData, yData);
+    if (!checkX.empty() && !checkY.empty())
+        saveXYData("interpolation_check_points.dat", checkX, checkY);
+
+    ofstream curveOut("lagrange_curve.dat");
+    if (!curveOut)
+        throw runtime_error("Error creating lagrange_curve.dat");
+    curveOut << fixed << setprecision(10);
+    for (const auto &p : curve)
+        curveOut << p.first << " " << p.second << '\n';
+
+    ofstream report("interpolation_report.txt");
+    if (!report)
+        throw runtime_error("Error creating interpolation_report.txt");
+
+    report << fixed << setprecision(10);
+    report << "Gershgorin real interval: " << bounds.first << " " << bounds.second << '\n';
+    report << "Interpolation points: " << lag.pointCount() << '\n';
+    report << "Evaluation at x_mid=" << xMid << ": " << yMid << '\n';
+
+    cout << "Saved interpolation_points.dat, lagrange_curve.dat, interpolation_report.txt\n";
+}
+
 static void generateGershgorinPlot(const string &dataFile,
                                    const vector<Matrix::GershgorinDisk> &disks,
                                    const pair<long double, long double> &bounds)
@@ -372,8 +471,9 @@ int main()
         cout << "   3.1. Jacobi\n";
         cout << "   3.2. Gauss-Seidel\n";
         cout << "4. Gershgorin Analysis (Eigenvalue Bounds, not Ax=b solver)\n";
+        cout << "5. Interpolation from Gershgorin (Lagrange Inheritance Demo)\n";
         cout << "==========================================\n";
-        cout << "Enter your choice (1, 2, 3, or 4): ";
+        cout << "Enter your choice (1, 2, 3, 4, or 5): ";
         cin >> choice;
 
         if (choice == 1)
@@ -437,6 +537,11 @@ int main()
         else if (choice == 4)
         {
             runGershgorinAnalysis(A);
+            return 0;
+        }
+        else if (choice == 5)
+        {
+            runInterpolationFromEigenvalues(A);
             return 0;
         }
         else

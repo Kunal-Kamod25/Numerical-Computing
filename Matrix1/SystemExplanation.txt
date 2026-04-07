@@ -258,6 +258,34 @@ HOW TO RUN:
 
 COMPETITIVE ADVANTAGE:
 - Supports 16-byte long double precision for accuracy.
+
+------------------------------------------------------------
+NEW INHERITANCE CHAIN: EIGENVALUES + INTERPOLATION + LAGRANGE
+
+Added files:
+- Include/Interpolation.hpp
+- Src/Interpolation.cpp
+- Main_Interpolation.cpp
+- Large_Matrix/interpolation_check_data.txt
+- Inheritance_Interpolation_Guide.txt
+
+Inheritance structure:
+1. Matrix -> Eigenvalues
+   - Uses Gershgorin analysis through a dedicated class.
+
+2. Matrix -> Interpolation
+   - Stores and validates interpolation points.
+
+3. Interpolation -> Lagrange
+   - Evaluates interpolation polynomial with Lagrange basis.
+
+Why this was added:
+- To connect matrix-based eigenvalue bounds (Gershgorin) with interpolation learning.
+- To provide a stable check dataset, especially when 49-size matrix interpolation is unreliable.
+
+Where to run:
+- Standalone: ./main_interpolation.exe
+- Integrated menu: ./main.exe -> option 5
 - Handles large matrices (225x225 and beyond).
 - Code is modular - easy to add new methods later!
 ============================================================

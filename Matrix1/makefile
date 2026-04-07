@@ -3,7 +3,7 @@ CFLAGS = -std=c++17 -Wall -IInclude
 AR = ar rcs
 
 # Source files
-SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp
+SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp Src/Interpolation.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 # Library names
@@ -28,7 +28,7 @@ $(DYNAMIC_LIB): $(OBJ_FILES)
 	$(CC) -shared -o $@ $(OBJ_FILES)
 
 # Build executables (Static linking by default)
-executables: main.exe main_lu.exe main_iterative.exe main_gaussian.exe main_gershgorin.exe
+executables: main.exe main_lu.exe main_iterative.exe main_gaussian.exe main_gershgorin.exe main_interpolation.exe
 
 solver: Main.cpp $(STATIC_LIB)
 	$(CC) Main.cpp -L. -lmatrix $(CFLAGS) -o $@
@@ -47,6 +47,9 @@ main_gaussian.exe: Main_Gaussian.cpp $(STATIC_LIB)
 
 main_gershgorin.exe: Main_Gershgorin.cpp $(STATIC_LIB)
 	$(CC) Main_Gershgorin.cpp -L. -lmatrix $(CFLAGS) -o $@
+
+main_interpolation.exe: Main_Interpolation.cpp $(STATIC_LIB)
+	$(CC) Main_Interpolation.cpp -L. -lmatrix $(CFLAGS) -o $@
 
 # New target for dynamic executables
 dynamic_main.exe: Main.cpp $(DYNAMIC_LIB)

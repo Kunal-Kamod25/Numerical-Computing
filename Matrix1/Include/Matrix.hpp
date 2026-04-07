@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
+#include <utility>
 
 // ================= BASE CLASS =================
 class BaseMatrix
@@ -33,6 +34,12 @@ public:
 class Matrix : public BaseMatrix
 {
 public:
+    struct GershgorinDisk
+    {
+        long double center;
+        long double radius;
+    };
+
     Matrix();
     Matrix(int r, int c);
     Matrix(const Matrix &other);
@@ -73,6 +80,8 @@ public:
     Matrix transpose() const;
     long double determinant() const;
     Matrix inverse() const;
+    std::vector<GershgorinDisk> gershgorinDisks() const;
+    std::pair<long double, long double> gershgorinRealBounds() const;
 
     // Save solution
     void saveSolution(const std::string &filename) const;

@@ -1,0 +1,36 @@
+#ifndef INTERPOLATION_HPP
+#define INTERPOLATION_HPP
+
+#include "Matrix.hpp"
+#include <utility>
+#include <vector>
+
+// Interpolation base class inheriting matrix behavior.
+class Interpolation : public Matrix
+{
+protected:
+    std::vector<long double> xData;
+    std::vector<long double> yData;
+
+public:
+    Interpolation();
+    Interpolation(const std::vector<long double> &x, const std::vector<long double> &y);
+
+    void setData(const std::vector<long double> &x, const std::vector<long double> &y);
+    int pointCount() const;
+    const std::vector<long double> &getX() const;
+    const std::vector<long double> &getY() const;
+};
+
+// Lagrange is a concrete interpolation solver built on Interpolation.
+class Lagrange : public Interpolation
+{
+public:
+    Lagrange();
+    Lagrange(const std::vector<long double> &x, const std::vector<long double> &y);
+
+    long double evaluate(long double x) const;
+    std::vector<std::pair<long double, long double>> evaluateRange(long double xMin, long double xMax, int samples) const;
+};
+
+#endif

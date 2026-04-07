@@ -1,4 +1,6 @@
 #include "Interpolation.hpp"
+#include "Eigenvalues.hpp"
+#include "Gershgorin.hpp"
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -70,12 +72,12 @@ int main()
             cin >> left;
         }
 
-        // 1) Eigenvalues class (derived from Matrix) computes Gershgorin bounds.
-        Eigenvalues eig(n, n);
-        eig.readFromFile(left);
+        // 1) Gershgorin class inherits from Eigenvalues and computes bounds.
+        Gershgorin gersh(n, n);
+        gersh.readFromFile(left);
 
-        vector<Matrix::GershgorinDisk> disks = eig.getDisks();
-        pair<long double, long double> bounds = eig.getRealBounds();
+        vector<Matrix::GershgorinDisk> disks = gersh.disks();
+        pair<long double, long double> bounds = gersh.realBounds();
 
         cout << "Gershgorin real interval: [" << bounds.first << ", " << bounds.second << "]\n";
 

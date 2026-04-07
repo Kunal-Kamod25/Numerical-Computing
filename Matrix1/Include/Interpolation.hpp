@@ -5,19 +5,7 @@
 #include <utility>
 #include <vector>
 
-// Inherits matrix behavior and adds Gershgorin-based eigenvalue utilities.
-class Eigenvalues : public Matrix
-{
-public:
-    Eigenvalues();
-    Eigenvalues(int r, int c);
-    Eigenvalues(const Matrix &base);
-
-    std::vector<GershgorinDisk> getDisks() const;
-    std::pair<long double, long double> getRealBounds() const;
-};
-
-// Interpolation base class; stores x-y sample points and common checks.
+// Interpolation base class inheriting matrix behavior.
 class Interpolation : public Matrix
 {
 protected:

@@ -1,6 +1,8 @@
 #include "Matrix.hpp"
 #include "SLE.hpp"
 #include "Iterative.hpp"
+#include "Eigenvalues.hpp"
+#include "Gershgorin.hpp"
 #include "Interpolation.hpp"
 #include <algorithm>
 #include <cctype>
@@ -398,8 +400,9 @@ static void runIterativeSolvers(Matrix A, Matrix B, int n)
 
 static void runGershgorinAnalysis(const Matrix &A)
 {
-    vector<Matrix::GershgorinDisk> disks = A.gershgorinDisks();
-    pair<long double, long double> bounds = A.gershgorinRealBounds();
+    Gershgorin gersh(A);
+    vector<Matrix::GershgorinDisk> disks = gersh.disks();
+    pair<long double, long double> bounds = gersh.realBounds();
 
     saveGershgorinAnalysis("gershgorin.dat", disks, bounds);
     cout << "\nGershgorin analysis saved to gershgorin.dat\n";

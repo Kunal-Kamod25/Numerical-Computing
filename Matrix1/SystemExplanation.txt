@@ -273,8 +273,8 @@ Inheritance structure:
 1. Matrix -> Eigenvalues
    - Uses Gershgorin analysis through a dedicated class.
 
-2. Matrix -> Interpolation
-   - Stores and validates interpolation points.
+2. Interpolation (separate hierarchy)
+   - Stores and validates interpolation points independently from Matrix.
 
 3. Interpolation -> Lagrange
    - Evaluates interpolation polynomial with Lagrange basis.

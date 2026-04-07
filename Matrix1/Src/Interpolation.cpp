@@ -5,30 +5,10 @@
 
 using namespace std;
 
-Eigenvalues::Eigenvalues() : Matrix() {}
+Interpolation::Interpolation() {}
 
-Eigenvalues::Eigenvalues(int r, int c) : Matrix(r, c) {}
-
-Eigenvalues::Eigenvalues(const Matrix &base) : Matrix(base) {}
-
-vector<Matrix::GershgorinDisk> Eigenvalues::getDisks() const
+Interpolation::Interpolation(const vector<long double> &x, const vector<long double> &y)
 {
-    return gershgorinDisks();
-}
-
-pair<long double, long double> Eigenvalues::getRealBounds() const
-{
-    return gershgorinRealBounds();
-}
-
-Interpolation::Interpolation() : Matrix(1, 1)
-{
-    mat[0][0] = 0.0L;
-}
-
-Interpolation::Interpolation(const vector<long double> &x, const vector<long double> &y) : Matrix(1, 1)
-{
-    mat[0][0] = 0.0L;
     setData(x, y);
 }
 

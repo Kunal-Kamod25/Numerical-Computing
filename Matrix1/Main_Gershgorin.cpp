@@ -1,4 +1,5 @@
 #include "Matrix.hpp"
+#include "Gershgorin.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
@@ -90,11 +91,11 @@ int main()
             cin >> left;
         }
 
-        Matrix A(n, n);
-        A.readFromFile(left);
+        Gershgorin gersh(n, n);
+        gersh.readFromFile(left);
 
-        vector<Matrix::GershgorinDisk> disks = A.gershgorinDisks();
-        pair<long double, long double> bounds = A.gershgorinRealBounds();
+        vector<Matrix::GershgorinDisk> disks = gersh.disks();
+        pair<long double, long double> bounds = gersh.realBounds();
 
         ofstream out("gershgorin_analysis.dat");
         if (!out)

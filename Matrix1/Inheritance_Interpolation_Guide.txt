@@ -2,7 +2,7 @@
   EIGENVALUES -> INTERPOLATION -> LAGRANGE (LEARNING GUIDE)
 ============================================================
 
-New inheritance classes:
+New class structure:
 
 1) Matrix -> Eigenvalues
    - File: Include/Interpolation.hpp, Src/Interpolation.cpp
@@ -12,7 +12,7 @@ New inheritance classes:
      - getDisks()
      - getRealBounds()
 
-2) Matrix -> Interpolation
+2) Interpolation (separate from Matrix)
    - File: Include/Interpolation.hpp, Src/Interpolation.cpp
    - Purpose:
      Stores interpolation points xData/yData and validates data.
@@ -32,11 +32,11 @@ New inheritance classes:
 ------------------------------------------------------------
 HOW THE FLOW WORKS
 
-A) Eigenvalues stage
+A) Eigenvalues stage (Matrix branch)
    - Read matrix A
    - Compute Gershgorin disks and real bounds
 
-B) Interpolation stage
+B) Interpolation stage (independent branch)
    - Build (x, y) points from matrix-derived data
      Example in this code: x = index, y = disk radius
 

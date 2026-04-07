@@ -1,10 +1,48 @@
 #include "Matrix.hpp"
 #include "LU.hpp"
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 
 using namespace std;
+
+static void savePlotData(const string &filename, const vector<long double> &solution)
+{
+    ofstream out(filename);
+    if (!out)
+        throw runtime_error("Error creating " + filename);
+
+    out << fixed << setprecision(10);
+    for (int i = 0; i < (int)solution.size(); i++)
+        out << i << " " << solution[i] << '\n';
+}
+
+static void generateAndOpenSolutionPlot(const string &dataFile, const string &title, const string &graphFile)
+{
+    const string scriptFile = graphFile + ".gnu";
+    ofstream gp(scriptFile);
+    if (!gp)
+        throw runtime_error("Error creating " + scriptFile);
+
+    gp << "set terminal pngcairo size 1280,720 enhanced font 'Arial,11'\n";
+    gp << "set output '" << graphFile << "'\n";
+    gp << "set title '" << title << "'\n";
+    gp << "set xlabel 'X (Index)'\n";
+    gp << "set ylabel 'Y (Solution Value)'\n";
+    gp << "set grid\n";
+    gp << "set key left top\n";
+    gp << "plot '" << dataFile << "' using 1:2 with linespoints lw 2 pt 7 ps 0.6 title '" << title << "'\n";
+    gp.close();
+
+    if (system("gnuplot --version > /dev/null 2>&1") == 0)
+    {
+        string cmd = "gnuplot " + scriptFile;
+        system(cmd.c_str());
+        string openCmd = "xdg-open " + graphFile + " >/dev/null 2>&1 &";
+        system(openCmd.c_str());
+    }
+}
 
 int main()
 {
@@ -50,16 +88,21 @@ int main()
     cin >> choice;
 
     LU lu(n);
+    vector<long double> solution;
+    string method_name;
 
     if (choice == 1) {
         // DOOLITTLE
         try {
             cout << "\nSolving using Doolittle...\n";
             lu.doolittle(A);
-            vector<long double> solution = lu.solve(B);
+            solution = lu.solve(B);
+            method_name = "Doolittle";
+            savePlotData("lu_solution_doolittle.dat", solution);
             file << "==== DOOLITTLE METHOD ====\n";
             for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
             cout << "Solution saved to LU_Solution_File.dat\n";
+            generateAndOpenSolutionPlot("lu_solution_doolittle.dat", "LU Doolittle", "graph_lu_doolittle.png");
         } catch (const exception &e) {
             cout << "Doolittle failed: " << e.what() << endl;
         }
@@ -68,10 +111,13 @@ int main()
         try {
             cout << "\nSolving using Crout...\n";
             lu.crout(A);
-            vector<long double> solution = lu.solve(B);
+            solution = lu.solve(B);
+            method_name = "Crout";
+            savePlotData("lu_solution_crout.dat", solution);
             file << "==== CROUT METHOD ====\n";
             for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
             cout << "Solution saved to LU_Solution_File.dat\n";
+            generateAndOpenSolutionPlot("lu_solution_crout.dat", "LU Crout", "graph_lu_crout.png");
         } catch (const exception &e) {
             cout << "Crout failed: " << e.what() << endl;
         }
@@ -80,10 +126,13 @@ int main()
         try {
             cout << "\nSolving using Cholesky...\n";
             lu.cholesky(A);
-            vector<long double> solution = lu.solve(B);
+            solution = lu.solve(B);
+            method_name = "Cholesky";
+            savePlotData("lu_solution_cholesky.dat", solution);
             file << "==== CHOLESKY METHOD ====\n";
             for (int i = 0; i < n; i++) file << "x" << i + 1 << " = " << solution[i] << endl;
             cout << "Solution saved to LU_Solution_File.dat\n";
+            generateAndOpenSolutionPlot("lu_solution_cholesky.dat", "LU Cholesky", "graph_lu_cholesky.png");
         } catch (const exception &e) {
             cout << "Cholesky failed: " << e.what() << endl;
         }

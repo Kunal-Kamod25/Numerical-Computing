@@ -28,7 +28,7 @@ $(DYNAMIC_LIB): $(OBJ_FILES)
 	$(CC) -shared -o $@ $(OBJ_FILES)
 
 # Build executables (Static linking by default)
-executables: main.exe main_lu.exe main_iterative.exe
+executables: main.exe main_lu.exe main_iterative.exe main_gaussian.exe main_gershgorin.exe
 
 solver: Main.cpp $(STATIC_LIB)
 	$(CC) Main.cpp -L. -lmatrix $(CFLAGS) -o $@
@@ -42,14 +42,26 @@ main_lu.exe: Main_LU.cpp $(STATIC_LIB)
 main_iterative.exe: Main_Iterative.cpp $(STATIC_LIB)
 	$(CC) Main_Iterative.cpp -L. -lmatrix $(CFLAGS) -o $@
 
+main_gaussian.exe: Main_Gaussian.cpp $(STATIC_LIB)
+	$(CC) Main_Gaussian.cpp -L. -lmatrix $(CFLAGS) -o $@
+
+main_gershgorin.exe: Main_Gershgorin.cpp $(STATIC_LIB)
+	$(CC) Main_Gershgorin.cpp -L. -lmatrix $(CFLAGS) -o $@
+
 # New target for dynamic executables
 dynamic_main.exe: Main.cpp $(DYNAMIC_LIB)
 	$(CC) Main.cpp -L. -lmatrix $(CFLAGS) -o $@
 
-.PHONY: clean all static dynamic executables run_all solver
+.PHONY: clean all static dynamic executables run_all solver fresh rebuild
 
 clean:
 	rm -f solver *.exe *.a *.dll *.so Src/*.o
+
+# Clean old binaries and rebuild everything from scratch
+fresh: clean all
+
+# Alias for fresh rebuild
+rebuild: fresh
 
 run_all: all
 	@echo "=== Running Gaussian Elimination ===" && LD_LIBRARY_PATH=. ./solver

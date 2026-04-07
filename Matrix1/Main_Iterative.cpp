@@ -1,15 +1,44 @@
 #include "Matrix.hpp"
 #include "Iterative.hpp"
+#include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <fstream>
 #include <string>
 
 using namespace std;
 
+static void generateAndOpenSolutionPlot(const string &dataFile, const string &title, const string &graphFile)
+{
+    const string scriptFile = graphFile + ".gnu";
+    ofstream gp(scriptFile);
+    if (!gp)
+        throw runtime_error("Error creating " + scriptFile);
+
+    gp << "set terminal pngcairo size 1280,720 enhanced font 'Arial,11'\n";
+    gp << "set output '" << graphFile << "'\n";
+    gp << "set title '" << title << "'\n";
+    gp << "set xlabel 'X (Index)'\n";
+    gp << "set ylabel 'Y (Solution Value)'\n";
+    gp << "set grid\n";
+    gp << "set key left top\n";
+    gp << "plot '" << dataFile << "' using 1:2 with linespoints lw 2 pt 7 ps 0.6 title '" << title << "'\n";
+    gp.close();
+
+    if (system("gnuplot --version > /dev/null 2>&1") == 0)
+    {
+        string cmd = "gnuplot " + scriptFile;
+        system(cmd.c_str());
+        string openCmd = "xdg-open " + graphFile + " >/dev/null 2>&1 &";
+        system(openCmd.c_str());
+    }
+}
+
 void saveResults(const string &filename, const vector<long double> &sol) {
     ofstream out(filename);
     if (!out) return;
+    out << fixed << setprecision(10);
     for (int i = 0; i < (int)sol.size(); i++) {
         out << i << " " << sol[i] << endl;
     }
@@ -76,9 +105,11 @@ int main() {
 
         cout << "Solving with Jacobi..." << endl;
         saveResults("solution_jacobi.dat", jSolver.solveIterative());
+        generateAndOpenSolutionPlot("solution_jacobi.dat", "Jacobi", "graph_jacobi.png");
 
         cout << "Solving with Gauss-Seidel..." << endl;
-        saveResults("solution_gs.dat", gsSolver.solveIterative());
+        saveResults("solution_gauss_seidel.dat", gsSolver.solveIterative());
+        generateAndOpenSolutionPlot("solution_gauss_seidel.dat", "Gauss-Seidel", "graph_gauss_seidel.png");
 
         cout << "\nFinished! Solutions saved to .dat files." << endl;
 

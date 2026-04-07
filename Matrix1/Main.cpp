@@ -2,7 +2,10 @@
 #include "SLE.hpp"
 #include "Iterative.hpp"
 #include <algorithm>
+#include <cctype>
+#include <cstdlib>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -138,6 +141,132 @@ static void saveVectorSolution(const string &filename, const vector<long double>
         out << i << " " << solution[i] << endl;
 }
 
+static string slugify(const string &text)
+{
+    string slug;
+    for (char ch : text)
+    {
+        if (isalnum(static_cast<unsigned char>(ch)))
+            slug.push_back(static_cast<char>(tolower(static_cast<unsigned char>(ch))));
+        else if (ch == ' ' || ch == '-' || ch == '_')
+            slug.push_back('_');
+    }
+    while (!slug.empty() && slug.front() == '_') slug.erase(slug.begin());
+    while (!slug.empty() && slug.back() == '_') slug.pop_back();
+    return slug.empty() ? string("solution") : slug;
+}
+
+static void generateAndOpenSolutionPlot(const string &dataFile, const string &title, const string &graphFile)
+{
+    const string scriptFile = graphFile + ".gnu";
+
+    ofstream gp(scriptFile);
+    if (!gp)
+        throw runtime_error("Error creating " + scriptFile);
+
+    gp << "set terminal pngcairo size 1280,720 enhanced font 'Arial,11'\n";
+    gp << "set output '" << graphFile << "'\n";
+    gp << "set title '" << title << "'\n";
+    gp << "set xlabel 'X (Index)'\n";
+    gp << "set ylabel 'Y (Solution Value)'\n";
+    gp << "set grid\n";
+    gp << "set key left top\n";
+    gp << "plot '" << dataFile << "' using 1:2 with linespoints lw 2 pt 7 ps 0.6 title '" << title << "'\n";
+    gp.close();
+
+    if (system("gnuplot --version > /dev/null 2>&1") == 0)
+    {
+        string cmd = "gnuplot " + scriptFile;
+        system(cmd.c_str());
+        string openCmd = "xdg-open " + graphFile + " >/dev/null 2>&1 &";
+        system(openCmd.c_str());
+    }
+}
+
+static void saveGershgorinAnalysis(const string &filename,
+                                   const vector<Matrix::GershgorinDisk> &disks,
+                                   const pair<long double, long double> &bounds)
+{
+    ofstream out(filename);
+    if (!out)
+        throw runtime_error("Error creating " + filename);
+
+    out << fixed << setprecision(10);
+    out << "# index   center            radius            left_bound        right_bound\n";
+    for (int i = 0; i < (int)disks.size(); ++i)
+    {
+        const long double left = disks[i].center - disks[i].radius;
+        const long double right = disks[i].center + disks[i].radius;
+        out << setw(8) << i
+            << setw(18) << disks[i].center
+            << setw(18) << disks[i].radius
+            << setw(18) << left
+            << setw(18) << right << '\n';
+    }
+    out << "\n# real_eigenvalue_interval " << bounds.first << " " << bounds.second << '\n';
+}
+
+static void generateGershgorinPlot(const string &dataFile,
+                                   const vector<Matrix::GershgorinDisk> &disks,
+                                   const pair<long double, long double> &bounds)
+{
+    const string scriptFile = "plot_gershgorin.gnu";
+    const string imageFile = "graph_gershgorin.png";
+
+    ofstream gp(scriptFile);
+    if (!gp)
+        throw runtime_error("Error creating " + scriptFile);
+
+    gp << "set terminal pngcairo size 1400,1000 enhanced font 'Arial,11'\n";
+    gp << "set output '" << imageFile << "'\n";
+    long double maxRadius = 0.0L;
+    for (const auto &d : disks)
+        if (d.radius > maxRadius)
+            maxRadius = d.radius;
+
+    const long double xMargin = max<long double>(1.0L, (bounds.second - bounds.first) * 0.05L);
+    const long double yMargin = max<long double>(1.0L, maxRadius * 0.15L);
+    const long double xMin = bounds.first - xMargin;
+    const long double xMax = bounds.second + xMargin;
+    const long double yMax = maxRadius + yMargin;
+
+    gp << "set title 'Gershgorin Disks (Eigenvalue Bounds)'\n";
+    gp << "set xlabel 'Real Axis'\n";
+    gp << "set ylabel 'Imaginary Axis'\n";
+    gp << "set grid\n";
+    gp << "set size ratio -1\n";
+    gp << "set key off\n";
+    gp << "set border lw 1.5\n";
+    gp << "set xtics out\n";
+    gp << "set ytics out\n";
+    gp << "set xrange [" << xMin << ":" << xMax << "]\n";
+    gp << "set yrange [" << -yMax << ":" << yMax << "]\n";
+    gp << "set arrow 1 from graph 0,0 to graph 1,0 nohead lc rgb 'black' dt 2\n";
+    gp << "set arrow 2 from 0,graph 0 to 0,graph 1 nohead lc rgb 'black' dt 2\n";
+
+    for (size_t i = 0; i < disks.size(); ++i)
+        gp << "set label " << (i + 1) << " '" << (i + 1) << "' at " << disks[i].center << ",0 offset char 0,1 tc rgb '#d62728'\n";
+
+    gp << "set style fill transparent solid 0.14 noborder\n";
+    gp << "plot '" << dataFile << "' using 2:0:3 with circles lc rgb '#1f77b4' fs transparent solid 0.20 noborder, \\\n";
+    gp << "     '" << dataFile << "' using 2:0 with points pt 7 ps 0.35 lc rgb '#d62728'\n";
+    gp.close();
+
+    if (system("gnuplot --version > /dev/null 2>&1") == 0)
+    {
+        const string cmd = "gnuplot " + scriptFile;
+        system(cmd.c_str());
+        cout << "Gershgorin plot saved to " << imageFile << "\n";
+
+        const string openCmd = "xdg-open " + imageFile + " >/dev/null 2>&1 &";
+        system(openCmd.c_str());
+    }
+    else
+    {
+        cout << "gnuplot is not installed, so the Gershgorin plot step was skipped.\n";
+    }
+}
+
 static void runIterativeSolvers(Matrix A, Matrix B, int n)
 {
     cout << "\nPreparing iterative matrix once...\n";
@@ -159,11 +288,23 @@ static void runIterativeSolvers(Matrix A, Matrix B, int n)
 
     cout << "\nSolving using Jacobi...\n";
     saveVectorSolution("solution_jacobi.dat", jSolver.solveIterative());
+    generateAndOpenSolutionPlot("solution_jacobi.dat", "Jacobi", "graph_jacobi.png");
 
     cout << "Solving using Gauss-Seidel...\n";
-    saveVectorSolution("solution_gs.dat", gsSolver.solveIterative());
+    saveVectorSolution("solution_gauss_seidel.dat", gsSolver.solveIterative());
+    generateAndOpenSolutionPlot("solution_gauss_seidel.dat", "Gauss-Seidel", "graph_gauss_seidel.png");
 
-    cout << "\nIterative solutions saved to solution_jacobi.dat and solution_gs.dat\n";
+    cout << "\nIterative solutions saved to solution_jacobi.dat and solution_gauss_seidel.dat\n";
+}
+
+static void runGershgorinAnalysis(const Matrix &A)
+{
+    vector<Matrix::GershgorinDisk> disks = A.gershgorinDisks();
+    pair<long double, long double> bounds = A.gershgorinRealBounds();
+
+    saveGershgorinAnalysis("gershgorin.dat", disks, bounds);
+    cout << "\nGershgorin analysis saved to gershgorin.dat\n";
+    generateGershgorinPlot("gershgorin.dat", disks, bounds);
 }
 
 int main()
@@ -217,6 +358,9 @@ int main()
 
         int choice;
         vector<long double> solution;
+        string solverName;
+        string solutionFile;
+        string graphFile;
 
         cout << "\n========== SELECT SOLVING METHOD ==========\n";
         cout << "1. Gaussian Elimination\n";
@@ -227,14 +371,16 @@ int main()
         cout << "3. Iterative Methods\n";
         cout << "   3.1. Jacobi\n";
         cout << "   3.2. Gauss-Seidel\n";
+        cout << "4. Gershgorin Analysis (Eigenvalue Bounds, not Ax=b solver)\n";
         cout << "==========================================\n";
-        cout << "Enter your choice (1, 2, or 3): ";
+        cout << "Enter your choice (1, 2, 3, or 4): ";
         cin >> choice;
 
         if (choice == 1)
         {
             cout << "\nSolving using Gaussian Elimination...\n";
             solution = Aug.solve(SLE::GAUSSIAN);
+            solverName = "Gaussian Elimination";
         }
         else if (choice == 2)
         {
@@ -271,6 +417,7 @@ int main()
 
             cout << "\nSolving using LU Decomposition (" << method_name << ")...\n";
             solution = Aug.solve(SLE::LU_METHOD, lu_method);
+            solverName = "LU " + method_name;
         }
         else if (choice == 3)
         {
@@ -287,23 +434,29 @@ int main()
             runIterativeSolvers(A, B, n);
             return 0;
         }
+        else if (choice == 4)
+        {
+            runGershgorinAnalysis(A);
+            return 0;
+        }
         else
         {
             cout << "Invalid choice! Using Gaussian Elimination...\n";
             cout << "\nSolving using Gaussian Elimination...\n";
             solution = Aug.solve(SLE::GAUSSIAN);
+            solverName = "Gaussian Elimination";
         }
 
         cout << "Solved successfully.\n";
 
-        saveVectorSolution("solution.dat", solution);
+        solutionFile = "solution_" + slugify(solverName) + ".dat";
+        graphFile = "graph_" + slugify(solverName) + ".png";
 
-        cout << "Solution saved to solution.dat\n";
+        saveVectorSolution(solutionFile, solution);
 
-        if (system("gnuplot --version > /dev/null 2>&1") == 0)
-            system("gnuplot plot.gnu_graph");
-        else
-            cout << "gnuplot is not installed, so the plot step was skipped.\n";
+        cout << "Solution saved to " << solutionFile << "\n";
+
+        generateAndOpenSolutionPlot(solutionFile, solverName, graphFile);
     }
     catch (const exception &e)
     {

@@ -15,11 +15,15 @@ protected:
 public:
     Interpolation();
     Interpolation(const std::vector<long double> &x, const std::vector<long double> &y);
+    virtual ~Interpolation() = default;
 
     void setData(const std::vector<long double> &x, const std::vector<long double> &y);
     int pointCount() const;
     const std::vector<long double> &getX() const;
     const std::vector<long double> &getY() const;
+
+    virtual long double evaluate(long double x) const = 0;
+    virtual std::vector<std::pair<long double, long double>> evaluateRange(long double xMin, long double xMax, int samples) const = 0;
 };
 
 // Lagrange is a concrete interpolation solver built on Interpolation.
@@ -29,8 +33,8 @@ public:
     Lagrange();
     Lagrange(const std::vector<long double> &x, const std::vector<long double> &y);
 
-    long double evaluate(long double x) const;
-    std::vector<std::pair<long double, long double>> evaluateRange(long double xMin, long double xMax, int samples) const;
+    long double evaluate(long double x) const override;
+    std::vector<std::pair<long double, long double>> evaluateRange(long double xMin, long double xMax, int samples) const override;
 };
 
 #endif

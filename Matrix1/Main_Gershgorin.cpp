@@ -91,8 +91,11 @@ int main()
             cin >> left;
         }
 
-        Gershgorin gersh(n, n);
-        gersh.readFromFile(left);
+        Matrix A(n, n);
+        A.readFromFile(left);
+
+        // Gershgorin uses the inherited Matrix storage directly.
+        Gershgorin gersh(A);
 
         vector<Matrix::GershgorinDisk> disks = gersh.disks();
         pair<long double, long double> bounds = gersh.realBounds();

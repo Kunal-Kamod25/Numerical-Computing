@@ -17,4 +17,17 @@ public:
     std::pair<long double, long double> getRealBounds() const;
 };
 
+// Gershgorin analysis class inheriting from Eigenvalues.
+// No extra data members are introduced; it uses inherited Matrix storage.
+class Gershgorin : public Eigenvalues
+{
+public:
+    Gershgorin();
+    Gershgorin(int r, int c);
+    Gershgorin(const Matrix &base);
+
+    std::vector<Matrix::GershgorinDisk> disks() const;
+    std::pair<long double, long double> realBounds() const;
+};
+
 #endif

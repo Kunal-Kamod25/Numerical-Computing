@@ -1,0 +1,482 @@
+================================================================================
+         QUICK REFERENCE: MATRIX CLASS MEMBERS & INHERITANCE
+================================================================================
+
+VISUAL INHERITANCE WITH MEMBER TRACKING
+=========================================
+
+┌─────────────────────────────────────────────────────────┐
+│                    Matrix (Base)                        │
+├─────────────────────────────────────────────────────────┤
+│  PROTECTED DATA:                                        │
+│    - int rows              (matrix rows)                │
+│    - int cols              (matrix columns)             │
+│    - std::vector< std::vector<long double> > mat        │
+│      (actual 2D matrix data storage)                    │
+│    - std::vector<long double> solution_vec              │
+│      (stores solution from solvers)                     │
+├─────────────────────────────────────────────────────────┤
+│  PUBLIC METHODS (45+ methods):                          │
+│    Constructors, operators, I/O, transformations,      │
+│    property checks, determinant, inverse               │
+│    ★ KEY: gershgorinDisks() & gershgorinRealBounds()   │
+└─────────────────────────────────────────────────────────┘
+                          │
+                 ┌────────┴────────┐
+                 │                 │
+    ┌────────────────────┐   ┌─────────────────────┐
+    │   Eigenvalues      │   │  Interpolation      │
+    ├────────────────────┤   ├─────────────────────┤
+    │ Inherits from:     │   │ Inherits from:      │
+    │  - rows            │   │  - rows             │
+    │  - cols            │   │  - cols             │
+    │  - mat[][]         │   │  - mat[][]          │
+    │  - solution_vec[]  │   │  - solution_vec[]   │
+    │                    │   │                     │
+    │ Adds methods:      │   │ Adds DATA:          │
+    │  - getDisks()      │   │  - xData[]          │
+    │  - getRealBounds() │   │  - yData[]          │
+    │                    │   │                     │
+    │ Uses from Matrix:  │   │ Adds methods:       │
+    │  ✓ readFromFile()  │   │  - setData()        │
+    │  ✓ readFromFile()  │   │  - pointCount()     │
+    │  ✓ displayToFile() │   │  - getX()           │
+    │  ✓ transpose()     │   │  - getY()           │
+    │  ✓ determinant()   │   │  - evaluate() PURE  │
+    │  ✓ inverse()       │   │  - evaluateRange()  │
+    │  ✓ operators       │   │    PURE             │
+    └────────────────────┘   │                     │
+             │               └─────────────────────┘
+             │                       │
+       ┌─────────────┐          ┌──────────────┐
+       │ Gershgorin  │          │  Lagrange    │
+       ├─────────────┤          ├──────────────┤
+       │ Inherits    │          │ Inherits all │
+       │ from:       │          │ from:        │
+       │  Eigenvalues│          │  Interpolation
+       │  (which has │          │  (which has  │
+       │   all Matrix│          │   all Matrix │
+       │   members)  │          │   members)   │
+       │             │          │              │
+       │ Adds:       │          │ Implements:  │
+       │  -disks()   │          │  -evaluate() │
+       │  -realBounds│          │  -evaluateRa│
+       │             │          │   nge()      │
+       └─────────────┘          └──────────────┘
+
+
+CHAIN 1: GERSHGORIN INHERITANCE CHAIN (TOP-DOWN)
+================================================
+
+Matrix
+  ├─ PROTECTED DATA:
+  │   └─ int rows, cols
+  │   └─ mat[][]  (2D matrix)
+  │   └─ solution_vec[]
+  │
+  ├─ METHOD GROUPS:
+  │   ├─ Constructors: Matrix(), Matrix(r,c), Matrix(other)
+  │   ├─ Operators: +, -, *, /, (), ==
+  │   ├─ File I/O: readFromFile(), displayToFile()
+  │   ├─ Shape: isSquare(), isSymmetric(), isDiagonal()
+  │   ├─ Transforms: transpose(), determinant(), inverse()
+  │   └─ ★GERSHGORIN★: gershgorinDisks(), gershgorinRealBounds()
+  │
+  └─→ Eigenvalues INHERITS ALL ABOVE +
+       ├─ WRAPPER METHODS:
+       │   └─ getDisks()        { return gershgorinDisks(); }
+       │   └─ getRealBounds()   { return gershgorinRealBounds(); }
+       │
+       └─→ Gershgorin INHERITS ALL ABOVE +
+            ├─ CONVENIENCE ALIASES:
+            │   └─ disks()       { return getDisks(); }
+            │   └─ realBounds()  { return getRealBounds(); }
+
+
+CHAIN 2: LAGRANGE INHERITANCE CHAIN (TOP-DOWN)
+===============================================
+
+Matrix
+  ├─ PROTECTED DATA:
+  │   ├─ int rows, cols
+  │   ├─ mat[][]  (2D matrix - not used for interpolation)
+  │   └─ solution_vec[]  (not used for interpolation)
+  │
+  └─→ Interpolation INHERITS above +
+       ├─ NEW PROTECTED DATA:
+       │   ├─ std::vector<long double> xData      (x-coordinates)
+       │   └─ std::vector<long double> yData      (y-coordinates)
+       │
+       ├─ CONCRETE METHODS:
+       │   ├─ setData(x, y)        { xData=x; yData=y; validate(); }
+       │   ├─ pointCount()         { return xData.size(); }
+       │   ├─ getX()               { return xData; }
+       │   └─ getY()               { return yData; }
+       │
+       ├─ PURE VIRTUAL (no implementation):
+       │   ├─ evaluate(x) = 0
+       │   └─ evaluateRange(xMin, xMax, samples) = 0
+       │
+       └─→ Lagrange INHERITS all above +
+            ├─ IMPLEMENTED METHODS (override virtual):
+            │   ├─ evaluate(x)        { compute Lagrange polynomial }
+            │   └─ evaluateRange(...) { call evaluate many times }
+
+
+================================================================================
+MAPPING: WHAT MATRIX PROVIDES TO EACH CHILD
+================================================================================
+
+MATRIX CLASS COMPLETE METHOD LIST:
+===================================
+
+Category A: CONSTRUCTORS & BASIC
+═════════════════════════════════
+
+1. Matrix()
+   PURPOSE: Create empty matrix (rows=0, cols=0)
+   USAGE IN CHILDREN:
+      Eigenvalues eig;          // Inherited constructor call
+      Gershgorin g;             // Calls Eigenvalues() → Matrix()
+      Interpolation interp;     // Inherited constructor call
+      Lagrange lag;             // Calls Interpolation() → Matrix()
+
+2. Matrix(int r, int c)
+   PURPOSE: Create r×c matrix
+   USAGE IN CHILDREN:
+      Eigenvalues eig(3, 3);
+      Gershgorin g(5, 5);
+      Interpolation interp(0, 0);    // Rarely used directly
+      Lagrange lag(0, 0);            // Rarely used directly
+
+3. Matrix(const Matrix &other)
+   PURPOSE: Copy constructor
+   USAGE IN CHILDREN:
+      Eigenvalues(const Matrix &base);
+      Gershgorin(const Matrix &base);
+
+
+Category B: ARITHMETIC OPERATORS
+═════════════════════════════════
+
+4. Matrix operator+(const Matrix &other)
+   PURPOSE: Matrix addition A + B
+   USAGE: Eigenvalues/Gershgorin can add matrices (inherited)
+   EXAMPLE: Eigenvalues e1, e2; auto result = e1 + e2;
+
+5. Matrix operator-(const Matrix &other)
+   PURPOSE: Matrix subtraction A - B
+   USAGE: Eigenvalues/Gershgorin can subtract (inherited)
+
+6. Matrix operator*(const Matrix &other)
+   PURPOSE: Matrix multiplication A * B
+   USAGE: Eigenvalues/Gershgorin can multiply (inherited)
+
+7. Matrix operator/(const Matrix &other)
+   PURPOSE: Element-wise division A / B
+   USAGE: Eigenvalues/Gershgorin (rarely used)
+
+
+Category C: ELEMENT ACCESS & COMPARISON
+════════════════════════════════════════
+
+8. long double &operator()(int i, int j)
+   PURPOSE: Read/write access to element [i][j]
+   USAGE: Eigenvalues e; e(0, 1) = 5.0;
+
+9. long double operator()(int i, int j) const
+   PURPOSE: Read-only access to element [i][j]
+   USAGE: Eigenvalues e; double val = e(0, 1);
+
+10. bool operator==(const Matrix &other)
+    PURPOSE: Compare two matrices for equality
+    USAGE: if (e1 == e2) { ... }
+
+
+Category D: FILE INPUT/OUTPUT
+══════════════════════════════
+
+★ HEAVILY USED BY EIGENVALUES/GERSHGORIN ★
+
+11. void readFromFile(const std::string &filename)
+    PURPOSE: Load matrix from file
+    FORMAT: First line: rows cols
+            Next rows lines: row elements space-separated
+    USAGE IN CHAIN 1 (Eigenvalues/Gershgorin):
+       Gershgorin g(3, 3);
+       g.readFromFile("matrix.txt");  // ← Inherited from Matrix
+       
+    NOT TYPICALLY USED IN CHAIN 2 (Interpolation/Lagrange):
+       Lagrange uses setData() instead of readFromFile()
+
+12. void readFromFile(std::ifstream &fin)
+    PURPOSE: Load matrix from open file stream
+    USAGE: Opens file, calls readFromFile(string), closes
+
+13. void displayToFile(std::ofstream &fout)
+    PURPOSE: Write matrix to open output stream
+    USAGE: Eigenvalues e; ofstream out("result.txt"); e.displayToFile(out);
+
+
+Category E: MATRIX PROPERTIES & ANALYSIS
+════════════════════════════════════════
+
+14. bool isSquare() const
+    PURPOSE: Check if n×n matrix
+    USAGE: if (g.isSquare()) { /* can compute eigenvalues */ }
+    
+15. bool isSymmetric() const
+    PURPOSE: Check if A = A^T
+    USAGE: if (g.isSymmetric()) { /* eigenvalues are real */ }
+
+16. bool isIdentity() const
+    PURPOSE: Check if A = I (identity matrix)
+    USAGE: Eigenvalues/Gershgorin (rarely used)
+
+17. bool isNull() const
+    PURPOSE: Check if all elements zero
+    USAGE: Eigenvalues/Gershgorin (rarely used)
+
+18. bool isDiagonal() const
+    PURPOSE: Check if non-diagonal elements are zero
+    USAGE: if (g.isDiagonal()) { /* all disks are points */ }
+
+19. bool isDiagonallyDominant() const
+    PURPOSE: Check if |a_ii| > Σ|a_ij| for j≠i
+    USAGE: if (g.isDiagonallyDominant()) 
+         { /* Gershgorin gives tight bounds */ }
+
+20. bool isTranspose(const Matrix &other)
+    PURPOSE: Check if this is transpose of other
+    USAGE: if (e1.isTranspose(e2)) { ... }
+
+
+Category F: MATRIX TRANSFORMATIONS
+═══════════════════════════════════
+
+21. void makeDiagonallyDominant()
+    PURPOSE: Rearrange rows to achieve diagonal dominance
+    USAGE IN EIGENVALUES:
+       Gershgorin g(3, 3);
+       g.readFromFile("matrix.txt");
+       g.makeDiagonallyDominant();  // Rearrange for better bounds
+       auto bounds = g.realBounds();  // Tighter bounds now
+
+22. Matrix transpose() const
+    PURPOSE: Return A^T
+    USAGE: Eigenvalues e; Eigenvalues et = e.transpose();
+    NOTE: Returns Matrix, not Eigenvalues (type conversion)
+
+23. long double determinant() const
+    PURPOSE: Compute det(A)
+    USAGE: double det = g.determinant();
+
+24. Matrix inverse() const
+    PURPOSE: Compute A^-1
+    USAGE: Matrix A; Matrix Ainv = A.inverse();
+
+
+Category G: ★ GERSHGORIN SPECIFIC (KEY For Chain 1) ★
+════════════════════════════════════════════════════
+
+25. std::vector<GershgorinDisk> gershgorinDisks() const
+    PURPOSE: Compute Gershgorin circles
+    RETURNS: Vector of structs {center, radius}
+    
+    ALGORITHM:
+      for i in 0..n-1:
+        center_i = a_ii        (diagonal element)
+        radius_i = Σ|a_ij|    (sum of absolute values, j≠i)
+    
+    USAGE IN Chain 1:
+       Gershgorin g(3, 3);
+       g.readFromFile("matrix.txt");
+       auto disks = g.gershgorinDisks();         // Inherited, used by getDisks()
+       // Now Eigenvalues wraps it:
+       auto disks = g.getDisks();                // Calls gershgorinDisks()
+       // Now Gershgorin aliases it:
+       auto disks = g.disks();                   // Calls getDisks()
+    
+    EXAMPLE OUTPUT:
+       Disk 0: center = 5.0, radius = 2.5
+       Disk 1: center = 8.0, radius = 1.8
+       Disk 2: center = 3.0, radius = 0.7
+
+26. std::pair<long double, long double> gershgorinRealBounds() const
+    PURPOSE: Find min/max eigenvalue bounds from all disks
+    RETURNS: (min_eigenvalue, max_eigenvalue)
+    
+    ALGORITHM:
+      min_bound = min(center_i - radius_i) for all i
+      max_bound = max(center_i + radius_i) for all i
+    
+    USAGE IN Chain 1:
+       auto bounds = g.gershgorinRealBounds();         // Inherited
+       auto bounds = g.getRealBounds();                // Wraps it
+       auto bounds = g.realBounds();                   // Wraps it
+    
+    EXAMPLE:
+       Disk 0: [5.0-2.5, 5.0+2.5] = [2.5, 7.5]
+       Disk 1: [8.0-1.8, 8.0+1.8] = [6.2, 9.8]
+       Disk 2: [3.0-0.7, 3.0+0.7] = [2.3, 3.7]
+       Combined: min = 2.3, max = 9.8
+       → Eigenvalues in [2.3, 9.8]
+
+
+Category H: SOLUTION STORAGE & OUTPUT
+══════════════════════════════════════
+
+27. void saveSolution(const std::string &filename)
+    PURPOSE: Write solution vector to file
+    USAGE: LU decomposition stores solution in solution_vec[], then saves it
+
+28. const std::vector<long double>& getSolutionVec() const
+    PURPOSE: Get reference to solution_vec[]
+    USAGE: auto solution = m.getSolutionVec();
+
+29. void displayProperties() const
+    PURPOSE: Print matrix properties to console
+    USAGE: Eigenvalues e; e.displayProperties();
+    PRINTS: size, square/symmetric/diagonal status, properties
+
+
+================================================================================
+HOW EACH CLASS USES MATRIX MEMBERS
+================================================================================
+
+EIGENVALUES USAGE TABLE:
+════════════════════════
+
+Method/Data          │ Used?  │ How                           │ Example
+────────────────────────────────────────────────────────────────────────────
+rows, cols           │ ✓✓✓✓   │ Access matrix dimensions      │ for (int i = 0; i < rows; i++)
+mat[][]              │ ✓✓✓    │ Access matrix elements        │ gershgorinDisks() uses mat[i][j]
+solution_vec         │ -      │ Not used                      │ N/A
+readFromFile()       │ ✓✓✓✓   │ Load matrix from disk         │ eig.readFromFile("data.txt");
+displayToFile()      │ ✓      │ Save matrix to file           │ eig.displayToFile(out);
+operator+/-/*        │ -      │ Rarely used                   │ Can do eig1 + eig2 if needed
+operator()           │ ✓✓✓    │ Access elements by index      │ val = eig(i, j);
+transpose()          │ ✓      │ Can transpose                 │ eig_t = eig.transpose();
+determinant()        │ ✓      │ Can compute determinant       │ det = eig.determinant();
+inverse()            │ ✓      │ Can invert                    │ inv = eig.inverse();
+isSquare()           │ ✓✓     │ Check if n×n (needed for Gd)  │ Must be square for Gershgorin
+isSymmetric()        │ ✓      │ Check symmetry                │ if (eig.isSymmetric()) { ✓ }
+isDiagonal()         │ ✓      │ Check if diagonal             │ if (eig.isDiagonal()) { special case }
+isDiagonallyDominant │ ✓✓✓    │ Check dominance (key for Gd)  │ Define tight bounds if true
+isIdentity()         │ -      │ Not used                      │ N/A
+isNull()             │ -      │ Not used                      │ N/A
+isTranspose()        │ -      │ Not used                      │ N/A
+makeDiagonallyDominant│ ✓✓   │ Rearrange for better bounds   │ eig.makeDiagonallyDominant();
+gershgorinDisks()    │ ✓✓✓✓   │ Core algorithm                │ eig.getDisks() → gershgorinDisks()
+gershgorinRealBounds │ ✓✓✓✓   │ Core algorithm                │ eig.getRealBounds() → ...RealBounds()
+
+
+INTERPOLATION/LAGRANGE USAGE TABLE:
+════════════════════════════════════
+
+Method/Data          │ Used?  │ How                           │ Example
+────────────────────────────────────────────────────────────────────────────
+rows, cols           │ -      │ Not used (no matrix analysis) │ N/A
+mat[][]              │ -      │ Not used (using xData,yData)  │ N/A
+solution_vec         │ -      │ Not used                      │ N/A
+readFromFile()       │ -      │ Not used (uses setData)       │ Use setData() instead
+displayToFile()      │ -      │ Not used                      │ N/A
+xData[], yData[]     │ ✓✓✓✓   │ Store interpolation points    │ setData(x, y) copies to xData/yData
+setData()            │ ✓✓✓✓   │ Validate and store points     │ lag.setData(x, y);
+pointCount()         │ ✓✓✓    │ Get number of points          │ n = lag.pointCount();
+getX()               │ ✓✓     │ Access x-coordinates          │ auto x = lag.getX();
+getY()               │ ✓✓     │ Access y-coordinates          │ auto y = lag.getY();
+evaluate()           │ ✓✓✓✓   │ Core algorithm (Lagrange)     │ y_at_x = lag.evaluate(x);
+evaluateRange()      │ ✓✓✓✓   │ Create smooth curve           │ curve = lag.evaluateRange(0, 10, 100);
+All Matrix operators │ -      │ Could be used, rarely         │ Not typically needed
+
+
+================================================================================
+KEY INSIGHTS: WHAT GETS REUSED
+================================================================================
+
+EIGENVALUES/GERSHGORIN (Chain 1) REUSES:
+=========================================
+✓ Data storage: rows, cols, mat[][] - matrix dimensions and elements
+✓ I/O: readFromFile(), displayToFile() - load and save matrices
+✓ Algorithms: gershgorinDisks(), gershgorinRealBounds() - core eigenvalue analysis
+✓ Properties: isDiagonallyDominant(), isSquare() - check matrix conditions
+✓ Transforms: transpose(), determinant() - optional matrix operations
+✓ Access: operator() - element access [i][j]
+
+WHY INHERITANCE MAKES SENSE:
+  - Eigenvalues IS-A Matrix (specializes in eigenvalue analysis)
+  - Inherits all matrix operations for matrix manipulation
+  - Applies Gershgorin algorithm to inherited matrix data
+  - Clean interface: loadMatrix → analyzeEigenvalues → getBounds
+
+
+INTERPOLATION/LAGRANGE (Chain 2) REUSES:
+=========================================
+✓ Class structure: Inherits from Matrix (for code organization)
+✗ Data storage: Doesn't use mat[][] (uses xData/yData instead)
+✗ I/O: Doesn't use readFromFile() (uses setData() instead)
+✗ Matrix operations: Doesn't use arithmetic operators
+✓ Inheritance principle: Extending base with new methods
+
+WHY INHERITANCE MAKES SENSE:
+  - Interpolation IS-A Matrix (extends it with new behavior)
+  - Data structure already established in Matrix base
+  - Conceptual: Both are numerical data holders
+  - Polymorphism: Can treat as Matrix if needed (rarely done)
+
+
+WHAT WOULD HAPPEN WITHOUT INHERITANCE:
+========================================
+
+Option 1: Manual Replication (BAD)
+─────────────────────────────────
+  class Eigenvalues {
+    private: int rows, cols;
+             std::vector<...> mat;
+             std::vector<...> solution_vec;
+    public: readFromFile(...) { ... }  // DUPLICATED CODE
+            displayToFile(...) { ... }  // DUPLICATED CODE
+            ... all Matrix methods again ...
+  }
+  
+  Problem: Code duplication, maintenance nightmare
+
+Option 2: Composition (ALTERNATIVE)
+────────────────────────────────────
+  class Eigenvalues {
+    private: Matrix m;  // Contains a Matrix
+    public: auto disks() { return m.gershgorinDisks(); }
+  }
+  
+  Problem: Cannot use Eigenvalues AS A Matrix (no polymorphism)
+           Requires forwarding every method manually
+
+Option 3: Inheritance (ACTUAL - BEST)
+─────────────────────────────────────
+  class Eigenvalues : public Matrix { ... }
+  
+  Benefits: Code reuse, IS-A semantics, can pass Eigenvalues where Matrix expected
+           Clean, maintainable, follows OOP principles
+
+
+================================================================================
+QUICK LOOKUP: "Which Matrix Method Does My Class Use?"
+================================================================================
+
+Gershgorin g;
+g.readFromFile("matrix.txt");           ← From Matrix
+auto disks = g.disks();                 ← From Gershgorin (wraps getDisks from Eigenvalues)
+auto bounds = g.realBounds();           ← From Gershgorin (wraps getRealBounds from Eigenvalues)
+if (g.isDiagonallyDominant()) { ... }   ← From Matrix
+int n = g.rows;                         ← From Matrix (PROTECTED, use carefully)
+
+Lagrange lag(x, y);
+lag.setData(x, y);                      ← From Interpolation
+int n = lag.pointCount();               ← From Interpolation
+auto y_val = lag.evaluate(0.5);         ← From Lagrange (override of virtual)
+auto curve = lag.evaluateRange(0, 10);  ← From Lagrange (override of virtual)
+
+================================================================================
+                              END OF REFERENCE
+================================================================================

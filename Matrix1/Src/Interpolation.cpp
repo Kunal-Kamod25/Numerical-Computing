@@ -5,16 +5,17 @@
 
 using namespace std;
 
-Interpolation::Interpolation() {}
+Interpolation::Interpolation() {} // Default constructor creates an empty interpolation object.
 
-Interpolation::Interpolation(const vector<long double> &x, const vector<long double> &y)
+Interpolation::Interpolation(const vector<long double> &x, const vector<long double> &y) //Second constructor takes x and y vectors and immediately calls setData(x, y) for validation + storage.
+
 {
     setData(x, y);
 }
 
 void Interpolation::setData(const vector<long double> &x, const vector<long double> &y)
 {
-    if (x.size() != y.size() || x.empty())
+    if (x.size() != y.size() || x.empty()) // Checks two rules: x and y must have same size. Data cannot be empty.
         throw invalid_argument("Interpolation data must be non-empty and x/y sizes must match.");
 
     // Ensure no duplicate x-values, because Lagrange basis would divide by zero.

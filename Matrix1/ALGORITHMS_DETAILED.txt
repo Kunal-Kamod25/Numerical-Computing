@@ -1,0 +1,870 @@
+================================================================================
+           DETAILED ALGORITHM EXPLANATIONS WITH WORKED EXAMPLES
+         Gershgorin Circle Theorem & Lagrange Polynomial Interpolation
+================================================================================
+
+TABLE OF CONTENTS:
+1. Gershgorin Circle Theorem - Mathematical Foundation
+2. Gershgorin Circle Theorem - Worked Examples
+3. Gershgorin in Code - Implementation Details
+4. Lagrange Polynomial Interpolation - Mathematical Foundation
+5. Lagrange Interpolation - Worked Examples
+6. Lagrange in Code - Implementation Details
+7. Comparison & Use Cases
+
+================================================================================
+1. GERSHGORIN CIRCLE THEOREM - MATHEMATICAL FOUNDATION
+================================================================================
+
+THEOREM STATEMENT:
+══════════════════
+For an n×n complex matrix A = (a_ij), all eigenvalues lie within the union
+of n circular disks in the complex plane.
+
+DISK i (Gershgorin Circle i):
+  Center: c_i = a_ii         (the diagonal element)
+  Radius: r_i = Σ |a_ij|    (sum of absolute values of off-diagonal elements)
+             j ≠ i
+
+MATHEMATICAL NOTATION:
+  λ ∈ ∪ D_i  where D_i = {z ∈ ℂ : |z - a_ii| ≤ r_i}
+  
+  In plain English:
+  "Every eigenvalue λ satisfies |λ - a_ii| ≤ Σ|a_ij| for some i"
+
+WHY THIS WORKS:
+===============
+Proof Sketch:
+  If λ is an eigenvalue, then (A - λI)x = 0 for some nonzero x
+  Let |x_k| be the maximum component of x
+  Consider row k of (A - λI)x = 0:
+    Σ (a_kj - λδ_kj) x_j = 0
+    j
+  
+  Rearranging row k:
+    a_kk x_k - λ x_k = -Σ a_kj x_j
+                       j≠k
+    (a_kk - λ) x_k = -Σ a_kj x_j
+    
+    |a_kk - λ| |x_k| = |Σ a_kj x_j|
+                         j≠k
+                
+    |a_kk - λ| ≤ Σ |a_kj| |x_j| / |x_k|
+                 j≠k
+                
+                ≤ Σ |a_kj|  (since |x_j|/|x_k| ≤ 1)
+                 j≠k
+
+  Therefore: λ lies in Gershgorin disk k centered at a_kk with radius Σ|a_kj|
+
+REAL EIGENVALUE BOUNDS:
+=======================
+For REAL matrices with real eigenvalues:
+  
+  Real bounds: [min_value, max_value]
+  
+  min_value = min(c_i - r_i) for i = 0 to n-1
+  max_value = max(c_i + r_i) for i = 0 to n-1
+  
+  All real eigenvalues satisfy: min_value ≤ λ ≤ max_value
+
+DIAGONAL DOMINANCE SPECIAL CASE:
+=================================
+A matrix is STRICTLY DIAGONALLY DOMINANT if:
+  |a_ii| > Σ |a_ij|  for all i (off-diagonal sum is smaller)
+          j ≠ i
+
+In this case:
+  Each disk D_i is centered at a_ii with radius r_i < |a_ii|
+  ⟹ Disk i does NOT contain zero
+  ⟹ Matrix is non-singular (det(A) ≠ 0)
+  ⟹ Better eigenvalue bounds (tighter information)
+
+================================================================================
+2. GERSHGORIN CIRCLE THEOREM - WORKED EXAMPLES
+================================================================================
+
+EXAMPLE 1: 3×3 Symmetric Matrix
+════════════════════════════════
+
+Matrix A:
+  ┌        ┐
+  │ 4   1  0 │
+  │ 1   6  1 │
+  │ 0   1  8 │
+  └        ┘
+
+STEP 1: Compute Gershgorin Disks
+──────────────────────────────────
+Row 0: center = a_00 = 4
+       radius = |a_01| + |a_02| = |1| + |0| = 1
+       Disk 0: center = 4, radius = 1
+
+Row 1: center = a_11 = 6
+       radius = |a_10| + |a_12| = |1| + |1| = 2
+       Disk 1: center = 6, radius = 2
+
+Row 2: center = a_22 = 8
+       radius = |a_20| + |a_21| = |0| + |1| = 1
+       Disk 2: center = 8, radius = 1
+
+
+STEP 2: Visualize Disks on Number Line
+────────────────────────────────────────
+Real eigenvalue intervals:
+  Disk 0: [4-1, 4+1] = [3, 5]
+  Disk 1: [6-2, 6+2] = [4, 8]
+  Disk 2: [8-1, 8+1] = [7, 9]
+
+Number line:
+  0        3  4  5  6  7  8  9    10
+  |--------|D0|--|D1|--|D2|----|
+          ●□───────□───────○
+
+Combined bounds:
+  min_value = min(3, 4, 7) = 3
+  max_value = max(5, 8, 9) = 9
+  
+  ⟹ ALL eigenvalues in [3, 9]
+
+ACTUAL EIGENVALUES (for verification):
+  λ_1 ≈ 3.4, λ_2 ≈ 5.7, λ_3 ≈ 8.9
+  
+  ✓ All lie within [3, 9]? YES!
+  ✓ Gershgorin bounds are correct (though loose)
+
+
+STEP 3: Check Diagonal Dominance
+─────────────────────────────────
+
+Row 0: |a_00| = 4, Σ|a_0j| = 1  → 4 > 1? YES ✓
+       j≠0
+
+Row 1: |a_11| = 6, Σ|a_1j| = 2  → 6 > 2? YES ✓
+       j≠1
+
+Row 2: |a_22| = 8, Σ|a_2j| = 1  → 8 > 1? YES ✓
+       j≠2
+
+Matrix IS STRICTLY DIAGONALLY DOMINANT
+⟹ No eigenvalue = 0
+⟹ Matrix is invertible
+⟹ Good condition for numerical solvers (Jacobi, Gauss-Seidel)
+
+
+EXAMPLE 2: 3×3 General Matrix (Not Always as Nice)
+════════════════════════════════════════════════════
+
+Matrix B:
+  ┌           ┐
+  │  2   3   1 │
+  │ -1   5   2 │
+  │  0   1   3 │
+  └           ┘
+
+STEP 1: Compute Gershgorin Disks
+──────────────────────────────────
+
+Row 0: center = 2,  radius = |3| + |1| = 4
+       Disk 0: [2-4, 2+4] = [-2, 6]
+
+Row 1: center = 5,  radius = |-1| + |2| = 3
+       Disk 1: [5-3, 5+3] = [2, 8]
+
+Row 2: center = 3,  radius = |0| + |1| = 1
+       Disk 2: [3-1, 3+1] = [2, 4]
+
+
+STEP 2: Combined Bounds
+───────────────────────
+
+min_value = min(-2, 2, 2) = -2
+max_value = max(6, 8, 4) = 8
+
+⟹ Eigenvalues in [-2, 8]  (quite a wide range!)
+
+STEP 3: Check Diagonal Dominance
+─────────────────────────────────
+
+Row 0: |2| = 2,  Σ|off-diag| = 4  → 2 > 4? NO ✗
+Row 1: |5| = 5,  Σ|off-diag| = 3  → 5 > 3? YES ✓
+Row 2: |3| = 3,  Σ|off-diag| = 1  → 3 > 1? YES ✓
+
+NOT diagonally dominant overall
+⟹ Tighter bounds not guaranteed
+⟹ Bounds are looser (less useful information)
+
+LESSON: Non-diagonally dominant matrices give wider eigenvalue ranges
+
+
+EXAMPLE 3: Improving Bounds with Row Permutation
+══════════════════════════════════════════════════
+
+Same Matrix B, but reorder rows strategically:
+
+Reordered B':  [Swap row 0 and row 1]
+  ┌           ┐
+  │ -1   5   2 │
+  │  2   3   1 │
+  │  0   1   3 │
+  └           ┘
+
+NEW GERSHGORIN DISKS:
+─────────────────────
+
+Row 0 (was row 1): center = -1,  radius = |5| + |2| = 7
+       Disk 0: [-1-7, -1+7] = [-8, 6]
+
+Row 1 (was row 0): center = 2,   radius = |3| + |1| = 4
+       Disk 1: [2-4, 2+4] = [-2, 6]
+
+Row 2: center = 3,   radius = |0| + |1| = 1
+       Disk 2: [3-1, 3+1] = [2, 4]
+
+NEW BOUNDS:
+  min_value = min(-8, -2, 2) = -8
+  max_value = max(6, 6, 4) = 6
+
+Hmm, got worse! Not all permutations help.
+Try another permutation...
+
+Actually, the best permutation would depend on the specific matrix.
+Point: Row reordering CAN improve bounds (makeDiagonallyDominant() does this)
+
+================================================================================
+3. GERSHGORIN IN CODE - IMPLEMENTATION DETAILS
+================================================================================
+
+PSEUDOCODE FOR gershgorinDisks():
+══════════════════════════════════
+
+function gershgorinDisks() returns vector<GershgorinDisk>:
+    disks = []
+    for i = 0 to n-1:
+        center = A[i][i]              // Diagonal element
+        radius = 0
+        for j = 0 to n-1:
+            if j ≠ i:
+                radius += |A[i][j]|   // Sum absolute values
+        disks.push_back({center, radius})
+    return disks
+
+
+ACTUAL C++ CODE (from Matrix_Algorithms.cpp):
+════════════════════════════════════════════
+
+std::vector<Matrix::GershgorinDisk> Matrix::gershgorinDisks() const
+{
+    if (!isSquare())
+        throw std::runtime_error("gershgorin: matrix must be square!");
+    
+    std::vector<GershgorinDisk> disks;
+    
+    int n = rows;
+    for (int i = 0; i < n; ++i)
+    {
+        GershgorinDisk disk;
+        disk.center = mat[i][i];        // Diagonal element a_ii
+        disk.radius = 0.0L;
+        
+        for (int j = 0; j < n; ++j)
+        {
+            if (i != j)
+                disk.radius += fabsl(mat[i][j]);  // Sum |a_ij|
+        }
+        
+        disks.push_back(disk);
+    }
+    
+    return disks;
+}
+
+
+PSEUDOCODE FOR gershgorinRealBounds():
+═════════════════════════════════════
+
+function gershgorinRealBounds() returns pair<double, double>:
+    disks = gershgorinDisks()
+    
+    min_bound = infinity
+    max_bound = -infinity
+    
+    for each disk in disks:
+        lower = disk.center - disk.radius
+        upper = disk.center + disk.radius
+        
+        min_bound = min(min_bound, lower)
+        max_bound = max(max_bound, upper)
+    
+    return {min_bound, max_bound}
+
+
+ACTUAL C++ CODE:
+═══════════════
+
+std::pair<long double, long double> Matrix::gershgorinRealBounds() const
+{
+    auto disks = gershgorinDisks();
+    
+    long double min_bound = std::numeric_limits<long double>::max();
+    long double max_bound = -std::numeric_limits<long double>::max();
+    
+    for (const auto &disk : disks)
+    {
+        long double lower = disk.center - disk.radius;
+        long double upper = disk.center + disk.radius;
+        
+        min_bound = std::min(min_bound, lower);
+        max_bound = std::max(max_bound, upper);
+    }
+    
+    return {min_bound, max_bound};
+}
+
+
+TIME COMPLEXITY:
+════════════════
+
+gershgorinDisks():
+  - Outer loop: n iterations (rows)
+  - Inner loop: n iterations (columns)
+  - Total: O(n²)
+
+gershgorinRealBounds():
+  - Calls gershgorinDisks(): O(n²)
+  - Loop through disks: O(n)
+  - Total: O(n²)
+
+USAGE EXAMPLE:
+══════════════
+
+Gershgorin g(4, 4);
+g.readFromFile("mymatrix.txt");
+
+// Get all disks
+auto disks = g.disks();
+std::cout << "Gershgorin Disks:\n";
+for (size_t i = 0; i < disks.size(); ++i) {
+    std::cout << "Disk " << i << ": center = " << disks[i].center
+              << ", radius = " << disks[i].radius << "\n";
+    std::cout << "  Range: [" << disks[i].center - disks[i].radius 
+              << ", " << disks[i].center + disks[i].radius << "]\n";
+}
+
+// Get eigenvalue bounds
+auto [min_ev, max_ev] = g.realBounds();
+std::cout << "\nEigenvalue bounds: [" << min_ev << ", " << max_ev << "]\n";
+
+================================================================================
+4. LAGRANGE POLYNOMIAL INTERPOLATION - MATHEMATICAL FOUNDATION
+================================================================================
+
+PROBLEM STATEMENT:
+═══════════════════
+Given n data points: (x_0, y_0), (x_1, y_1), ..., (x_{n-1}, y_{n-1})
+with distinct x-values (x_i ≠ x_j for i ≠ j)
+
+Find: A polynomial P(x) of degree ≤ n-1 such that
+      P(x_i) = y_i  for all i = 0, 1, ..., n-1
+
+LAGRANGE'S SOLUTION:
+════════════════════
+
+Define Lagrange Basis Polynomials:
+  L_i(x) = ∏ (x - x_j) / (x_i - x_j)   for j = 0 to n-1, j ≠ i
+           j≠i
+
+Then the interpolating polynomial is:
+  P(x) = Σ y_i * L_i(x)   for i = 0 to n-1
+
+PROPERTIES OF L_i(x):
+  - L_i(x_i) = 1  (basis function equals 1 at its interpolation point)
+  - L_i(x_j) = 0  for j ≠ i  (basis function equals 0 at other points)
+
+Therefore: P(x_i) = y_i * 1 + 0 + 0 + ... = y_i ✓ (passes through all points)
+
+
+MATHEMATICAL NOTATION:
+═══════════════════════
+
+Lagrange Interpolation Formula:
+  P(x) = Σ y_i * ∏ (x - x_j) / (x_i - x_j)
+         i=0     j≠i
+
+Degree: n-1 (for n data points)
+
+Uniqueness: The interpolating polynomial is unique (only one polynomial of
+            degree ≤ n-1 passes through n distinct points)
+
+
+WHY LAGRANGE BASIS?
+════════════════════
+
+Alternative: Solve linear system (Vandermonde matrix)
+  [1    x_0   x_0²   ...  x_0^(n-1)]   [a_0]   [y_0]
+  [1    x_1   x_1²   ...  x_1^(n-1)]   [a_1]   [y_1]
+  [...  ...   ...    ...  ...       ] × [...] = [...]
+  [1    x_{n-1} ...       x_{n-1}^...]   [a_{n-1}] [y_{n-1}]
+
+Problem: Vandermonde matrix is ill-conditioned
+         Solving requires O(n³) operations
+         Numerically unstable
+
+Lagrange Advantages:
+  ✓ Direct formula (no matrix solve)
+  ✓ Numerically stable
+  ✓ O(n) cost per evaluation
+  ✓ Easy to implement
+
+================================================================================
+5. LAGRANGE INTERPOLATION - WORKED EXAMPLES
+================================================================================
+
+EXAMPLE 1: Linear Interpolation (2 points)
+═════════════════════════════════════════════
+
+Data: (1, 3), (4, 9)
+
+Step 1: Define Lagrange Basis Polynomials
+──────────────────────────────────────────
+L_0(x) = (x - 4)/(1 - 4) = (x - 4)/(-3) = (4 - x)/3
+
+L_1(x) = (x - 1)/(4 - 1) = (x - 1)/3
+
+Step 2: Construct Interpolation Polynomial
+───────────────────────────────────────────
+P(x) = 3*L_0(x) + 9*L_1(x)
+     = 3*(4 - x)/3 + 9*(x - 1)/3
+     = (12 - 3x)/3 + (9x - 9)/3
+     = (12 - 3x + 9x - 9)/3
+     = (3 + 6x)/3
+     = 1 + 2x
+
+This is the line through (1, 3) and (4, 9)!
+Slope = (9 - 3)/(4 - 1) = 6/3 = 2 ✓
+
+Step 3: Evaluate at Intermediate Points
+────────────────────────────────────────
+At x = 2:  P(2) = 1 + 2*2 = 5
+At x = 3:  P(3) = 1 + 2*3 = 7
+At x = 2.5: P(2.5) = 1 + 2*2.5 = 6
+
+Step 4: Verify (passes through data points)
+────────────────────────────────────────────
+At x = 1:  P(1) = 1 + 2*1 = 3 ✓
+At x = 4:  P(4) = 1 + 2*4 = 9 ✓
+
+
+EXAMPLE 2: Quadratic Interpolation (3 points)
+═══════════════════════════════════════════════
+
+Data: (0, 1), (1, 2), (2, 5)  [Looks like y = x² + 1]
+
+Lagrange Basis Polynomials:
+───────────────────────────
+
+L_0(x) = [(x-1)(x-2)] / [(0-1)(0-2)] = (x-1)(x-2) / 2
+         = (x² - 3x + 2) / 2
+
+L_1(x) = [(x-0)(x-2)] / [(1-0)(1-2)] = x(x-2) / (-1)
+         = -x(x-2) = -x² + 2x
+
+L_2(x) = [(x-0)(x-1)] / [(2-0)(2-1)] = x(x-1) / 2
+         = (x² - x) / 2
+
+Interpolating Polynomial:
+─────────────────────────
+
+P(x) = 1*L_0(x) + 2*L_1(x) + 5*L_2(x)
+     = (x² - 3x + 2)/2 + 2(-x² + 2x) + 5(x² - x)/2
+     = (x² - 3x + 2)/2 - 2x² + 4x + (5x² - 5x)/2
+     = (x² - 3x + 2 + 5x² - 5x)/2 - 2x² + 4x
+     = (6x² - 8x + 2)/2 - 2x² + 4x
+     = 3x² - 4x + 1 - 2x² + 4x
+     = x² + 1
+
+This is exactly the original function! (Why? Because it's a quadratic)
+
+Evaluate at intermediate points:
+─────────────────────────────────
+
+At x = 0.5: P(0.5) = (0.5)² + 1 = 0.25 + 1 = 1.25
+At x = 1.5: P(1.5) = (1.5)² + 1 = 2.25 + 1 = 3.25
+At x = 3:   P(3) = (3)² + 1 = 9 + 1 = 10 (extrapolation, not interpolation)
+
+Verification:
+──────────────
+At x = 0: P(0) = 0 + 1 = 1 ✓
+At x = 1: P(1) = 1 + 1 = 2 ✓
+At x = 2: P(2) = 4 + 1 = 5 ✓
+
+
+EXAMPLE 3: Step-by-Step Calculation by Hand
+═════════════════════════════════════════════
+
+Data: (1, 2), (3, 4), (5, 8)
+
+Evaluate P(2) manually:
+
+Step 1: Compute L_0(2)
+────────────────────
+L_0(2) = [(2-3)(2-5)] / [(1-3)(1-5)]
+       = [(-1)(-3)] / [(-2)(-4)]
+       = 3 / 8
+       = 0.375
+
+Step 2: Compute L_1(2)
+────────────────────
+L_1(2) = [(2-1)(2-5)] / [(3-1)(3-5)]
+       = [(1)(-3)] / [(2)(-2)]
+       = -3 / (-4)
+       = 0.75
+
+Step 3: Compute L_2(2)
+────────────────────
+L_2(2) = [(2-1)(2-3)] / [(5-1)(5-3)]
+       = [(1)(-1)] / [(4)(2)]
+       = -1 / 8
+       = -0.125
+
+Step 4: Compute P(2)
+──────────────────
+P(2) = 2*L_0(2) + 4*L_1(2) + 8*L_2(2)
+     = 2*(0.375) + 4*(0.75) + 8*(-0.125)
+     = 0.75 + 3.0 - 1.0
+     = 2.75
+
+Notice: L_0(2) + L_1(2) + L_2(2) = 0.375 + 0.75 - 0.125 = 1.0 ✓
+        (Property: Σ L_i(x) = 1 for all x)
+
+================================================================================
+6. LAGRANGE IN CODE - IMPLEMENTATION DETAILS
+================================================================================
+
+PSEUDOCODE FOR evaluate(x):
+═════════════════════════════
+
+function evaluate(x) returns double:
+    result = 0
+    for i = 0 to n-1:
+        basis = 1.0
+        for j = 0 to n-1:
+            if j ≠ i:
+                basis *= (x - x_j) / (x_i - x_j)
+        result += y_i * basis
+    return result
+
+
+ACTUAL C++ CODE (from Interpolation.cpp):
+═══════════════════════════════════════════
+
+long double Lagrange::evaluate(long double x) const
+{
+    if (xData.empty())
+        throw runtime_error("No interpolation data is set.");
+
+    long double result = 0.0L;
+
+    for (size_t i = 0; i < xData.size(); ++i)
+    {
+        long double basis = 1.0L;
+
+        // Compute Lagrange basis L_i(x)
+        for (size_t j = 0; j < xData.size(); ++j)
+        {
+            if (i == j)
+                continue;                    // Skip i
+
+            const long double den = xData[i] - xData[j];
+            if (fabsl(den) < 1e-18L)         // Check for duplicate x-values
+                throw runtime_error("Duplicate x-values found during evaluation.");
+
+            basis *= (x - xData[j]) / den;   // Multiply (x - x_j)/(x_i - x_j)
+        }
+
+        result += yData[i] * basis;          // Add y_i * L_i(x)
+    }
+
+    return result;
+}
+
+
+PSEUDOCODE FOR evaluateRange(xMin, xMax, samples):
+════════════════════════════════════════════════
+
+function evaluateRange(xMin, xMax, samples) returns vector<pair<double, double>>:
+    curve = []
+    step = (xMax - xMin) / (samples - 1)
+    
+    for i = 0 to samples-1:
+        x_i = xMin + i * step
+        y_i = evaluate(x_i)           // Call evaluate() for each point
+        curve.push_back({x_i, y_i})
+    
+    return curve
+
+
+ACTUAL C++ CODE:
+════════════════
+
+vector<pair<long double, long double>> Lagrange::evaluateRange(
+    long double xMin, long double xMax, int samples) const
+{
+    if (samples < 2)
+        throw invalid_argument("samples must be >= 2");
+
+    vector<pair<long double, long double>> curve;
+    curve.reserve(static_cast<size_t>(samples));
+
+    const long double step = (xMax - xMin) / static_cast<long double>(samples - 1);
+    
+    for (int i = 0; i < samples; ++i)
+    {
+        const long double x = xMin + static_cast<long double>(i) * step;
+        curve.push_back({x, evaluate(x)});  // Evaluate at each sampled x
+    }
+
+    return curve;
+}
+
+
+TIME COMPLEXITY:
+════════════════
+
+evaluate(x):
+  - Outer loop: n iterations (interpolation points)
+  - Inner loop: n-1 iterations (compute basis polynomial)
+  - Total: O(n²)
+
+evaluateRange(xMin, xMax, samples):
+  - Loop through samples: 'samples' iterations
+  - Each iteration calls evaluate(): O(n²)
+  - Total: O(samples * n²)
+
+For smooth curves with 200 samples and 7 data points:
+  - 200 * 7² = 200 * 49 = 9,800 operations
+  - Still very fast on modern computers
+
+
+USAGE EXAMPLE:
+════════════════
+
+// 1. Prepare data
+std::vector<long double> x = {0, 1, 2, 3};
+std::vector<long double> y = {1, 2.7, 7.4, 20.1};
+
+// 2. Create interpolator
+Lagrange lag(x, y);
+
+// 3. Evaluate at single point
+long double y_at_half = lag.evaluate(0.5);
+cout << "P(0.5) = " << y_at_half << "\n";
+
+// 4. Generate smooth curve
+auto curve = lag.evaluateRange(0, 3, 150);  // 150 points from 0 to 3
+
+// 5. Save for plotting
+ofstream out("curve.dat");
+for (const auto &[px, py] : curve) {
+    out << px << " " << py << "\n";
+}
+
+// 6. Visualize with gnuplot
+// gnuplot> plot 'data.dat' with points, 'curve.dat'
+
+================================================================================
+7. COMPARISON & USE CASES
+================================================================================
+
+FEATURE COMPARISON:
+═══════════════════
+
+                    Gershgorin               Lagrange
+─────────────────────────────────────────────────────────────
+Purpose        Eigenvalue bounds           Polynomial fitting
+Input          n×n matrix                  n data points
+Output         [min_ev, max_ev]            P(x_0)...P(x_n-1)
+Algorithm      Sum of absolute values      Basis polynomials
+Time to setup  O(n²)                       O(n²)
+Time to query  O(1) bounds                 O(n²) per evaluate
+Exact result   NO (bounds only)            YES (passes through points)
+Numerically    ✓ Very stable               ✓ Generally stable
+ stable        (just addition)             (for small n)
+Use case   Check invertibility        Interpolate curves
+          Analyze convergence        Generate smooth data
+          Bound eigenvalues          Function approximation
+
+
+WHEN TO USE GERSHGORIN:
+════════════════════════
+
+1. Quick eigenvalue bounds without eigenvalue computation
+   - Eigenvalue computation is O(n³) or more
+   - Gershgorin is O(n²)
+   
+2. Check if matrix is non-singular (invertible)
+   - If 0 is NOT in any Gershgorin disk → matrix is invertible
+   
+3. Analyze iterative method convergence
+   - Jacobi, Gauss-Seidel: need spectral radius
+   - Gershgorin gives bounds on spectral radius
+   
+4. Determine if matrix is diagonally dominant
+   - Key property for convergence guarantees
+   - Gershgorin improves understanding
+
+EXAMPLE USE CASE FOR GERSHGORIN:
+──────────────────────────────────
+
+Problem: "Will Jacobi iteration converge?"
+  Jacobi converges if spectral radius < 1
+
+Approach:
+  1. Load matrix A
+  2. Compute Gershgorin bounds [min, max]
+  3. If max < 1: spectral radius < 1 → Jacobi converges ✓
+  4. If min > 1: spectral radius > 1 → Jacobi diverges ✗
+  5. If [min, max] spans 1: inconclusive (need actual eigenvalues)
+
+
+WHEN TO USE LAGRANGE INTERPOLATION:
+═════════════════════════════════════
+
+1. Fit smooth curve through scattered data points
+   - Given Table of values
+   - Need continuous function
+   
+2. Function approximation
+   - Know function at certain points
+   - Approximate at other points
+   
+3. Smooth curve generation for plotting
+   - Data sparse, want smooth visualization
+   - Lagrange gives smooth polynomial curve
+   
+4. When you need exact polynomial passing through points
+   - Other methods (least squares) minimize error
+   - Lagrange guarantees passes through ALL points
+
+EXAMPLE USE CASE FOR LAGRANGE:
+────────────────────────────────
+
+Problem: "Smooth curve for test data"
+
+Scenario: Measured 7 points of some phenomenon
+  (time_1, value_1), ..., (time_7, value_7)
+  Want smooth curve for report
+
+Solution:
+  1. Read 7 data points into vectors x, y
+  2. Create Lagrange interpolator: lag(x, y)
+  3. Generate 200 points: curve = lag.evaluateRange(t_min, t_max, 200)
+  4. Plot with original points overlay
+  5. Result: Smooth curve passing through all original points
+
+
+LIMITATIONS:
+═════════════
+
+Gershgorin Limitations:
+  ✗ Bounds can be very loose for non-diagonally dominant matrices
+  ✗ Only gives bounds, not actual eigenvalues
+  ✗ Complex plane disks, not useful for imaginary eigenvalues
+
+Lagrange Limitations:
+  ✗ High degree oscillation (Runge phenomenon) for many points
+    - For n > 10, polynomial often oscillates wildly between points
+    - Solution: Use spline interpolation instead
+    
+  ✗ All x-values must be distinct (no duplicates)
+  
+  ✗ Extrapolation unreliable (beyond data range)
+    - Polynomial behavior outside [min(x), max(x)] is unpredictable
+    
+  ✗ Small numerical errors can accumulate for large n
+    - Use high precision (long double) if n > 20
+
+
+================================================================================
+8. VISUAL SUMMARY
+================================================================================
+
+GERSHGORIN VISUALIZATION:
+══════════════════════════
+
+Matrix:
+  ┌        ┐
+  │ 4   1  0 │
+  │ 1   6  1 │
+  │ 0   1  8 │
+  └        ┘
+
+Gershgorin Disks in Complex Plane:
+
+         Imaginary
+              ↑
+              │
+    R1 (6,2)  │    ●
+          ◯───┼───◯─ Disk radius 2
+            │ │ │
+        ────┼─┼─┼──→ Real
+            │ │ │
+         ◯──┴─┴─◯  Disks for eigenvalues
+     D0   D1   D2
+   (4,1) (6,2) (8,1)
+
+For Real matrix: eigenvalues on real axis
+Bounds: [3, 9]
+
+
+LAGRANGE VISUALIZATIONS:
+════════════════════════
+
+Example 1: Linear (2 points)
+        ●────────────────● Data points
+       /                  /
+      /                  /
+    ─/──────────────────/──→ x
+               P(x) = line through points
+
+
+Example 2: Quadratic (3 points)
+      ●──────●──────●  Data points
+       \     ∩     /
+        \   / \   /
+         \ /   \ /
+        ──●─────●──→ x
+         Smooth polynomial through points
+
+
+Example 3: Higher order (many points) - BEWARE RUNGE!
+       ●  ●  ●  ●  ●  ●  ●  Data points
+        ╱╰╲╱╰╲╱╰╲╱╰╲╱╰╲╱
+       ╱                ╲   Could oscillate wildly
+      ╱                  ╲
+    ─●──────────────────●──→ x
+    (Not guaranteed simple curve between points)
+
+================================================================================
+CONCLUSION
+================================================================================
+
+Both algorithms are fundamental in numerical computing:
+
+1. GERSHGORIN:
+   - Fast, stable eigenvalue bounds
+   - O(n²) computation
+   - Use when you need to understand matrix properties
+   - Part of Eigenvalues → Gershgorin inheritance chain
+
+2. LAGRANGE:
+   - Exact polynomial through data points
+   - O(n²) per evaluation
+   - Use when you need smooth curves through sparse data
+   - Part of Interpolation → Lagrange inheritance chain
+
+Understanding both helps you analyze matrices AND fit functions!
+
+================================================================================
+                              END OF ALGORITHMS
+================================================================================

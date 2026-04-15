@@ -1,0 +1,500 @@
+================================================================================
+                    DOCUMENTATION FILES GUIDE
+          Learning Resources for Eigenvalues, Gershgorin, 
+               and Interpolation Architecture
+================================================================================
+
+QUICK START - Read These Files in Order:
+═════════════════════════════════════════════════════════════════════════════════
+
+1️⃣  START HERE: INHERITANCE_EXPLANATION.txt
+    ├─ Overview of 2 inheritance chains
+    ├─ What Matrix class provides (all methods & data)
+    ├─ How Eigenvalues uses Matrix
+    ├─ How Gershgorin extends Eigenvalues
+    ├─ How Interpolation uses Matrix differently
+    ├─ How Lagrange implements Interpolation
+    └─ Algorithms explained simply
+
+2️⃣  REFERENCE: MATRIX_MEMBERS_REFERENCE.txt
+    ├─ Visual inheritance diagrams
+    ├─ Complete list of Matrix methods/data (45+ items)
+    ├─ Mapping table: which methods are used by which class
+    ├─ Data members visualization
+    └─ Quick lookup tables
+
+3️⃣  DEEP DIVE: ALGORITHMS_DETAILED.txt
+    ├─ Gershgorin Circle Theorem - mathematical foundation
+    ├─ Gershgorin - worked examples with calculations
+    ├─ Gershgorin - actual C++ code
+    ├─ Lagrange Interpolation - mathematical foundation
+    ├─ Lagrange - worked examples by hand
+    ├─ Lagrange - actual C++ code
+    └─ Use cases and when to use each
+
+
+FILE DETAILS:
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: INHERITANCE_EXPLANATION.txt (84 KB)
+───────────────────────────────────────
+
+SECTIONS:
+  1. Inheritance Hierarchy Diagram
+     - Shows: Matrix → Eigenvalues → Gershgorin (Chain 1)
+     - Shows: Matrix → Interpolation → Lagrange (Chain 2)
+  
+  2. Matrix Class (Base) - What Data & Methods You Get
+     - PROTECTED data: rows, cols, mat[][], solution_vec[]
+     - 45+ PUBLIC methods organized by category
+     - Operators: +, -, *, /, access operator
+     - File I/O: readFromFile(), displayToFile()
+     - Properties: isSquare(), isSymmetric(), isDiagonal(), etc.
+     - Special: gershgorinDisks(), gershgorinRealBounds()
+  
+  3. Eigenvalues Class - Specialized Analysis Layer
+     - Wraps Matrix for eigenvalue analysis
+     - Adds: getDisks(), getRealBounds()
+     - Uses inherited: gershgorinDisks(), gershgorinRealBounds()
+     - Example: How to use it
+  
+  4. Gershgorin Class - Convenience Layer
+     - Inherits from Eigenvalues (→ Matrix)
+     - Adds aliases: disks(), realBounds()
+     - Triple inheritance access documented
+  
+  5. Interpolation & Lagrange Classes - Data Fitting
+     - NEW DATA: xData, yData (interpolation points)
+     - Abstract interface with pure virtual methods
+     - Concrete Lagrange implements evaluate(), evaluateRange()
+  
+  6. What Each Class Inherits from Matrix
+     - Table for Eigenvalues chain
+     - Table for Interpolation chain
+  
+  7. Member Functions & Data Members by Class - COMPLETE REFERENCE
+     - Every class listed with all methods + data
+  
+  8. Algorithms Explained
+     - Gershgorin Circle Theorem (concept)
+     - Lagrange Polynomial (concept)
+  
+  9. Usage Examples
+     - Example 1: Gershgorin for eigenvalue analysis
+     - Example 2: Lagrange interpolation
+     - Example 3: Complete workflow
+  
+  10. Key Takeaways
+
+
+KEY LEARNING FROM FILE 1:
+  ✓ Why Matrix is inherited by both Eigenvalues and Interpolation
+  ✓ What "virtual abstract interface" means (Interpolation)
+  ✓ How each class reuses Matrix's file I/O and data storage
+  ✓ Difference between algorithm-focused (Eigenvalues) and data-focused (Interpolation)
+
+
+FILE: MATRIX_MEMBERS_REFERENCE.txt (72 KB)
+──────────────────────────────────────
+
+SECTIONS:
+  1. Visual Inheritance with Member Tracking
+     - ASCII diagrams showing inherited members
+     - Protected data flowing down chains
+     - Methods added at each level
+  
+  2. Mapping: What Matrix Provides to Each Child
+     - Complete method list organized by category:
+       A. Constructors & Basic
+       B. Arithmetic Operators (+, -, *, /)
+       C. Element Access & Comparison
+       D. File Input/Output (readFromFile, displayToFile)
+       E. Matrix Properties (isSquare, isSymmetric, isDiagonal, etc.)
+       F. Matrix Transformations (transpose, determinant, inverse)
+       G. Gershgorin Specific (★KEY FOR CHAIN 1★)
+       H. Solution Storage & Output
+  
+  3. How Each Class Uses Matrix Members - TABLE FORMAT
+     - Eigenvalues usage table (which methods are used ✓✓✓)
+     - Interpolation/Lagrange usage table
+  
+  4. Key Insights: What Gets Reused
+     - Why inheritance makes sense for Eigenvalues chain
+     - Why inheritance makes sense for Interpolation chain
+     - What would happen without inheritance (comparison)
+  
+  5. Quick Lookup: "Which Matrix Method Does My Class Use?"
+     - Code examples for common operations
+
+
+KEY LEARNING FROM FILE 2:
+  ✓ Exact list of 45+ Matrix methods
+  ✓ Visual understanding of inheritance
+  ✓ Which methods are ACTUALLY USED by each class
+  ✓ Why some are marked ✓✓✓ (heavily used) vs - (not used)
+  ✓ Difference between "can use" (inherited) vs "actually uses" (practical)
+
+
+FILE: ALGORITHMS_DETAILED.txt (95 KB)
+──────────────────────────────────────
+
+SECTIONS:
+  1. Gershgorin Circle Theorem - Mathematical Foundation
+     - Theorem statement
+     - Formula for disk center and radius
+     - Proof sketch why it works
+     - Real eigenvalue bounds concept
+     - Diagonal dominance special case
+  
+  2. Gershgorin Circle Theorem - Worked Examples
+     - Example 1: 3×3 Symmetric Matrix
+       ✓ Step-by-step disk computation
+       ✓ Visualization on number line
+       ✓ Check diagonal dominance
+       ✓ Compare with actual eigenvalues
+     
+     - Example 2: 3×3 General Matrix
+       ✓ Less nice case (not diagonally dominant)
+       ✓ Wide eigenvalue bounds
+     
+     - Example 3: Row Permutation to Improve Bounds
+       ✓ Shows effect of reordering rows
+  
+  3. Gershgorin in Code - Implementation Details
+     - Pseudocode for gershgorinDisks()
+     - Actual C++ code from Matrix_Algorithms.cpp
+     - Pseudocode for gershgorinRealBounds()
+     - Actual C++ code
+     - Time complexity: O(n²)
+     - Usage example
+  
+  4. Lagrange Polynomial Interpolation - Mathematical Foundation
+     - Problem statement (fit polynomial through points)
+     - Lagrange's solution (basis polynomials)
+     - L_i(x) properties
+     - Mathematical notation
+     - Why Lagrange is better than alternatives
+  
+  5. Lagrange Interpolation - Worked Examples
+     - Example 1: Linear Interpolation (2 points)
+       ✓ Calculate basis polynomials by hand
+       ✓ Construct P(x) = 1 + 2x
+       ✓ Evaluate at intermediate points
+       ✓ Verify passes through original points
+     
+     - Example 2: Quadratic Interpolation (3 points)
+       ✓ Three basis polynomials
+       ✓ Final polynomial: P(x) = x² + 1
+       ✓ Evaluations at sample points
+     
+     - Example 3: Step-by-Step Calculation by Hand
+       ✓ Manual evaluation of P(2) from 3 data points
+       ✓ Detailed arithmetic showing L_0, L_1, L_2 computation
+       ✓ Property: Σ L_i(x) = 1 verification
+  
+  6. Lagrange in Code - Implementation Details
+     - Pseudocode for evaluate(x)
+     - Actual C++ code from Interpolation.cpp
+     - Pseudocode for evaluateRange()
+     - Actual C++ code
+     - Time complexity: O(n²) per evaluate, O(samples × n²) for range
+     - Usage example
+  
+  7. Comparison & Use Cases
+     - Feature comparison table
+     - When to use Gershgorin (with real example)
+     - When to use Lagrange (with real example)
+     - Limitations of each
+  
+  8. Visual Summary
+     - ASCII visualization of Gershgorin disks
+     - ASCII visualization of Lagrange curves
+     - Runge phenomenon warning
+
+
+KEY LEARNING FROM FILE 3:
+  ✓ Mathematical foundation of both algorithms
+  ✓ Hand-calculated worked examples
+  ✓ Actual C++ code for both
+  ✓ Time complexity analysis
+  ✓ When/why to use each method
+  ✓ Practical limitations and warnings
+
+
+═════════════════════════════════════════════════════════════════════════════════
+WHAT MATRIX PROVIDES TO EIGENVALUES
+═════════════════════════════════════════════════════════════════════════════════
+
+INHERITED DATA:
+  ✓ int rows              - Number of rows
+  ✓ int cols              - Number of columns
+  ✓ std::vector< std::vector<long double> > mat  - 2D matrix storage
+  ✓ std::vector<long double> solution_vec        - Solution storage
+
+INHERITED METHODS (Most Important):
+  ✓✓✓ gershgorinDisks()       - Computes circle center & radius for each row
+  ✓✓✓ gershgorinRealBounds()  - Computes min/max eigenvalue bounds
+  ✓✓ readFromFile()           - Load matrix from file
+  ✓✓ isDiagonallyDominant()   - Check if |a_ii| > Σ|a_ij| for j≠i
+  ✓ isSquare()                - Check if n×n matrix
+  ✓ transpose()               - Return A^T
+  ✓ determinant()             - Compute det(A)
+  ✓ operator()                - Access element [i][j]
+
+WRAPPED BY EIGENVALUES:
+  ✓ getDisks()      → calls gershgorinDisks()
+  ✓ getRealBounds() → calls gershgorinRealBounds()
+
+ENHANCED BY GERSHGORIN:
+  ✓ disks()       → calls getDisks()
+  ✓ realBounds()  → calls getRealBounds()
+
+
+═════════════════════════════════════════════════════════════════════════════════
+WHAT MATRIX PROVIDES TO INTERPOLATION
+═════════════════════════════════════════════════════════════════════════════════
+
+INHERITED DATA (inherited but not used for interpolation):
+  ✓ int rows, cols, mat[][], solution_vec[] - Inherited but unused
+  
+INHERITED METHODS (inherited but not used):
+  - readFromFile() - Use setData() instead
+  - Arithmetic operators - Not used
+  - Matrix properties - Not used
+
+WHAT INTERPOLATION ADDS:
+  ✓✓✓ std::vector<long double> xData  - X-coordinates of data points
+  ✓✓✓ std::vector<long double> yData  - Y-coordinates of data points
+  ✓✓ setData(x, y)                    - Validate and store points
+  ✓✓ pointCount()                     - Return number of points
+  ✓ getX()                            - Access x-coordinates
+  ✓ getY()                            - Access y-coordinates
+  ✓ evaluate(x) PURE VIRTUAL          - Evaluate polynomial at x (abstract)
+  ✓ evaluateRange() PURE VIRTUAL      - Generate curve points (abstract)
+
+WHAT LAGRANGE IMPLEMENTS:
+  ✓✓✓ evaluate(x)             - Lagrange polynomial evaluation
+  ✓✓✓ evaluateRange()         - Create smooth curve with many points
+
+
+═════════════════════════════════════════════════════════════════════════════════
+QUICK REFERENCE: MEMBER FUNCTIONS ADDED AT EACH LEVEL
+═════════════════════════════════════════════════════════════════════════════════
+
+CHAIN 1: EIGENVALUES
+────────────────────
+
+Matrix (Base)
+  └─ gershgorinDisks()      O(n²) algorithm
+  └─ gershgorinRealBounds() O(n²) algorithm
+
+Eigenvalues
+  └─ getDisks()             wrapper around gershgorinDisks()
+  └─ getRealBounds()        wrapper around gershgorinRealBounds()
+
+Gershgorin
+  └─ disks()                alias for getDisks()
+  └─ realBounds()           alias for getRealBounds()
+
+
+CHAIN 2: INTERPOLATION
+──────────────────────
+
+Matrix (Base)
+  └─ (inherited but not used for interpolation)
+
+Interpolation
+  ├─ NEW DATA:
+  │   ├─ xData[]     store interpolation points x-values
+  │   └─ yData[]     store interpolation points y-values
+  │
+  └─ METHODS:
+    ├─ setData(x, y)         set and validate interpolation points
+    ├─ pointCount()          return number of points
+    ├─ getX()                get reference to xData
+    ├─ getY()                get reference to yData
+    ├─ evaluate(x) = 0       PURE VIRTUAL (no implementation)
+    └─ evaluateRange() = 0   PURE VIRTUAL (no implementation)
+
+Lagrange
+  └─ IMPLEMENTS PURE VIRTUALS:
+    ├─ evaluate(x)           Lagrange polynomial: Σ(y_i * L_i(x))
+    └─ evaluateRange()       Call evaluate() many times for smooth curve
+
+
+═════════════════════════════════════════════════════════════════════════════════
+KEY ALGORITHMS AT A GLANCE
+═════════════════════════════════════════════════════════════════════════════════
+
+GERSHGORIN CIRCLE THEOREM:
+──────────────────────────
+For each row i of matrix A:
+  Center_i = A[i][i]            (diagonal element)
+  Radius_i = Σ |A[i][j]|        (sum of absolute values, j ≠ i)
+            j≠i
+
+Eigenvalue bounds:
+  min_eigenvalue = min(Center_i - Radius_i)
+  max_eigenvalue = max(Center_i + Radius_i)
+
+Cost: O(n²) - must scan entire matrix
+Result: Quick bounds (not exact eigenvalues)
+
+
+LAGRANGE POLYNOMIAL INTERPOLATION:
+──────────────────────────────────
+For data points (x_0,y_0), ..., (x_{n-1}, y_{n-1}):
+
+Lagrange Basis: L_i(x) = ∏ (x - x_j) / (x_i - x_j)  where j ≠ i
+                         j
+
+Polynomial:     P(x) = Σ y_i * L_i(x)
+                      i
+
+Properties:
+  ✓ P(x_i) = y_i  (passes through all points)
+  ✓ Degree ≤ n-1
+  ✓ Unique (only one polynomial of this degree through n points)
+
+Cost per evaluation: O(n²)
+Result: Exact polynomial through all points
+
+
+═════════════════════════════════════════════════════════════════════════════════
+WHEN TO USE EACH ALGORITHM
+═════════════════════════════════════════════════════════════════════════════════
+
+Use Gershgorin (Eigenvalues.hpp / Gershgorin.hpp) when:
+  ✓ You have a matrix A and want eigenvalue information
+  ✓ You need quick bounds (not exact eigenvalues)
+  ✓ You want to check if matrix is invertible (0 not in Gershgorin disk)
+  ✓ You need spectral radius bounds for convergence analysis
+  ✓ You want to understand matrix properties quickly
+  ✓ Computational speed is critical (O(n²) vs O(n³) for exact eigenvalues)
+
+Use Lagrange Interpolation (Interpolation.hpp / Lagrange) when:
+  ✓ You have data points and want a smooth curve through them
+  ✓ You need to evaluate function at new points between known points
+  ✓ You need exact polynomial passing through all data points
+  ✓ You have n < 10 points (avoid Runge oscillation for large n)
+  ✓ You want fast polynomial evaluation (O(n²) per point)
+  ✓ You need curve fitting for visualization/reporting
+
+
+═════════════════════════════════════════════════════════════════════════════════
+PRACTICAL EXAMPLES FROM YOUR CODE
+═════════════════════════════════════════════════════════════════════════════════
+
+GERSHGORIN USAGE (Main_Gershgorin.cpp):
+────────────────────────────────────────
+  Gershgorin g(n, n);              // Create analyzer
+  g.readFromFile("matrix.txt");     // Load matrix (inherited method)
+  auto disks = g.disks();           // Get Gershgorin circles
+  auto bounds = g.realBounds();     // Get eigenvalue bounds
+  cout << "Eigenvalues in [" << bounds.first << ", " << bounds.second << "]\n";
+
+
+INTERPOLATION USAGE (Main_Interpolation.cpp):
+──────────────────────────────────────────────
+  vector<long double> x = {-3, -1, 0, 1, 3};
+  vector<long double> y = {9, 1, 0, 1, 9};      // y = x²
+  
+  Lagrange lag(x, y);              // Create interpolator
+  long double val_at_half = lag.evaluate(0.5);  // Interpolated y at x=0.5
+  
+  auto curve = lag.evaluateRange(-3, 3, 200);   // 200 smooth points
+  // Plot curve for visualization
+
+
+═════════════════════════════════════════════════════════════════════════════════
+HOW TO LEARN FROM THESE FILES
+═════════════════════════════════════════════════════════════════════════════════
+
+LEVEL 1 - Quick Overview (30 minutes):
+───────────────────────────────────────
+1. Read: INHERITANCE_EXPLANATION.txt sections 1-5
+2. Scan: MATRIX_MEMBERS_REFERENCE.txt sections 1-2
+Result: Understand CLASS structure
+
+
+LEVEL 2 - How They Work (45 minutes):
+──────────────────────────────────────
+1. Read: INHERITANCE_EXPLANATION.txt sections 6-9
+2. study: ALGORITHMS_DETAILED.txt sections 1-2 (Gershgorin examples)
+3. Study: ALGORITHMS_DETAILED.txt sections 4-5 (Lagrange examples)
+Result: Understand ALGORITHM foundations with worked examples
+
+
+LEVEL 3 - Implementation Details (1 hour):
+───────────────────────────────────────────
+1. Read: ALGORITHMS_DETAILED.txt section 3 (Gershgorin code)
+2. Read: ALGORITHMS_DETAILED.txt section 6 (Lagrange code)
+3. Compare: Pseudocode vs actual C++ code
+Result: Understand ACTUAL IMPLEMENTATION
+
+
+LEVEL 4 - Mastery (2+ hours):
+──────────────────────────────
+1. Do worked examples by hand (ALGORITHMS_DETAILED.txt)
+2. Modify Main_Gershgorin.cpp to print intermediate values
+3. Modify Main_Interpolation.cpp to test your own data
+4. Create new test files and verify results
+Result: Deep PRACTICAL UNDERSTANDING
+
+
+═════════════════════════════════════════════════════════════════════════════════
+SUMMARY TABLE: WHAT EACH FILE TEACHES
+═════════════════════════════════════════════════════════════════════════════════
+
+Topic                    File 1              File 2              File 3
+                    (Inheritance)       (Reference)         (Algorithms)
+───────────────────────────────────────────────────────────────────────────────
+Class hierarchy              ✓✓✓              ✓✓                  
+Matrix methods               ✓✓               ✓✓✓                 
+Data members                 ✓✓               ✓✓                  
+Pure virtual interfaces      ✓✓                                    
+How each class uses Matrix   ✓                ✓✓✓                 
+Gershgorin theory            ✓                                ✓✓✓
+Gershgorin examples                                          ✓✓✓
+Gershgorin code              ✓                              ✓✓
+Lagrange theory              ✓                                ✓✓✓
+Lagrange examples                                           ✓✓✓
+Lagrange code                ✓                              ✓✓
+Use cases                    ✓                              ✓✓
+Practical examples           ✓                ✓              ✓
+
+
+═════════════════════════════════════════════════════════════════════════════════
+READING TIPS
+═════════════════════════════════════════════════════════════════════════════════
+
+1. Have VS Code open with Include/Matrix.hpp alongside
+2. Reference files as you read explanations
+3. Run the example programs (Main_Gershgorin.cpp, Main_Interpolation.cpp)
+4. Try modifying examples with your own data
+5. Search for terms like "gershgorinDisks" in code while reading
+6. Work through hand calculations in ALGORITHMS_DETAILED.txt
+7. Cross-reference diagrams between File 1 and File 2
+
+
+═════════════════════════════════════════════════════════════════════════════════
+NEXT STEPS
+═════════════════════════════════════════════════════════════════════════════════
+
+After reading these files:
+
+1. Modify Main_Gershgorin.cpp to also print individual disk information
+2. Create your own test matrix and hand-calculate Gershgorin disks
+3. Modify Main_Interpolation.cpp to use your own data file
+4. Create test cases for edge conditions (duplicate x-values, etc.)
+5. Add interpolation choice to Main.cpp menu (already prepared, see Main.cpp line 470)
+6. Extend with more interpolation methods (Spline, Chebyshev)
+7. Create visualization scripts (gnuplot or Python)
+
+
+═════════════════════════════════════════════════════════════════════════════════
+
+                           HAPPY LEARNING! 📚
+                     Your documentation is complete! 🎓
+
+═════════════════════════════════════════════════════════════════════════════════

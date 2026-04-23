@@ -138,7 +138,8 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 
 | # | Feature | Status | Priority | Notes |
 |---|---|---|---|---|
-| 0 | Pre-Work: Setup & Makefile | [ ] | P0 | Project structure and automation |
+| 0 | Pre-Work: Setup & Makefile | ✅ | P0 | Project structure and automation |
+| 1 | Complex Number Handler | ✅ | P0 | Ported MyComplex class from C++ |
 | 2 | Matrix Base Class (Core) | ✅ | P0 | Foundation ported to `Matrixpy` |
 | 3 | Matrix Algorithms: Basic & IO | ✅ | P0 | Mirroring `Matrix.hpp` methods in `Matrixpy` |
 | 4 | SLE: Gaussian Elimination | ✅ | P1 | Porting `gauss_elimination.hpp` & `SLE.hpp` (PLAN-005) |
@@ -223,9 +224,9 @@ Establish the project structure and automation tools.
 
 ## Tasks
 
-- [ ] Create `src/` and `tests/` directories.
-- [ ] Initialize `Makefile` with `run`, `test`, and `clean` commands.
-- [ ] Set up `.gitignore`.
+- [x] Create `src/` and `tests/` directories.
+- [x] Initialize `Makefile` with `run`, `test`, and `clean` commands.
+- [x] Set up `.gitignore`.
 
 ## Verification
 
@@ -249,11 +250,11 @@ Implement a Python class `MyComplex` that handles complex number arithmetic, mir
 
 ## Tasks
 
-- [ ] Create `src/complex_number.py` containing the `MyComplex` class.
-- [ ] Implement constructors (including default and parameterized).
-- [ ] Implement arithmetic methods: `add`, `subtract`, `multiply`, `divide`.
-- [ ] Implement utility methods: `conjugate`, `norm`.
-- [ ] Create `main_complex.py` for demonstration.
+- [x] Create `src/complex_number.py` containing the `MyComplex` class.
+- [x] Implement constructors (including default and parameterized).
+- [x] Implement arithmetic methods: `add`, `subtract`, `multiply`, `divide`.
+- [x] Implement utility methods: `conjugate`, `norm`.
+- [x] Create `main_complex.py` for demonstration.
 
 ## Acceptance Criteria
 
@@ -276,9 +277,9 @@ Create a base `Matrix` class to handle basic matrix operations, serving as the f
 
 ## Tasks
 
-- [ ] Implement `Matrix` class with dynamic sizing.
-- [ ] Implement basic operations (addition, subtraction, multiplication).
-- [ ] Implement helper methods (display, set, get).
+- [x] Implement `Matrix` class with dynamic sizing.
+- [x] Implement basic operations (addition, subtraction, multiplication).
+- [x] Implement helper methods (display, set, get).
 
 ## Acceptance Criteria
 

@@ -1,8 +1,8 @@
 # Numerical Computing Python — Project Specification
 
 > **Version:** 1.0
-> **Created:** 2026-04-22
-> **Last Updated:** 2026-04-22
+> **Created:** 2026-04-19
+> **Last Updated:** 2026-04-23
 > **Status:** 🟡 In Planning
 >
 > Living document — the AI agent updates Codebase Inventory, Decision Log,
@@ -94,41 +94,41 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 
 | File | Role | Status | Last Updated |
 |---|---|---|---|
-| `spec.md` | Living project specification | ✅ Active | 2026-04-22 |
-| `plan/rules.md` | AI agent authoring conventions | ✅ Active | 2026-04-22 |
-| `Include/complex_number.py` | Complex number declaration | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/matrix.py` | Core class definitions | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/gauss_elimination.py` | Gaussian Elimination class | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/sle.py` | SLE solver class | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/lu.py` | LU decomposition class | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/eigenvalues.py` | Eigenvalue analysis class | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/gershgorin.py` | Gershgorin analysis class | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/iterative.py` | Iterative solver classes | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/interpolation.py` | Interpolation classes | ✅ Active | 2026-04-22 |
-| `Matrixpy/Include/curve_fitting.py` | Curve fitting classes | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/Matrix_Methods.py` | Basic ops & properties (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/Matrix_Algorithms.py` | Advanced algorithms (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/LU.py` | LU implementation (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/Eigenvalues.py` | Gershgorin logic (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/Iterative.py` | Iterative implementation (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/Interpolation.py` | Interpolation logic (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Src/CurveFitting.py` | Curve fitting logic (Mirror) | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_matrix.py` | Core Matrix demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_sle.py` | SLE demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_lu.py` | LU demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_gershgorin.py` | Gershgorin demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_iterative.py` | Iterative solver demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_interpolation.py` | Interpolation demo | ✅ Active | 2026-04-22 |
-| `Matrixpy/Main/main_curve_fitting.py` | Curve fitting demo | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-003_matrix_core_port.md` | Feature 3 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-005_sle_and_gauss_elimination.md` | Feature 4 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-006_lu_decomposition.md` | Feature 5 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-007_gershgorin_eigenvalues.md` | Feature 8 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-008_iterative_methods.md` | Feature 6 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-004_interpolation_lagrange.md` | Feature 7 completion report | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-009_curve_fitting_least_squares.md` | Feature 9 completion report | ✅ Active | 2026-04-22 |
-| `Makefile` | Project automation | ✅ Active | 2026-04-22 |
-| `plan/reports/REPORT-002_matrix_base_and_restructure.md` | Feature 2 completion report | ✅ Active | 2026-04-22 |
+| `spec.md` | Living project specification | ✅ Active | 2026-04-23 |
+| `plan/rules.md` | AI agent authoring conventions | ✅ Active | 2026-04-23 |
+| `Include/complex_number.py` | Complex number declaration | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/matrix.py` | Core class definitions | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/gauss_elimination.py` | Gaussian Elimination class | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/sle.py` | SLE solver class | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/lu.py` | LU decomposition class | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/eigenvalues.py` | Eigenvalue analysis class | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/gershgorin.py` | Gershgorin analysis class | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/iterative.py` | Iterative solver classes | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/interpolation.py` | Interpolation classes | ✅ Active | 2026-04-23 |
+| `Matrixpy/Include/curve_fitting.py` | Curve fitting classes | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/Matrix_Methods.py` | Basic ops & properties (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/Matrix_Algorithms.py` | Advanced algorithms (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/LU.py` | LU implementation (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/Eigenvalues.py` | Gershgorin logic (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/Iterative.py` | Iterative implementation (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/Interpolation.py` | Interpolation logic (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Src/CurveFitting.py` | Curve fitting logic (Mirror) | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_matrix.py` | Core Matrix demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_sle.py` | SLE demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_lu.py` | LU demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_gershgorin.py` | Gershgorin demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_iterative.py` | Iterative solver demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_interpolation.py` | Interpolation demo | ✅ Active | 2026-04-23 |
+| `Matrixpy/Main/main_curve_fitting.py` | Curve fitting demo | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-003_matrix_core_port.md` | Feature 3 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-005_sle_and_gauss_elimination.md` | Feature 4 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-006_lu_decomposition.md` | Feature 5 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-007_gershgorin_eigenvalues.md` | Feature 8 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-008_iterative_methods.md` | Feature 6 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-004_interpolation_lagrange.md` | Feature 7 completion report | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-009_curve_fitting_least_squares.md` | Feature 9 completion report | ✅ Active | 2026-04-23 |
+| `Makefile` | Project automation | ✅ Active | 2026-04-23 |
+| `plan/reports/REPORT-002_matrix_base_and_restructure.md` | Feature 2 completion report | ✅ Active | 2026-04-23 |
 
 ---
 
@@ -179,16 +179,16 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 |---|---|---|---|
 | 2026-04-23 | Implemented Feature 17 | Constructed sequential Git history to simulate real development flow | n/a |
 | 2026-04-23 | Implemented Feature 16 | Generated wide variety of test files for mathematical validation | n/a |
-| 2026-04-22 | Implemented Feature 15 | Fixed file size validation and streamlined SLE input flow | n/a |
-| 2026-04-22 | Implemented Feature 14 | Conducted code quality sweep and fixed missing dependencies | n/a |
-| 2026-04-22 | Implemented Feature 13 | Created unified master interactive menu mirroring C++ Main.cpp | n/a |
+| 2026-04-23 | Implemented Feature 15 | Fixed file size validation and streamlined SLE input flow | n/a |
+| 2026-04-23 | Implemented Feature 14 | Conducted code quality sweep and fixed missing dependencies | n/a |
+| 2026-04-23 | Implemented Feature 13 | Created unified master interactive menu mirroring C++ Main.cpp | n/a |
 | 2026-04-21 | Implemented Feature 12 | Completed comprehensive codebase documentation and added SOR method | n/a |
 | 2026-04-21 | Created PLAN-012 | Defined Comprehensive Commenting & Documentation port | n/a |
-| 2026-04-22 | Created v1.0 spec.md | Project initialisation based on C++ source | n/a |
+| 2026-04-23 | Created v1.0 spec.md | Project initialisation based on C++ source | n/a |
 | 2026-04-19 | Implemented Feature 1 | Ported Complex Number logic with C++ parity | n/a |
 | 2026-04-19 | Created PLAN-002 | Defined Matrix base class and restructuring strategy | n/a |
 | 2026-04-19 | Implemented Feature 2 | Restructured project and implemented Matrix base class | n/a |
-| 2026-04-22 | Updated Spec | Expanded Matrix feature breakdown for `Matrixpy` | n/a |
+| 2026-04-23 | Updated Spec | Expanded Matrix feature breakdown for `Matrixpy` | n/a |
 | 2026-04-19 | Created PLAN-004 | Defined Curve Fitting & Interpolation port | n/a |
 | 2026-04-19 | Implemented Feature 3 | Ported Core Matrix to Matrixpy structure | n/a |
 | 2026-04-19 | Implemented Feature 4 | Ported SLE and Gaussian Elimination | n/a |

@@ -159,6 +159,14 @@ These apply to **both** plans and reports:
 
     AI agents must follow this order. A task's PR/commit should contain test files *before* or *alongside* the implementation, never after.
 
+### 9. Mathematical Documentation Requirement
+**Rule**: All core algorithms implemented in `Src/` MUST include comprehensive Google-style docstrings that explain the *mathematical foundation* of the algorithm, not just the code logic.
+**Reason**: To maintain the library's utility as an educational resource for numerical computing students.
+
+### 10. Strict Matrix Size Validation
+**Rule**: When loading pre-sized matrices from external data files, the file reading utility must strictly validate that the total number of data elements exactly matches the expected matrix dimensions (`rows * cols`).
+**Reason**: To prevent silent failures, zero-padding, or ignored data which can lead to mathematically invalid states (e.g., singular matrices with zero diagonals) during downstream algorithm execution.
+
 ---
 
 ## 6. Advanced rules for AI agents

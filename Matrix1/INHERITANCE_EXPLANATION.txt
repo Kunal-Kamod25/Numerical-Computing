@@ -1,0 +1,741 @@
+================================================================================
+           INHERITANCE HIERARCHY & CLASS DESIGN EXPLANATION
+                  Eigenvalues, Gershgorin, Interpolation
+================================================================================
+
+TABLE OF CONTENTS:
+1. Inheritance Hierarchy Diagram
+2. Matrix Class (Base)
+3. Eigenvalues Class (Specialized Analysis)
+4. Gershgorin Class (Convenience Layer)
+5. Interpolation Classes (Data Fitting)
+6. What Each Class Inherits from Matrix
+7. Member Functions & Data Members by Class
+8. Algorithms Explained
+9. Usage Examples
+
+================================================================================
+1. INHERITANCE HIERARCHY DIAGRAM
+================================================================================
+
+                              BaseMatrix
+                                  |
+                                  |
+                              Matrix
+                                  |
+                    ______________|______________
+                    |              |
+              Eigenvalues     Interpolation
+                    |              |
+              Gershgorin       Lagrange
+
+
+TWO SEPARATE INHERITANCE CHAINS:
+- Chain 1: Matrix --> Eigenvalues --> Gershgorin
+  Purpose: Eigenvalue analysis using Gershgorin Circle Theorem
+  
+- Chain 2: Matrix --> Interpolation --> Lagrange
+  Purpose: Polynomial interpolation using Lagrange basis functions
+
+================================================================================
+2. MATRIX CLASS (BASE) - What Data & Methods You Get
+================================================================================
+
+PROTECTED DATA MEMBERS (inherited by all subclasses):
+---------------------------------------------------
+  int rows                                    - Number of matrix rows
+  int cols                                    - Number of matrix columns
+  std::vector< std::vector<long double> > mat - 2D matrix data storage
+  std::vector<long double> solution_vec       - Stores solution vectors
+
+
+PUBLIC METHODS AVAILABLE TO ALL SUBCLASSES:
+--------------------------------------------
+  // Constructors
+  Matrix()                                    - Default constructor
+  Matrix(int r, int c)                        - Constructor with dimensions
+  Matrix(const Matrix &other)                 - Copy constructor
+  
+  // Arithmetic Operations
+  Matrix operator+(const Matrix &other)       - Matrix addition
+  Matrix operator-(const Matrix &other)       - Matrix subtraction
+  Matrix operator*(const Matrix &other)       - Matrix multiplication
+  Matrix operator/(const Matrix &other)       - Matrix element-wise division
+  
+  // Element Access
+  long double &operator()(int i, int j)       - Access element [i][j]
+  long double operator()(int i, int j) const  - Read-only access
+  
+  // File I/O
+  void readFromFile(const std::string &filename)  - Load from file
+  void readFromFile(std::ifstream &fin)           - Load from stream
+  void displayToFile(std::ofstream &fout) const   - Save to file
+  
+  // Utility Properties
+  bool isSquare() const                       - Check if n x n matrix
+  bool isSymmetric() const                    - Check if matrix = transpose
+  bool isIdentity() const                     - Check if A = I
+  bool isNull() const                         - Check if all zeros
+  bool isDiagonal() const                     - Check if non-diagonal elements are 0
+  bool isDiagonallyDominant() const           - Check Gershgorin property
+  bool isTranspose(const Matrix &other) const - Compare with transpose
+  
+  // Transformations
+  void makeDiagonallyDominant()               - Rearrange rows for dominance
+  Matrix transpose() const                    - Return A^T
+  long double determinant() const             - Compute det(A)
+  Matrix inverse() const                      - Compute A^-1
+  
+  // Gershgorin Computation (Used by Eigenvalues)
+  std::vector<GershgorinDisk> gershgorinDisks() const
+      Returns: Vector of GershgorinDisk structs (center, radius for each row)
+  
+  std::pair<long double, long double> gershgorinRealBounds() const
+      Returns: (min, max) eigenvalue bounds combining all disks
+  
+  // Solution Access
+  void saveSolution(const std::string &filename) const
+  const std::vector<long double>& getSolutionVec() const
+  void displayProperties() const              - Print matrix properties
+
+
+STRUCT DEFINED IN MATRIX:
+-------------------------
+  struct GershgorinDisk {
+      long double center;                     - Diagonal element a_ii
+      long double radius;                     - Sum of |a_ij| for j ≠ i
+  };
+
+================================================================================
+3. EIGENVALUES CLASS - Specialized Analysis Layer
+================================================================================
+
+INHERITANCE: Eigenvalues : public Matrix
+PURPOSE: Wraps Matrix to provide eigenvalue analysis interface
+
+WHAT IT ADDS FROM MATRIX:
+-------------------------
+- "Eigenvalues" focuses the inherited Matrix methods toward eigenvalue problems
+- Uses gershgorinDisks() and gershgorinRealBounds() from Matrix (inherited)
+- No new data members - uses inherited rows, cols, mat
+
+NEW MEMBER FUNCTIONS (What Eigenvalues Adds):
+----------------------------------------------
+  std::vector<GershgorinDisk> getDisks() const
+      WHAT: Returns Gershgorin disks (eigenvalue location estimates)
+      HOW: Calls inherited Matrix::gershgorinDisks()
+      RETURNS: Vector of {center, radius} for each matrix row
+      
+  std::pair<long double, long double> getRealBounds() const
+      WHAT: Computes real eigenvalue interval
+      HOW: Calls inherited Matrix::gershgorinRealBounds()
+      RETURNS: (min_bound, max_bound) for eigenvalues
+      
+CONSTRUCTORS:
+  Eigenvalues()                       - Default (rows=0, cols=0)
+  Eigenvalues(int r, int c)           - With dimensions
+  Eigenvalues(const Matrix &base)     - Copy from Matrix (upcasting)
+
+HOW IT'S USED:
+  Eigenvalues eig(3, 3);
+  eig.readFromFile("matrix.txt");
+  auto disks = eig.getDisks();                    // Get Gershgorin circles
+  auto bounds = eig.getRealBounds();              // Get eigenvalue bounds
+  std::cout << "Eigenvalues in [" << bounds.first << ", " << bounds.second
+            << "]\n";
+
+================================================================================
+4. GERSHGORIN CLASS - Convenience Layer (Inherits from Eigenvalues)
+================================================================================
+
+INHERITANCE: Gershgorin : public Eigenvalues : public Matrix
+PURPOSE: Convenience wrapper with shorter method names
+
+INHERITANCE CHAIN:
+  Matrix DATA/METHODS
+    ↓
+  Eigenvalues (adds getDisks(), getRealBounds())
+    ↓
+  Gershgorin (adds disks(), realBounds() as shortcuts)
+
+WHAT IT ADDS:
+-------------------------
+- Shorter method names for convenience
+- No new data members
+- getDisks() → disks()
+- getRealBounds() → realBounds()
+
+NEW MEMBER FUNCTIONS (What Gershgorin Adds):
+---------------------------------------------
+  std::vector<Matrix::GershgorinDisk> disks() const
+      ALIAS FOR: getDisks() (inherited from Eigenvalues)
+      Returns Gershgorin circles for eigenvalue estimation
+      
+  std::pair<long double, long double> realBounds() const
+      ALIAS FOR: getRealBounds() (inherited from Eigenvalues)
+      Returns eigenvalue interval bounds
+
+CONSTRUCTORS:
+  Gershgorin()                        - Default (rows=0, cols=0)
+  Gershgorin(int r, int c)            - With dimensions
+  Gershgorin(const Matrix &base)      - Copy from Matrix
+
+HOW IT'S USED:
+  Matrix A(3, 3);
+  A.readFromFile("matrix.txt");
+  Gershgorin gersh(A);              // Uses the inherited Matrix contents directly
+  auto circles = gersh.disks();       // Shorter name
+  auto bounds = gersh.realBounds();   // Shorter name
+  
+COMPLETE INHERITANCE ACCESS (Gershgorin has all of these):
+- All Matrix methods (operator+, transpose, readFromFile, etc.)
+- All Eigenvalues methods (getDisks, getRealBounds)
+- Its own methods (disks, realBounds)
+
+================================================================================
+5. INTERPOLATION & LAGRANGE CLASSES - Data Fitting
+================================================================================
+
+INHERITANCE: Interpolation : public Matrix
+             Lagrange : public Interpolation
+
+PURPOSE: Fit polynomial curves through data points
+
+NEW DATA MEMBERS ADDED BY INTERPOLATION:
+-----------------------------------------
+  std::vector<long double> xData      - X coordinates of data points
+  std::vector<long double> yData      - Y coordinates of data points
+  
+  Example: For 5 points (1,2), (2,4), (3,9), (4,16), (5,25)
+    xData = [1, 2, 3, 4, 5]
+    yData = [2, 4, 9, 16, 25]  (y = x²)
+
+INTERPOLATION CLASS - Abstract Base:
+-------------------------------------
+Inherits from Matrix but focuses on interpolation operations
+Virtual methods (pure virtual = must be implemented by subclass):
+
+NEW MEMBER FUNCTIONS:
+  void setData(const std::vector<long double> &x, 
+               const std::vector<long double> &y)
+      PURPOSE: Set interpolation points with validation
+      VALIDATES: No duplicate x-values (would cause divide by zero)
+      EXAMPLE: 
+        Interpolation interp;
+        interp.setData({1, 2, 3}, {2, 4, 9});
+        
+  int pointCount() const
+      RETURNS: Number of data points (xData.size())
+      
+  const std::vector<long double> &getX() const
+      RETURNS: Reference to x-coordinates
+      
+  const std::vector<long double> &getY() const
+      RETURNS: Reference to y-coordinates
+      
+  virtual long double evaluate(long double x) const = 0
+      PURE VIRTUAL: Must be implemented by subclass
+      PURPOSE: Evaluate polynomial at point x
+      RETURNS: Interpolated y-value at x
+      
+  virtual std::vector<std::pair<long double, long double>>
+  evaluateRange(long double xMin, long double xMax, int samples) const = 0
+      PURE VIRTUAL: Must be implemented by subclass
+      PURPOSE: Generate smooth curve with many points
+      RETURNS: Vector of (x, y) pairs for graphing
+
+
+LAGRANGE CLASS - Concrete Implementation:
+------------------------------------------
+Inherits from Interpolation and IMPLEMENTS the virtual methods
+
+CONSTRUCTORS:
+  Lagrange()                          - Default (no data)
+  Lagrange(const vector<long double> &x, 
+           const vector<long double> &y)
+      - Constructs with data and validates
+
+IMPLEMENTED METHODS (Override virtual):
+  long double evaluate(long double x) const override
+      ALGORITHM: Lagrange basis polynomial
+        y(x) = Σ( y_i * L_i(x) )    where L_i(x) = ∏( (x - x_j)/(x_i - x_j) )
+      EXAMPLE: For points (1,2), (3,9), (5,30)
+        evaluate(2) computes the polynomial at x=2
+        
+  std::vector<std::pair<long double, long double>>
+  evaluateRange(long double xMin, long double xMax, int samples) const override
+      PURPOSE: Generate 'samples' points from xMin to xMax
+      USED FOR: Smooth curve plotting
+      EXAMPLE: 
+        auto curve = lagrange.evaluateRange(1, 5, 200);
+        // Creates 200 (x,y) pairs from x=1 to x=5 for smooth plot
+
+HOW INTERPOLATION IS USED:
+  std::vector<long double> x = {-3, -1, 0, 1, 3};
+  std::vector<long double> y = {9, 1, 0, 1, 9};  // y = x²
+  
+  Lagrange lagrange(x, y);
+  
+  // Evaluate at single point
+  long double at_half = lagrange.evaluate(0.5);      // Interpolates y at x=0.5
+  
+  // Generate smooth curve for plotting
+  auto curve = lagrange.evaluateRange(-3, 3, 200);   // 200 points for smooth curve
+  
+  // Curve can be plotted with gnuplot:
+  // gnuplot> set title "Lagrange Interpolation"
+  // gnuplot> plot 'data_points.dat' with points, 'smooth_curve.dat'
+
+================================================================================
+6. WHAT EACH CLASS INHERITS FROM MATRIX
+================================================================================
+
+EIGENVALUES CHAIN:
+==================
+Eigenvalues Inherits from Matrix:
+  ✓ Data: rows, cols, mat[][], solution_vec[]
+  ✓ Operators: +, -, *, /, (), ==
+  ✓ File I/O: readFromFile(), displayToFile()
+  ✓ Properties: isSquare(), isSymmetric(), identity(), etc.
+  ✓ Transforms: transpose(), determinant(), inverse()
+  ✓ KEY: gershgorinDisks(), gershgorinRealBounds()
+  
+Gershgorin Inherits from Eigenvalues (which inherited from Matrix):
+  ✓ All of Eigenvalues above
+  ✓ Plus: Eigenvalues::getDisks(), getRealBounds()
+  ✓ Adds aliases: disks(), realBounds()
+
+INTERPOLATION CHAIN:
+====================
+Interpolation Inherits from Matrix:
+  ✓ Data: rows, cols, mat[][], solution_vec[] (not used for interpolation)
+  ✓ Operators: All inherited (not typically used)
+  ✓ File I/O: Inherited but overridden by Interpolation methods
+  ✓ Adds NEW data: xData, yData (actual interpolation points)
+  ✓ Adds virtual methods: evaluate(), evaluateRange()
+  
+Lagrange Inherits from Interpolation (which inherited from Matrix):
+  ✓ All of Interpolation above
+  ✓ Plus: Interpolation concrete methods (setData, pointCount, getX, getY)
+  ✓ Implements: evaluate(), evaluateRange() using Lagrange basis
+
+KEY INSIGHT:
+  Eigenvalues/Gershgorin focus on ANALYZING the matrix (eigenvalue bounds)
+  Interpolation/Lagrange focus on USING data STORED IN THE MATRIX (fitting curves)
+
+================================================================================
+7. MEMBER FUNCTIONS & DATA MEMBERS BY CLASS - COMPLETE REFERENCE
+================================================================================
+
+CLASS: Matrix (Base)
+=====================
+PROTECTED DATA (inherited by all subclasses):
+  int rows
+  int cols
+  std::vector<std::vector<long double>> mat
+  std::vector<long double> solution_vec
+
+PUBLIC DATA: (none defined)
+
+PUBLIC METHODS (Essential ones):
+  // Constructors
+  Matrix()
+  Matrix(int r, int c)
+  Matrix(const Matrix &other)
+  
+  // Operators
+  Matrix operator+(const Matrix &other) const
+  Matrix operator-(const Matrix &other) const
+  Matrix operator*(const Matrix &other) const
+  Matrix operator/(const Matrix &other) const
+  long double &operator()(int i, int j)
+  long double operator()(int i, int j) const
+  bool operator==(const Matrix &other) const
+  
+  // File I/O
+  void readFromFile(const std::string &filename)
+  void displayToFile(std::ofstream &fout) const
+  
+  // Shape Checks
+  bool isSquare() const
+  bool isSymmetric() const
+  bool isIdentity() const
+  bool isNull() const
+  bool isDiagonal() const
+  bool isDiagonallyDominant() const
+  bool isTranspose(const Matrix &other) const
+  
+  // Transformations
+  void makeDiagonallyDominant()
+  Matrix transpose() const
+  long double determinant() const
+  Matrix inverse() const
+  
+  // Gershgorin (KEY for Eigenvalues)
+  std::vector<GershgorinDisk> gershgorinDisks() const
+  std::pair<long double, long double> gershgorinRealBounds() const
+  
+  // Solution
+  void saveSolution(const std::string &filename) const
+
+STATIC STRUCT:
+  struct GershgorinDisk { long double center; long double radius; };
+
+
+CLASS: Eigenvalues
+===================
+INHERITS FROM: Matrix
+PROTECTED DATA (inherited): rows, cols, mat[][], solution_vec[]
+NEW DATA MEMBERS: (none)
+
+CONSTRUCTORS:
+  Eigenvalues()
+  Eigenvalues(int r, int c)
+  Eigenvalues(const Matrix &base)
+
+NEW METHODS (specific to Eigenvalues):
+  std::vector<GershgorinDisk> getDisks() const
+      Returns: gershgorinDisks() (inherited from Matrix)
+      
+  std::pair<long double, long double> getRealBounds() const
+      Returns: gershgorinRealBounds() (inherited from Matrix)
+
+ACCESS TO INHERITED METHODS:
+  ✓ readFromFile(), displayToFile()
+  ✓ operator+, -, *, /, ()
+  ✓ transpose(), determinant(), inverse()
+  ✓ isSquare(), isSymmetric(), etc.
+
+
+CLASS: Gershgorin
+==================
+INHERITS FROM: Eigenvalues (which inherits from Matrix)
+PROTECTED DATA (inherited): rows, cols, mat[][], solution_vec[]
+NEW DATA MEMBERS: (none)
+
+CONSTRUCTORS:
+  Gershgorin()
+  Gershgorin(int r, int c)
+  Gershgorin(const Matrix &base)
+
+NEW METHODS (convenience aliases):
+  std::vector<Matrix::GershgorinDisk> disks() const
+      Calls: getDisks() from Eigenvalues
+      
+  std::pair<long double, long double> realBounds() const
+      Calls: getRealBounds() from Eigenvalues
+
+TRIPLE INHERITANCE ACCESS:
+  ✓ All Matrix methods
+  ✓ All Eigenvalues methods
+  ✓ Own methods (disks, realBounds)
+
+
+CLASS: Interpolation
+====================
+INHERITS FROM: Matrix
+PROTECTED DATA (inherited): rows, cols, mat[][], solution_vec[]
+NEW DATA (Specific to Interpolation):
+  std::vector<long double> xData
+  std::vector<long double> yData
+
+CONSTRUCTORS:
+  Interpolation()
+  Interpolation(const std::vector<long double> &x, 
+                const std::vector<long double> &y)
+
+NEW METHODS (Interpolation-specific):
+  void setData(const std::vector<long double> &x, 
+               const std::vector<long double> &y)
+      Sets xData and yData with validation
+      Throws exception if x-values are not unique
+      
+  int pointCount() const
+      Returns: xData.size()
+      
+  const std::vector<long double> &getX() const
+      Returns: Reference to xData
+      
+  const std::vector<long double> &getY() const
+      Returns: Reference to yData
+      
+  virtual long double evaluate(long double x) const = 0
+      PURE VIRTUAL - must be implemented by subclass
+      Returns: Interpolated y value at x
+      
+  virtual std::vector<std::pair<long double, long double>>
+  evaluateRange(long double xMin, long double xMax, int samples) const = 0
+      PURE VIRTUAL - must be implemented by subclass
+      Returns: Vector of smooth curve points
+
+INHERITED (but rarely used):
+  ✓ Matrix operations (not typically needed)
+
+
+CLASS: Lagrange
+===============
+INHERITS FROM: Interpolation (which inherits from Matrix)
+PROTECTED DATA (inherited): rows, cols, mat[][], xData, yData
+
+CONSTRUCTORS:
+  Lagrange()
+  Lagrange(const std::vector<long double> &x, 
+           const std::vector<long double> &y)
+
+NEW METHODS (Override pure virtual):
+  long double evaluate(long double x) const override
+      ALGORITHM: Lagrange polynomial basis
+      INPUT: x-value at which to evaluate
+      RETURNS: Interpolated y-value
+      
+  std::vector<std::pair<long double, long double>>
+  evaluateRange(long double xMin, long double xMax, int samples) const override
+      INPUT: Range [xMin, xMax] and number of samples
+      RETURNS: Vector of (x,y) pairs for smooth plotting
+
+INHERITED CONCRETE METHODS:
+  ✓ setData(), pointCount(), getX(), getY()
+  ✓ All Matrix methods
+
+================================================================================
+8. ALGORITHMS EXPLAINED
+================================================================================
+
+GERSHGORIN CIRCLE THEOREM
+=========================
+Used by: Matrix::gershgorinDisks() and gershgorinRealBounds()
+          Inherited by Eigenvalues and Gershgorin
+
+CONCEPT:
+  For an n×n matrix A, the eigenvalues lie within circles in the complex plane.
+  Each disk has:
+    - Center: diagonal element a_ii
+    - Radius: Σ|a_ij| for all j ≠ i
+
+FORMULA:
+  Disk_i = { center = a_ii, radius = Σ|a_ij| for j ≠ i }
+  
+  Example: Matrix
+    [ 4   1   0 ]
+    [ 1   6   1 ]  
+    [ 0   1   8 ]
+    
+  Gershgorin Disks:
+    Disk 0: center = 4,  radius = |1| + |0| = 1
+    Disk 1: center = 6,  radius = |1| + |1| = 2
+    Disk 2: center = 8,  radius = |0| + |1| = 1
+    
+  Real Bounds:
+    Min eigenvalue: min(4-1, 6-2, 8-1) = min(3, 4, 7) = 3
+    Max eigenvalue: max(4+1, 6+2, 8+1) = max(5, 8, 9) = 9
+    Eigenvalues must be in [3, 9]
+
+CODE EXAMPLE:
+  Gershgorin g(3, 3);
+  g.readFromFile("matrix.txt");
+  auto disks = g.disks();
+  auto bounds = g.realBounds();
+  std::cout << "Eigenvalues in [" << bounds.first << ", " << bounds.second << "]\n";
+
+
+LAGRANGE POLYNOMIAL INTERPOLATION
+==================================
+Used by: Lagrange::evaluate() and evaluateRange()
+
+CONCEPT:
+  Given n data points (x_0, y_0), ..., (x_{n-1}, y_{n-1}),
+  construct a polynomial P(x) of degree n-1 that passes through all points.
+
+FORMULA:
+  P(x) = Σ( y_i * L_i(x) )  for i = 0 to n-1
+  
+  where L_i(x) = ∏( (x - x_j) / (x_i - x_j) )  for j = 0 to n-1, j ≠ i
+  
+  This is the Lagrange basis polynomial.
+
+STEP-BY-STEP EXAMPLE:
+  Points: (1, 2), (3, 6), (5, 10)  (y = 2x, but we fit a parabola)
+  
+  Evaluate at x = 2:
+  
+  L_0(2) = ((2-3)/(1-3)) * ((2-5)/(1-5)) = (-1/-2) * (-3/-4) = 0.5 * 0.75 = 0.375
+  L_1(2) = ((2-1)/(3-1)) * ((2-5)/(3-5)) = (1/2) * (-3/-2) = 0.5 * 1.5 = 0.75
+  L_2(2) = ((2-1)/(5-1)) * ((2-3)/(5-3)) = (1/4) * (-1/2) = 0.25 * (-0.5) = -0.125
+  
+  P(2) = 2*0.375 + 6*0.75 + 10*(-0.125)
+       = 0.75 + 4.5 - 1.25
+       = 4.0
+  
+  At x=2, interpolated y = 4.0
+
+CODE EXAMPLE:
+  std::vector<long double> x = {1, 3, 5};
+  std::vector<long double> y = {2, 6, 10};
+  
+  Lagrange lag(x, y);
+  
+  long double y_at_2 = lag.evaluate(2.0);  // Returns 4.0
+  
+  auto curve = lag.evaluateRange(1, 5, 50);  // 50 points from x=1 to x=5
+
+
+WHY LAGRANGE IS BETTER THAN SIMPLE POLYNOMIAL FIT:
+  - Guaranteed to pass through ALL data points (interpolation, not fitting)
+  - Works with any degree (no need to guess polynomial degree)
+  - Direct formula (no matrix solve needed)
+  - Simple implementation
+
+ADVANTAGES OF GERSHGORIN:
+  - Easy to compute (just sums)
+  - Gives fast eigenvalue bounds without actually computing eigenvalues
+  - Useful for understanding matrix properties
+  - Helps with diagonal dominance analysis
+
+================================================================================
+9. USAGE EXAMPLES
+================================================================================
+
+EXAMPLE 1: Using Gershgorin for Eigenvalue Analysis
+====================================================
+
+#include "Gershgorin.hpp"
+#include <iostream>
+
+int main() {
+    // Create 3x3 Gershgorin analyzer
+    Gershgorin g(3, 3);
+    
+    // Load matrix from file
+    g.readFromFile("matrix.txt");
+    
+    // Get all Gershgorin circles
+    auto circles = g.disks();
+    for (size_t i = 0; i < circles.size(); ++i) {
+        std::cout << "Disk " << i << ": center = " << circles[i].center
+                  << ", radius = " << circles[i].radius << "\n";
+    }
+    
+    // Get eigenvalue bounds
+    auto [min_ev, max_ev] = g.realBounds();
+    std::cout << "Eigenvalues in [" << min_ev << ", " << max_ev << "]\n";
+    
+    return 0;
+}
+
+
+EXAMPLE 2: Using Lagrange Interpolation
+========================================
+
+#include "Interpolation.hpp"
+#include <iostream>
+#include <vector>
+
+int main() {
+    // Data points: y = x²
+    std::vector<long double> x = {-2, -1, 0, 1, 2};
+    std::vector<long double> y = {4, 1, 0, 1, 4};
+    
+    // Create Lagrange interpolator
+    Lagrange lag(x, y);
+    
+    // Evaluate at intermediate points
+    std::cout << "At x=0.5: y = " << lag.evaluate(0.5) << "\n";   // ~0.25
+    std::cout << "At x=-0.5: y = " << lag.evaluate(-0.5) << "\n"; // ~0.25
+    
+    // Generate smooth curve for plotting
+    auto curve = lag.evaluateRange(-2, 2, 100);  // 100 points
+    
+    // Save curve to file for gnuplot
+    std::ofstream out("curve.dat");
+    for (const auto &[px, py] : curve) {
+        out << px << " " << py << "\n";
+    }
+    
+    return 0;
+}
+
+
+EXAMPLE 3: Complete Workflow (from Main_Interpolation.cpp)
+===========================================================
+
+#include "Interpolation.hpp"
+#include <iostream>
+#include <fstream>
+
+int main() {
+    // Step 1: Load data
+    std::vector<long double> x = {0, 1, 2, 3};
+    std::vector<long double> y = {1, 2.7, 7.4, 20.1};  // Approximately y = e^x
+    
+    // Step 2: Create interpolator
+    Lagrange lag(x, y);
+    
+    // Step 3: Evaluate at point
+    long double y_half = lag.evaluate(0.5);
+    std::cout << "At x=0.5: y = " << y_half << "\n";
+    
+    // Step 4: Generate smooth curve
+    auto curve = lag.evaluateRange(0, 3, 200);
+    
+    // Step 5: Save results
+    std::ofstream out1("points.dat");
+    for (size_t i = 0; i < x.size(); ++i) {
+        out1 << x[i] << " " << y[i] << "\n";
+    }
+    
+    std::ofstream out2("smooth.dat");
+    for (const auto &[px, py] : curve) {
+        out2 << px << " " << py << "\n";
+    }
+    
+    return 0;
+}
+
+================================================================================
+10. KEY TAKEAWAYS
+================================================================================
+
+1) INHERITANCE PROVIDES REUSE:
+   - Eigenvalues/Gershgorin reuse Matrix's file I/O and matrix operations
+   - Interpolation/Lagrange reuse Matrix's structure
+   - No code duplication
+
+2) MATRIX METHODS USED BY EACH:
+   
+   Eigenvalues:
+     ✓ gershgorinDisks()       (core algorithm)
+     ✓ gershgorinRealBounds()  (core algorithm)
+     ✓ readFromFile()          (load matrix)
+   
+   Gershgorin:
+     ✓ Same as Eigenvalues (via inheritance)
+   
+   Interpolation/Lagrange:
+     ✓ Structure/layout from Matrix
+     ✓ But uses own xData, yData for points
+     ✓ Does NOT typically use matrix arithmetic
+
+3) VIRTUAL METHODS ENABLE POLYMORPHISM:
+   - Interpolation defines abstract interface (evaluate, evaluateRange)
+   - Lagrange implements with Lagrange basis polynomials
+   - Allows future subclasses (e.g., Spline, Chebyshev)
+
+4) DATA MEMBERS FROM MATRIX USED:
+   
+   Eigenvalues/Gershgorin USE:
+     - rows, cols (matrix dimensions)
+     - mat[][] (the matrix data)
+   
+   Interpolation/Lagrange USE:
+     - Purpose: Store data structure
+     - ADD: xData, yData (actual interpolation points)
+     - Inherit mat[][]: not strictly needed but available
+
+5) ALGORITHMS ARE INDEPENDENT:
+   - Gershgorin Circle Theorem: Pure matrix analysis
+   - Lagrange Interpolation: Pure data fitting
+   - No mixing of concerns between chains
+
+================================================================================
+                              END OF EXPLANATION
+================================================================================

@@ -1,0 +1,112 @@
+INTERPOLATION INHERITANCE EXPLANATION (HPP + CPP + MAIN)
+
+Files checked:
+- Include/Interpolation.hpp
+- Src/Interpolation.cpp
+- Main_Interpolation.cpp
+
+==================================================
+1) INHERITANCE CHAIN
+==================================================
+Project chain:
+1. BaseMatrix
+2. Matrix : public BaseMatrix
+3. Interpolation : public Matrix
+4. Lagrange : public Interpolation
+
+Meaning:
+- Interpolation reuses Matrix/BaseMatrix infrastructure.
+- Lagrange reuses Interpolation interface plus Matrix storage path.
+
+==================================================
+2) WHY NEW METHODS ARE DECLARED IN HPP
+==================================================
+Question from sir: if we inherit, why declare new methods?
+
+Answer:
+- Inheritance gives access to parent functionality.
+- But parent class Matrix does NOT define interpolation-specific operations.
+- So Interpolation must declare interpolation API methods:
+	- setData(x, y)
+	- pointCount()
+	- getX()
+	- getY()
+	- evaluate(x)
+	- evaluateRange(...)
+
+These are not duplicates of Matrix methods; they are new behavior for interpolation domain.
+
+==================================================
+3) WHAT IS ACTUALLY INHERITED AND USED (CPP PROOF)
+==================================================
+In Src/Interpolation.cpp, inherited Matrix data is actively used:
+- rows
+- cols
+- mat
+
+setData(x, y):
+- validates data
+- fills inherited storage:
+	- rows = n
+	- cols = 2
+	- mat[i][0] = x_i
+	- mat[i][1] = y_i
+
+evaluate(x):
+- computes Lagrange basis using inherited mat values directly.
+
+pointCount():
+- returns inherited rows.
+
+So inheritance is practical, not symbolic.
+
+==================================================
+4) WHY INTERPOLATION IS ABSTRACT
+==================================================
+Interpolation.hpp has pure virtual methods:
+- evaluate(x) = 0
+- evaluateRange(...) = 0
+
+Reason:
+- Interpolation defines a common contract for multiple interpolation methods.
+- Lagrange provides one concrete implementation.
+- You can add Newton/Spline later without changing caller-side API.
+
+==================================================
+5) LAGRANGE ROLE
+==================================================
+Lagrange inherits Interpolation and overrides:
+- evaluate(x)
+- evaluateRange(...)
+
+This enables runtime polymorphism with a common interpolation interface.
+
+==================================================
+6) MAIN.CPP JUSTIFICATION
+==================================================
+In Main_Interpolation.cpp:
+- local vectors xData/yData are only temporary input-building variables.
+- After object creation, program uses interpolation object API:
+	- interpX = lag.getX()
+	- interpY = lag.getY()
+	- lag.pointCount()
+
+Why these locals are okay:
+- Main must first collect data from Gershgorin/check file.
+- Then it passes data to interpolation object.
+- This does not break inheritance design.
+
+==================================================
+7) VIVA SHORT ANSWER
+==================================================
+"We inherit Matrix to reuse common matrix storage and infrastructure. We declare new methods in Interpolation only 
+for interpolation-specific behavior that Matrix does not provide. In cpp, inherited rows/cols/mat are used directly in 
+setData and evaluate, so inheritance is genuinely used."
+
+==================================================
+8) FINAL CONCLUSION
+==================================================
+Current design is correct:
+- Inherited members are reused in computation.
+- New methods are only domain-specific additions.
+- Lagrange gives concrete implementation over abstract interpolation contract.

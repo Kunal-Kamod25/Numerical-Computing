@@ -1,0 +1,291 @@
+============================================================
+       MATRIX SYSTEM - FULL ARCHITECTURE EXPLANATION
+============================================================
+
+This system is built using C++ Object-Oriented Programming (OOP) 
+to solve complex math problems like Linear Systems. 
+
+Here is how the "Family Tree" (Inheritance) of classes works:
+
+1. BaseMatrix (The Grandfather)
+   - Handles the raw storage of numbers using vectors.
+   - It's the foundation of everything.
+
+2. Matrix (The Father)
+   - Adds math powers! 
+   - Overloads operators like +, -, *, / so you can do math 
+     on matrices just like normal numbers.
+   - Adds property checks (isSymmetric, isDiagonal, etc.).
+
+3. GaussianElimination (The Specialist)
+   - Inherits from Matrix.
+   - Adds the logic for "Row Operations" and "Pivoting".
+   - Turns a messy matrix into a "Triangular" one.
+
+4. SLE (System of Linear Equations - The Manager)
+   - Inherits from GaussianElimination.
+   - This is the main class you use for "Direct Solvers".
+   - It manages Gauss Elimination and LU Decomposition.
+
+5. Iterative (The New Base for Guessing)
+   - Inherits from SLE.
+   - Instead of doing one big calculation, it "guesses" 
+     the answer and keeps fixing it until it's perfect.
+
+6. Jacobi & GaussSeidel (The Smart Children)
+   - Jacobi: Updates all variables at the end of each round.
+   - GaussSeidel: Updates variables IMMEDIATELY as it finds them.
+     (Usually much faster!)
+
+------------------------------------------------------------
+SOLVER METHODS: WHY, WHERE, WHEN
+
+1. Gaussian Elimination (Direct Method)
+    - Why use:
+       Fast and reliable for a single solve Ax=b, especially with pivoting.
+    - Where implemented:
+       - Src/Matrix_Algorithms.cpp
+          - GaussianElimination::basicPivoting(...)
+          - GaussianElimination::upperTriangularWithPivot()
+          - SLE::backSubstitutionToVec()
+    - Where called in your flow:
+       - Main.cpp -> menu choice 1
+          - solution = Aug.solve(SLE::GAUSSIAN)
+       - SLE::solve(...) dispatches to Gaussian path.
+    - Best use case:
+       One-shot solve where you want stable direct elimination.
+
+2. LU Decomposition (Direct Method Family)
+    - Why use:
+       Split A = L*U, then solve using forward/back substitution.
+       Good when solving multiple right-hand sides with same A.
+    - Where implemented:
+       - Src/LU.cpp
+          - LU::doolittle(...)
+          - LU::crout(...)
+          - LU::cholesky(...)
+          - LU::solve(...)
+       - Src/Matrix_Algorithms.cpp
+          - SLE::solve(...): LU branch and method dispatch
+    - Where called in your flow:
+       - Main.cpp -> menu choice 2
+          - solution = Aug.solve(SLE::LU_METHOD, selected_method)
+       - Main_LU.cpp is LU-focused standalone runner.
+    - Method choice meaning:
+       - Doolittle: L has 1s on diagonal.
+       - Crout: U has 1s on diagonal.
+       - Cholesky: for symmetric positive-definite matrices only.
+
+3. Iterative Methods (Approximation Methods)
+   - What is iterative:
+      Iterative means the solver does not try to get the exact answer in one big step.
+      It starts with an initial guess x(0), then improves that guess repeatedly
+      (x(1), x(2), x(3), ...) until the error is small enough or max iterations is reached.
+      So the result is obtained through repeated refinement.
+    - Why use:
+       Useful for large sparse systems where direct elimination can be costly.
+       Produces progressively improving approximations.
+    - Where implemented:
+       - Src/Iterative.cpp
+          - Jacobi::solveIterative()
+          - GaussSeidel::solveIterative()
+       - Include/Iterative.hpp defines common iterative base settings
+          (maxIterations, tolerance).
+    - Where called in your flow:
+       - Main.cpp -> menu choice 3
+          - runIterativeSolvers(...)
+          - writes solution_jacobi.dat and solution_gs.dat
+       - Main_Iterative.cpp is iterative-focused standalone runner.
+    - Best use case:
+       Very large systems, especially when matrix is diagonally dominant.
+
+    - What each declaration in Include/Iterative.hpp means:
+       - class Iterative : public SLE
+          - This is the base class for iterative solvers.
+          - It exists because Jacobi and Gauss-Seidel both solve linear systems,
+            but they need shared settings like stopping criteria.
+          - It inherits from SLE so it can reuse matrix/system behavior already
+            available in the direct-solver hierarchy.
+       - protected members:
+          - int maxIterations;
+             Stores the maximum number of repeat steps allowed.
+             Used directly inside Src/Iterative.cpp in both solveIterative() loops.
+          - long double tolerance;
+             Stores the stopping threshold.
+             If the change between two iterations becomes smaller than this value,
+             the solver stops and treats the answer as converged.
+       - constructors:
+          - Iterative()
+             Creates an empty/default iterative solver.
+          - Iterative(int r, int c)
+             Creates a solver sized for an r x c matrix.
+          - Iterative(const Matrix &other)
+             Copies matrix data from an existing Matrix object.
+          - Why they exist:
+             They let the solver be created in different ways depending on the
+             main file or data-loading style.
+       - setter functions:
+          - setMaxIterations(int iter)
+             Lets the user or main file change the iteration limit.
+          - setTolerance(long double tol)
+             Lets the user control how strict convergence should be.
+          - Why they exist:
+             Different matrices may need different limits and precision.
+       - virtual std::vector<long double> solveIterative() = 0;
+          - This is a pure virtual function.
+          - It means Iterative itself cannot solve the system directly.
+          - Jacobi and GaussSeidel must implement their own version.
+          - Why it is declared this way:
+             The base class defines the common contract, while the child classes
+             provide the actual algorithm logic.
+       - class Jacobi : public Iterative
+          - This class represents the Jacobi method.
+          - Its solveIterative() uses only the previous iteration values.
+          - In Src/Iterative.cpp, it:
+             1) starts with x = 0,
+             2) computes all new values into x_new,
+             3) checks the maximum change,
+             4) stops when the tolerance is reached.
+          - Why this class exists:
+             It keeps the Jacobi rule separate from other methods.
+       - class GaussSeidel : public Iterative
+          - This class represents the Gauss-Seidel method.
+          - Its solveIterative() updates values immediately during the same sweep.
+          - In Src/Iterative.cpp, it:
+             1) starts with x = 0,
+             2) updates each x[i] one by one,
+             3) uses the newest values right away,
+             4) stops when the tolerance is reached.
+          - Why this class exists:
+             It keeps the Gauss-Seidel rule separate from Jacobi because the
+             update behavior is different.
+
+    - How these declarations connect to the .cpp and main files:
+       - Src/Iterative.cpp
+          - Contains the real code for Jacobi::solveIterative() and
+            GaussSeidel::solveIterative().
+          - Uses maxIterations and tolerance from Iterative.
+          - Reads the augmented matrix [A | b] from the inherited matrix storage.
+          - Stores the final answer in solution_vec.
+          - Throws an error if a diagonal element is zero.
+       - Main_Iterative.cpp
+          - This is a standalone test program for iterative methods.
+          - It asks for system size, loads the matrix files, creates Jacobi and
+            GaussSeidel objects, calls makeDiagonallyDominant(), then runs both
+            solveIterative() functions.
+          - It saves outputs in solution_jacobi.dat and solution_gs.dat.
+       - Main.cpp
+          - This is the main interactive program used by ./solver.
+          - It shows menu choice 3 for Iterative Methods.
+          - It loads A and B, builds the augmented system, and calls
+            runIterativeSolvers(A, B, n).
+          - That helper also creates Jacobi and GaussSeidel objects and writes
+            solution_jacobi.dat and solution_gs.dat.
+               - It checks diagonal dominance using isDiagonallyDominant() and,
+                  if needed, calls makeDiagonallyDominant() before solving.
+
+4. Why solver functions are separated (not one giant function)
+    - Different algorithms need different internal steps and assumptions.
+    - Direct and iterative methods have different convergence/error behavior.
+    - Separation improves readability, testing, debugging, and extension.
+    - Internal steps and assumptions by method:
+       - Gaussian Elimination (SLE::solve -> GAUSSIAN)
+          - Steps:
+             1) Form augmented system [A|b]
+             2) For each pivot column, do partial pivoting (row swap by max abs value)
+             3) Eliminate entries below pivot to get upper-triangular matrix
+             4) Run back substitution to compute x
+          - Assumptions:
+             - A is square (n x n)
+             - Pivot is not zero after pivoting (non-singular system)
+             - Numeric stability improves with pivoting but still depends on conditioning
+       - LU Decomposition (SLE::solve -> LU_METHOD)
+          - Steps:
+             1) Decompose A into L and U (Doolittle/Crout/Cholesky)
+             2) Solve Ly=b using forward substitution
+             3) Solve Ux=y using back substitution
+          - Assumptions:
+             - A is square
+             - Decomposition-specific requirements must hold:
+               Doolittle/Crout require non-zero pivots; Cholesky requires symmetric positive-definite A
+       - Jacobi Iteration (runIterativeSolvers -> Jacobi::solveIterative)
+          - Steps:
+             1) Start from initial guess x(0)
+             2) Compute x(k+1) using only values from x(k)
+             3) Check residual/error against tolerance
+             4) Stop on convergence or maxIterations
+          - Assumptions:
+             - Diagonal entries a_ii are non-zero (division needed)
+             - Better convergence when A is diagonally dominant (or suitable spectral radius)
+       - Gauss-Seidel Iteration (runIterativeSolvers -> GaussSeidel::solveIterative)
+          - Steps:
+             1) Start from initial guess x(0)
+             2) Update each variable immediately in the same iteration sweep
+             3) Check residual/error against tolerance
+             4) Stop on convergence or maxIterations
+          - Assumptions:
+             - Diagonal entries a_ii are non-zero
+             - Convergence typically stronger than Jacobi under diagonal dominance/SPD-like conditions
+    - In your code:
+       - SLE::solve(...) is the dispatcher
+       - LU::solve(...) handles triangular solve after decomposition
+       - Jacobi/GaussSeidel each implement their own iteration rules
+
+5. Static vs Dynamic Build: why and where used
+   - Static build (compile-time linking)
+      - Why use:
+         Easier distribution and fewer runtime dependency issues.
+      - Where in your project:
+         - makefile: `solver`, `main.exe`, `main_lu.exe`, `main_iterative.exe`
+         - These link against `libmatrix.a`.
+   - Dynamic build (run-time linking)
+      - Why use:
+         Smaller executable size and shared library reuse.
+      - Where in your project:
+         - makefile: `dynamic` target creates `matrix.dll`
+         - makefile: `dynamic_main.exe` links to dynamic library
+   - Practical note:
+      - Your `./solver` workflow currently uses static linking by default.
+
+------------------------------------------------------------
+HOW TO RUN:
+1. Open run_matrix.bat
+2. Select Option 5 for Iterative Solvers.
+3. It will load Sl.txt and Sr.txt (225x225 matrices).
+4. Results are saved separately as:
+   - solution_jacobi.dat
+   - solution_gs.dat
+
+COMPETITIVE ADVANTAGE:
+- Supports 16-byte long double precision for accuracy.
+
+------------------------------------------------------------
+NEW INHERITANCE CHAIN: EIGENVALUES + INTERPOLATION + LAGRANGE
+
+Added files:
+- Include/Interpolation.hpp
+- Src/Interpolation.cpp
+- Main_Interpolation.cpp
+- Large_Matrix/interpolation_check_data.txt
+- Inheritance_Interpolation_Guide.txt
+
+Inheritance structure:
+1. Matrix -> Eigenvalues
+   - Uses Gershgorin analysis through a dedicated class.
+
+2. Interpolation (separate hierarchy)
+   - Stores and validates interpolation points independently from Matrix.
+
+3. Interpolation -> Lagrange
+   - Evaluates interpolation polynomial with Lagrange basis.
+
+Why this was added:
+- To connect matrix-based eigenvalue bounds (Gershgorin) with interpolation learning.
+- To provide a stable check dataset, especially when 49-size matrix interpolation is unreliable.
+
+Where to run:
+- Standalone: ./main_interpolation.exe
+- Integrated menu: ./main.exe -> option 5
+- Handles large matrices (225x225 and beyond).
+- Code is modular - easy to add new methods later!
+============================================================

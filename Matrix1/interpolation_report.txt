@@ -1,0 +1,6 @@
+Interpolation input file: Large_Matrix/interpolation_check_data.txt
+Interpolation points: 7
+Evaluation at x=1.5000000000: 6.2500000000
+Output data files:
+  interpolation_points.dat
+  lagrange_curve.dat

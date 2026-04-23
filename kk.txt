@@ -1,0 +1,22 @@
+i want a class to handle complex number in python 
+so for this i have already files 3 files in cpp files in Complex_Problem i have that .hpp .cpp and Main.cpp file so convert that file as  it use oops concept which use in cpp 
+also i have Matrix1 folder there is we do numerical_Computing concepts code look at that and for me do one thing convert that alsoo but also look AGENT_MD_V1 files beacuse sir give us that file now 
+implement the the above in oops concept.
+Make relevent .py files also make 3 deprant files like header file then main file like a we do in matrix like that same 
+the project should be also have a make file.
+for compilation and execution .
+so this will ike we do this in one by one okk means divide this 
+
+-Write the specifications to AGENT_MD/ Spec.md file.
+DO not Implement any code For me 
+-Plan feature 1 from AGENT_MD/ spec.md using AGENT_MD/ plan /Rules.md 
+i will review the plan and then  it will be implemented
+
+
+
+
+
+
+
+
+now we move next Matrix1 folder there is make folder like Matrixpy in Matrixpy create three folder Include then Src then for Main and do then first like cpp lile first do Matrixlike Matrix.hpp what erver the methods in include make that no of plans first first read all .hpp file dont break oops concepts  of  logic or relation between file i want plan file like PLAN-003_matrix_ according to that like .cpp and then Main file then next for like SLE for that new plans and reports seprate like that first genrate a 

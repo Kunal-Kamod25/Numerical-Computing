@@ -19,4 +19,13 @@ i will review the plan and then  it will be implemented
 
 
 
-now we move next Matrix1 folder there is make folder like Matrixpy in Matrixpy create three folder Include then Src then for Main and do then first like cpp lile first do Matrixlike Matrix.hpp what erver the methods in include make that no of plans first first read all .hpp file dont break oops concepts  of  logic or relation between file i want plan file like PLAN-003_matrix_ according to that like .cpp and then Main file then next for like SLE for that new plans and reports seprate like that first genrate a 
+now we move next Matrix1 folder there is make folder like Matrixpy 
+-in Matrixpy create three folder Include then Src then for Main and do then first like cpp file 
+-first do Matrixlike Matrix.hpp what ever the methods in include make that no. of plans first 
+-first read all .hpp file dont break oops concepts  of  logic or relation between file 
+-i want plan file like PLAN-003_matrix_ according to that like .cpp and then Main file 
+-then next for like SLE for that new plans and reports seprate like that 
+-first genrate a plans feature 1 of matrix from AGENT_MD/spec.md using AGENT_MD/plan/rules.md
+-I will review the plan one by one and then it will implemented 
+so genrate a plans first according .hpp files okk now go bascally it is like mirror of .cpp and hpp file whole folder so acording to that genrate a plans.
+- later we want to update a and genrate after implement  current_status_report.md/AGENT.md/Plan/Use AGENT-md/plan/rules.md for the above task 

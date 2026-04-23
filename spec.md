@@ -154,12 +154,13 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 | 14 | Code Quality Sweep & Bug Fixes | ✅ | P0 | Fixed imports and input robustness (PLAN-014) |
 | 15 | File Loading & Menu Sync | ✅ | P0 | Fixed crash via strict size validation and augmented matrix loading (PLAN-015) |
 | 16 | Comprehensive Input Generation | ✅ | P1 | Generated 10 distinct mathematical test files across all modules (PLAN-016) |
+| 17 | Git Version History | ✅ | P0 | Reconstructed local chronological commits using Conventional Commits (PLAN-017) |
 
 ---
 
 ## Known Issues & Technical Debt
 
-- None yet.
+- **Git Push Blocked**: Local branch is fully committed, but `git push` is blocked due to HTTP 403 (credentials for `Kunal-Kamod25` lack write access to `abdullah0096/AGENT_MD_v1`).
 
 ---
 
@@ -176,6 +177,7 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 
 | Date | Decision | Rationale | Alternatives Considered |
 |---|---|---|---|
+| 2026-04-23 | Implemented Feature 17 | Constructed sequential Git history to simulate real development flow | n/a |
 | 2026-04-23 | Implemented Feature 16 | Generated wide variety of test files for mathematical validation | n/a |
 | 2026-04-23 | Implemented Feature 15 | Fixed file size validation and streamlined SLE input flow | n/a |
 | 2026-04-23 | Implemented Feature 14 | Conducted code quality sweep and fixed missing dependencies | n/a |

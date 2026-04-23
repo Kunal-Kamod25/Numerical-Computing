@@ -1,6 +1,6 @@
 # PLAN-015: File Loading and Menu Synchronization
 
-**Created:** 2026-04-23
+**Created:** 2026-04-22
 **Status:** Draft
 **Addresses:** Menu crash when loading a mismatched matrix file into SLE solvers.
 

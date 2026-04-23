@@ -1,6 +1,6 @@
 # PLAN-005: SLE & Gaussian Elimination (Mirroring SLE.hpp & Matrix_Algorithms.cpp) [REVISED]
 
-**Created:** 2026-04-22
+**Created:** 2026-04-20
 **Status:** Draft
 **Addresses:** Porting `SLE` and `GaussianElimination` to follow the C++ file-for-file mirror.
 

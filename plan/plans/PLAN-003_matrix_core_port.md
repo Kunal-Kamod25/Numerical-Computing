@@ -1,6 +1,6 @@
 # PLAN-003: Matrixpy Core Port (Mirroring Matrix.hpp & Matrix_Methods.cpp) [REVISED]
 
-**Created:** 2026-04-22
+**Created:** 2026-04-19
 **Status:** Draft
 **Addresses:** Porting core `Matrix` functionality into a strict file-for-file mirror of the C++ structure.
 

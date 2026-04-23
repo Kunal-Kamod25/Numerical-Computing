@@ -179,37 +179,37 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 |---|---|---|---|
 | 2026-04-23 | Implemented Feature 17 | Constructed sequential Git history to simulate real development flow | n/a |
 | 2026-04-23 | Implemented Feature 16 | Generated wide variety of test files for mathematical validation | n/a |
-| 2026-04-23 | Implemented Feature 15 | Fixed file size validation and streamlined SLE input flow | n/a |
-| 2026-04-23 | Implemented Feature 14 | Conducted code quality sweep and fixed missing dependencies | n/a |
-| 2026-04-23 | Implemented Feature 13 | Created unified master interactive menu mirroring C++ Main.cpp | n/a |
-| 2026-04-23 | Implemented Feature 12 | Completed comprehensive codebase documentation and added SOR method | n/a |
-| 2026-04-22 | Created PLAN-012 | Defined Comprehensive Commenting & Documentation port | n/a |
+| 2026-04-22 | Implemented Feature 15 | Fixed file size validation and streamlined SLE input flow | n/a |
+| 2026-04-22 | Implemented Feature 14 | Conducted code quality sweep and fixed missing dependencies | n/a |
+| 2026-04-22 | Implemented Feature 13 | Created unified master interactive menu mirroring C++ Main.cpp | n/a |
+| 2026-04-21 | Implemented Feature 12 | Completed comprehensive codebase documentation and added SOR method | n/a |
+| 2026-04-21 | Created PLAN-012 | Defined Comprehensive Commenting & Documentation port | n/a |
 | 2026-04-22 | Created v1.0 spec.md | Project initialisation based on C++ source | n/a |
-| 2026-04-22 | Implemented Feature 1 | Ported Complex Number logic with C++ parity | n/a |
-| 2026-04-22 | Created PLAN-002 | Defined Matrix base class and restructuring strategy | n/a |
-| 2026-04-22 | Implemented Feature 2 | Restructured project and implemented Matrix base class | n/a |
+| 2026-04-19 | Implemented Feature 1 | Ported Complex Number logic with C++ parity | n/a |
+| 2026-04-19 | Created PLAN-002 | Defined Matrix base class and restructuring strategy | n/a |
+| 2026-04-19 | Implemented Feature 2 | Restructured project and implemented Matrix base class | n/a |
 | 2026-04-22 | Updated Spec | Expanded Matrix feature breakdown for `Matrixpy` | n/a |
-| 2026-04-22 | Created PLAN-004 | Defined Curve Fitting & Interpolation port | n/a |
-| 2026-04-22 | Implemented Feature 3 | Ported Core Matrix to Matrixpy structure | n/a |
-| 2026-04-22 | Implemented Feature 4 | Ported SLE and Gaussian Elimination | n/a |
-| 2026-04-22 | Implemented Feature 5 | Ported LU Decomposition module | n/a |
-| 2026-04-22 | Implemented Feature 6 | Ported Iterative Methods module | n/a |
-| 2026-04-22 | Implemented Feature 7 | Ported Interpolation (Lagrange) module | n/a |
-| 2026-04-22 | Implemented Feature 10 | Ported Input/Output & Gnuplot system | n/a |
-| 2026-04-22 | Created PLAN-011 | Defined Main Script Sync plan | n/a |
-| 2026-04-22 | Implemented Feature 9 | Ported Curve Fitting (Least Squares) module | n/a |
-| 2026-04-22 | Created PLAN-010 | Defined Input File Integration port | n/a |
-| 2026-04-22 | Created PLAN-009 | Defined Curve Fitting (Least Squares) port | n/a |
-| 2026-04-22 | Created PLAN-007 | Defined Gershgorin Eigenvalues port | n/a |
-| 2026-04-22 | Implemented Feature 3 | Ported Core Matrix to Matrixpy structure | n/a |
-| 2026-04-22 | Implemented Feature 4 | Ported SLE and Gaussian Elimination | n/a |
-| 2026-04-22 | Implemented Feature 5 | Ported LU Decomposition module | n/a |
-| 2026-04-22 | Implemented Feature 8 | Ported Gershgorin Eigenvalue module | n/a |
-| 2026-04-22 | Implemented Feature 6 | Ported Iterative Methods module | n/a |
-| 2026-04-22 | Created PLAN-004 | Defined Interpolation (Lagrange) port | n/a |
-| 2026-04-22 | Created PLAN-008 | Defined Iterative Methods port | n/a |
-| 2026-04-22 | Created PLAN-006 | Defined LU Decomposition port | n/a |
-| 2026-04-22 | Created PLAN-005 | Defined SLE & Gaussian Elimination port | n/a |
+| 2026-04-19 | Created PLAN-004 | Defined Curve Fitting & Interpolation port | n/a |
+| 2026-04-19 | Implemented Feature 3 | Ported Core Matrix to Matrixpy structure | n/a |
+| 2026-04-19 | Implemented Feature 4 | Ported SLE and Gaussian Elimination | n/a |
+| 2026-04-20 | Implemented Feature 5 | Ported LU Decomposition module | n/a |
+| 2026-04-20 | Implemented Feature 6 | Ported Iterative Methods module | n/a |
+| 2026-04-20 | Implemented Feature 7 | Ported Interpolation (Lagrange) module | n/a |
+| 2026-04-21 | Implemented Feature 10 | Ported Input/Output & Gnuplot system | n/a |
+| 2026-04-21 | Created PLAN-011 | Defined Main Script Sync plan | n/a |
+| 2026-04-21 | Implemented Feature 9 | Ported Curve Fitting (Least Squares) module | n/a |
+| 2026-04-21 | Created PLAN-010 | Defined Input File Integration port | n/a |
+| 2026-04-21 | Created PLAN-009 | Defined Curve Fitting (Least Squares) port | n/a |
+| 2026-04-20 | Created PLAN-007 | Defined Gershgorin Eigenvalues port | n/a |
+| 2026-04-19 | Implemented Feature 3 | Ported Core Matrix to Matrixpy structure | n/a |
+| 2026-04-19 | Implemented Feature 4 | Ported SLE and Gaussian Elimination | n/a |
+| 2026-04-20 | Implemented Feature 5 | Ported LU Decomposition module | n/a |
+| 2026-04-20 | Implemented Feature 8 | Ported Gershgorin Eigenvalue module | n/a |
+| 2026-04-20 | Implemented Feature 6 | Ported Iterative Methods module | n/a |
+| 2026-04-19 | Created PLAN-004 | Defined Interpolation (Lagrange) port | n/a |
+| 2026-04-20 | Created PLAN-008 | Defined Iterative Methods port | n/a |
+| 2026-04-20 | Created PLAN-006 | Defined LU Decomposition port | n/a |
+| 2026-04-20 | Created PLAN-005 | Defined SLE & Gaussian Elimination port | n/a |
 
 ---
 

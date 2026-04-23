@@ -1,6 +1,6 @@
 # PLAN-008: Iterative Methods (Jacobi & Gauss-Seidel)
 
-**Created:** 2026-04-22
+**Created:** 2026-04-20
 **Status:** Draft
 **Addresses:** Porting iterative solvers (Jacobi and Gauss-Seidel) from `Matrix1` to `Matrixpy`.
 

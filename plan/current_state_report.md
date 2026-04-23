@@ -36,28 +36,28 @@
 
 ---
 
-## Update — 2026-04-23 [PLAN-015_menu_synchronization]
+## Update — 2026-04-22 [PLAN-015_menu_synchronization]
 - Added strict size validation to `Matrix_Methods.read_from_file` to prevent silent parsing of mismatched files.
 - Streamlined `main_master.py` SLE flow to load single augmented matrices instead of separate `A` and `B` components.
 - Integrated exception handling (`try-except`) across the master menu to catch and report `RuntimeError` and `ValueError` cleanly.
 
 ---
 
-## Update — 2026-04-23 [PLAN-014_bug_fixes]
+## Update — 2026-04-22 [PLAN-014_bug_fixes]
 - Resolved `NameError` in `CurveFitting.py` by adding missing `math` import.
 - Improved `main_master.py` robustness with validated input helpers.
 - Conducted codebase-wide sweep for missing dependencies and syntax consistency.
 
 ---
 
-## Update — 2026-04-23 [PLAN-013_master_menu]
+## Update — 2026-04-22 [PLAN-013_master_menu]
 - Implemented a unified master entry point `Main/main_master.py` mirroring C++ `Main.cpp`.
 - Hierarchical menu system supports SLE solvers, LU decomposition, Iterative methods, Interpolation, and Curve Fitting.
 - Integrated `make run` for quick access to the interactive suite.
 
 ---
 
-## Update — 2026-04-23 [PLAN-012_comprehensive_commenting]
+## Update — 2026-04-21 [PLAN-012_comprehensive_commenting]
 - Implemented comprehensive Google-style docstrings and mathematical explanations across the entire codebase.
 - Documented core classes (`Matrix`, `BaseMatrix`, `SLE`, `LU`, `Iterative`, `Interpolation`, `CurveFitting`).
 - Added detailed step-by-step comments to all `Main/` demo scripts.
@@ -66,14 +66,14 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-011_main_script_sync]
+## Update — 2026-04-21 [PLAN-011_main_script_sync]
 - Successfully synchronized the root-level `Main/` scripts with the new File I/O and Gnuplot logic.
 - Created root entry points for all major numerical modules.
 - Verified that root scripts correctly import from and interact with the `Matrixpy` core.
 
 ---
 
-## Update — 2026-04-22 [PLAN-010_input_file_integration]
+## Update — 2026-04-21 [PLAN-010_input_file_integration]
 - Successfully implemented the centralized I/O and Visualization system.
 - Created `Inputs/`, `Outputs/`, and `Plots/` directory structure.
 - Developed `File_Utils.py` for dynamic selection and `Plotting.py` for Gnuplot generation.
@@ -81,28 +81,28 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-009_curve_fitting_least_squares]
+## Update — 2026-04-21 [PLAN-009_curve_fitting_least_squares]
 - Successfully ported the `CurveFitting` and `LeastSquares` modules mirroring `CurveFitting.hpp` and `CurveFitting.cpp`.
 - Implemented normal equations solver for linear regression and RMS error calculation.
 - Verified curve fitting accuracy on perfect and noisy datasets with `Matrixpy/Main/main_curve_fitting.py`.
 
 ---
 
-## Update — 2026-04-22 [PLAN-004_interpolation_lagrange]
+## Update — 2026-04-19 [PLAN-004_interpolation_lagrange]
 - Successfully ported the `Interpolation` and `Lagrange` modules mirroring `Interpolation.hpp` and `Interpolation.cpp`.
 - Implemented Lagrange polynomial basis calculation and range evaluation logic.
 - Verified interpolation results with `Matrixpy/Main/main_interpolation.py` on a quadratic system.
 
 ---
 
-## Update — 2026-04-22 [PLAN-008_iterative_methods]
+## Update — 2026-04-20 [PLAN-008_iterative_methods]
 - Successfully ported the `Iterative`, `Jacobi`, and `GaussSeidel` modules mirroring `Iterative.hpp` and `Iterative.cpp`.
 - Implemented `make_diagonally_dominant` to ensure iterative convergence.
 - Verified Jacobi and Gauss-Seidel convergence rates on a 3x3 system with `Matrixpy/Main/main_iterative.py`.
 
 ---
 
-## Update — 2026-04-22 [PLAN-007_gershgorin_eigenvalues]
+## Update — 2026-04-20 [PLAN-007_gershgorin_eigenvalues]
 - Successfully ported the `Eigenvalues` and `Gershgorin` modules mirroring `Eigenvalues.hpp`, `Gershgorin.hpp`, and `Eigenvalues.cpp`.
 - Implemented real eigenvalue bounds calculation in `Matrix_Algorithms.py`.
 - Verified spectral bounds on standard and diagonal matrices with `Matrixpy/Main/main_gershgorin.py`.
@@ -110,7 +110,7 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-006_lu_decomposition]
+## Update — 2026-04-20 [PLAN-006_lu_decomposition]
 - Successfully ported the `LU` decomposition module mirroring `LU.hpp` and `LU.cpp`.
 - Implemented Doolittle, Crout, and Cholesky solvers with pivoting.
 - Integrated LU methods into the `SLE` high-level interface.
@@ -118,35 +118,35 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-005_sle_and_gauss_elimination] [REVISED]
+## Update — 2026-04-20 [PLAN-005_sle_and_gauss_elimination] [REVISED]
 - Consolidated `GaussianElimination` and `SLE` logic into `Matrixpy/Src/Matrix_Algorithms.py`.
 - Verified the unified structure with `main_sle.py`.
 - Maintained strict parity with C++ file roles.
 
 ---
 
-## Update — 2026-04-22 [PLAN-003_matrix_core_port] [REVISED]
+## Update — 2026-04-19 [PLAN-003_matrix_core_port] [REVISED]
 - Drafted implementation plan for Systems of Linear Equations (SLE) and Gaussian Elimination.
 - Mapped the inheritance hierarchy from `Matrix` to `GaussianElimination` and finally to `SLE`.
 - Prepared for porting pivoting and back substitution logic.
 
 ---
 
-## Update — 2026-04-22 [PLAN-003_matrix_core_port] [REVISED]
+## Update — 2026-04-19 [PLAN-003_matrix_core_port] [REVISED]
 - Re-implemented the core `Matrix` port to strictly mirror C++ file naming.
 - Logic is now split between `Matrix_Methods.py` and `Matrix_Algorithms.py`.
 - Verified imports and execution with `main_matrix.py`.
 
 ---
 
-## Update — 2026-04-22 [PLAN-004_curve_fitting_and_interpolation]
+## Update — 2026-04-19 [PLAN-004_curve_fitting_and_interpolation]
 - Drafted implementation plan for Curve Fitting and Interpolation.
 - Mapped the transition from `Matrix` base class to specialized numerical solvers.
 - Prepared for porting `LeastSquares` and `Lagrange` modules.
 
 ---
 
-## Update — 2026-04-22 [PLAN-003_matrix_core_port]
+## Update — 2026-04-19 [PLAN-003_matrix_core_port]
 - Initiated the `Matrixpy` project structure to mirror the original C++ library.
 - Read all `.hpp` files in `Matrix1/Include` to map out the full inheritance hierarchy.
 - Defined a multi-plan roadmap (PLAN-003 to PLAN-010) to port the library component by component.
@@ -154,7 +154,7 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-002_matrix_base_and_restructure]
+## Update — 2026-04-19 [PLAN-002_matrix_base_and_restructure]
 - Restructured project into `Include/`, `Src/`, and `Main/` directories.
 - Implemented base `Matrix` class and basic arithmetic operations (add, multiply).
 - Verified `main_matrix.py` and restructured `main_complex.py`.
@@ -163,14 +163,14 @@
 
 ---
 
-## Update — 2026-04-22 [PLAN-002_matrix_base_and_restructure]
+## Update — 2026-04-19 [PLAN-002_matrix_base_and_restructure]
 - Drafted implementation plan for the Matrix base class.
 - Defined a new project structure (`Include/`, `Src/`, `Main/`) to mirror C++ patterns.
 - Scheduled restructuring of Complex Number modules to fit the new directory pattern.
 
 ---
 
-## Update — 2026-04-22 [PLAN-001_complex_number_handler]
+## Update — 2026-04-19 [PLAN-001_complex_number_handler]
 - Ported `myComplex` class from C++ to Python.
 - Established project structure with `src/`, `main_complex.py`, and `Makefile`.
 - Verified all arithmetic operations (add, sub, mult, div, conj, norm) against expected values.

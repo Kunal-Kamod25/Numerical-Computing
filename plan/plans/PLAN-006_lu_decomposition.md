@@ -1,6 +1,6 @@
 # PLAN-006: LU Decomposition (LU.hpp & LU.cpp Mirror)
 
-**Created:** 2026-04-22
+**Created:** 2026-04-20
 **Status:** Draft
 **Addresses:** Porting the `LU` decomposition class from `Matrix1` to the `Matrixpy` structure.
 

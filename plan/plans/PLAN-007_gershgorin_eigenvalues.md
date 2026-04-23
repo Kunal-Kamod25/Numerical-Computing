@@ -1,6 +1,6 @@
 # PLAN-007: Gershgorin Eigenvalues (Mirroring Eigenvalues.hpp & Gershgorin.hpp)
 
-**Created:** 2026-04-22
+**Created:** 2026-04-20
 **Status:** Draft
 **Addresses:** Porting the `Eigenvalues` and `Gershgorin` classes for spectral analysis of matrices.
 

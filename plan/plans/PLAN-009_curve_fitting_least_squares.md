@@ -1,6 +1,6 @@
 # PLAN-009: Curve Fitting (Least Squares Method)
 
-**Created:** 2026-04-22
+**Created:** 2026-04-21
 **Status:** Draft
 **Addresses:** Porting the `CurveFitting` base class and `LeastSquares` solver from `Matrix1` to `Matrixpy`.
 

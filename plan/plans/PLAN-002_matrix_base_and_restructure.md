@@ -1,6 +1,6 @@
 # PLAN-002: Matrix Base Class & Restructuring
 
-**Created:** 2026-04-22
+**Created:** 2026-04-19
 **Status:** Draft
 **Addresses:** Implementation of the Matrix base class and restructuring the project to mirror the C++ `Include/`, `Src/`, and `Main/` directory pattern.
 

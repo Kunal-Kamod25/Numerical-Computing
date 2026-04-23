@@ -1,6 +1,6 @@
 # PLAN-004: Interpolation (Lagrange Method)
 
-**Created:** 2026-04-22
+**Created:** 2026-04-19
 **Status:** Draft
 **Addresses:** Porting the `Interpolation` base class and `Lagrange` solver from `Matrix1` to `Matrixpy`.
 

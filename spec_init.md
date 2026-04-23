@@ -110,8 +110,8 @@ Produce the full `spec.md` using the structure below. Fill every section with re
 # [Project Name] — Project Specification
 
 > **Version:** 1.0
-> **Created:** YYYY-MM-DD
-> **Last Updated:** YYYY-MM-DD
+> **Created:** 2026-04-19
+> **Last Updated:** 2026-04-19
 > **Status:** 🟡 In Planning
 >
 > Living document — the AI agent updates Codebase Inventory, Decision Log,
@@ -148,7 +148,7 @@ Produce the full `spec.md` using the structure below. Fill every section with re
 
 [Who uses this? What are their goals? What do they need most from this system?]
 
-### Current Operational Reality (as of YYYY-MM-DD)
+### Current Operational Reality (as of 2026-04-19)
 
 [What actually works today? What is deployed? What is in progress? If greenfield, say so.]
 
@@ -211,8 +211,8 @@ Produce the full `spec.md` using the structure below. Fill every section with re
 
 | File | Role | Status | Last Updated |
 |---|---|---|---|
-| `AGENT_MD/spec.md` | Living project specification | ✅ Active | YYYY-MM-DD |
-| `AGENT_MD/plan/rules.md` | AI agent authoring conventions | ✅ Active | YYYY-MM-DD |
+| `AGENT_MD/spec.md` | Living project specification | ✅ Active | 2026-04-19 |
+| `AGENT_MD/plan/rules.md` | AI agent authoring conventions | ✅ Active | 2026-04-19 |
 
 ---
 
@@ -249,7 +249,7 @@ Produce the full `spec.md` using the structure below. Fill every section with re
 
 | Date | Decision | Rationale | Alternatives Considered |
 |---|---|---|---|
-| YYYY-MM-DD | Created v1.0 spec.md | Project initialisation | n/a |
+| 2026-04-19 | Created v1.0 spec.md | Project initialisation | n/a |
 
 ---
 

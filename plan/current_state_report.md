@@ -6,6 +6,13 @@
 
 ---
 
+## Update — 2026-04-23 [PLAN-018_test_case_generator]
+- Implemented `Matrixpy/Src/Data_Generator.py` with support for Symmetric, Singular, Hilbert, and Diagonally Dominant matrices.
+- Created `generate_test_suite.py` CLI for automated test file creation.
+- Integrated data generation for all modules including Interpolation and Curve Fitting.
+
+---
+
 ## Update — 2026-04-23 [PLAN-017_git_version_history]
 - Grouped all untracked project files into 11 logical, chronological Git commits.
 - Applied `Conventional Commits` standards to accurately simulate the timeline of the C++ to Python porting effort.

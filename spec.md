@@ -156,6 +156,7 @@ Students and developers in Numerical Computing who need a structured, OOP-based 
 | 15 | File Loading & Menu Sync | ✅ | P0 | Fixed crash via strict size validation and augmented matrix loading (PLAN-015) |
 | 16 | Comprehensive Input Generation | ✅ | P1 | Generated 10 distinct mathematical test files across all modules (PLAN-016) |
 | 17 | Git Version History | ✅ | P0 | Reconstructed local chronological commits using Conventional Commits (PLAN-017) |
+| 18 | Test Case Generation Utility | ✅ | P1 | Dynamic suite for generating mathematically significant test data (PLAN-018) |
 
 ---
 

@@ -25,6 +25,7 @@ Following **PLAN-012**, all source code includes comprehensive docstrings detail
 3. **Iterative Solvers**: Jacobi, Gauss-Seidel, SOR (Successive Over-Relaxation).
 4. **Interpolation**: Lagrange Polynomials.
 5. **Curve Fitting**: Linear Least Squares regression.
+6. **Data Generation**: Automated suite for creating mathematically valid test systems.
 
 ## Usage
 The easiest way to explore the library is via the **Master Interactive Menu**:
@@ -35,7 +36,12 @@ python Main/main_master.py
 ```
 This unified portal mirrors the original C++ `Main.cpp` experience. When solving Systems of Linear Equations (SLE), simply load a single **Augmented Matrix `[A|B]`** file (e.g., `system_3x3.txt`), and the suite will automatically handle solving via Gaussian, LU, or Iterative methods.
 
-Individual demos can still be run directly from the `Main/` directory. Automated plotting requires `gnuplot` to be installed on the system.
+### Test Data Generation
+To generate specialized mathematical test data, use the **Data Generation Suite**:
+```bash
+python generate_test_suite.py
+```
+This utility allows you to create Symmetric matrices, Hilbert systems, Diagonally Dominant matrices, and noisy linear datasets for regression testing.
 
 
 ---

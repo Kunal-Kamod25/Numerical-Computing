@@ -3,7 +3,7 @@ CFLAGS = -std=c++17 -Wall -IInclude
 AR = ar rcs
 
 # Source files
-SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp Src/Eigenvalues.cpp Src/Gershgorin.cpp Src/Interpolation.cpp
+SRC_FILES = Src/Matrix_Methods.cpp Src/Matrix_Algorithms.cpp Src/LU.cpp Src/Iterative.cpp Src/Eigenvalues.cpp Src/Interpolation.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 # Library names
@@ -71,5 +71,5 @@ run_all: all
 	@echo "\n=== Running LU Decomposition ===" && LD_LIBRARY_PATH=. ./main_lu.exe
 
 run_interpolation: main_interpolation.exe
-	@echo "=== Running Interpolation Demo (input-file mode with auto file list/size detection) ==="
-	@./main_interpolation.exe
+	@echo "=== Running Interpolation Demo (auto input n=49) ==="
+	@printf "49\n" | LD_LIBRARY_PATH=. ./main_interpolation.exe

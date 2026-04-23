@@ -22,13 +22,12 @@ echo 4. Run LU Solver (Main_LU.cpp, Static)
 echo 5. Run Iterative Solver (Main_Iterative.cpp, Static)
 echo 6. Run Gaussian Solver (Main_Gaussian.cpp, Static)
 echo 7. Run Gershgorin Analysis (Main_Gershgorin.cpp, Static)
-echo 8. Run Interpolation Demo (input-file mode, auto file list/size)
+echo 8. Run Interpolation Demo (Main_Interpolation.cpp, Static)
 echo 9. Clean Build Files (.exe, .a, .dll, .o)
 echo 10. Clean and Rebuild Fresh
 echo 11. Exit
-echo 12. Run Curve Fitting Demo (Least Squares + RMS)
 echo.
-set /p choice="Choose an option (1-12): "
+set /p choice="Choose an option (1-11): "
 
 if "%choice%"=="1" goto build_static
 if "%choice%"=="2" goto build_dynamic
@@ -41,7 +40,6 @@ if "%choice%"=="8" goto run_interpolation_static
 if "%choice%"=="9" goto clean
 if "%choice%"=="10" goto clean_and_rebuild
 if "%choice%"=="11" exit /b 0
-if "%choice%"=="12" goto run_curvefitting_static
 
 echo Invalid choice, try again.
 goto menu
@@ -55,9 +53,8 @@ g++ -std=c++17 -Wall -IInclude -c Src/LU.cpp -o Src/LU.o
 g++ -std=c++17 -Wall -IInclude -c Src/Iterative.cpp -o Src/Iterative.o
 g++ -std=c++17 -Wall -IInclude -c Src/Eigenvalues.cpp -o Src/Eigenvalues.o
 g++ -std=c++17 -Wall -IInclude -c Src/Interpolation.cpp -o Src/Interpolation.o
-g++ -std=c++17 -Wall -IInclude -c Src/CurveFitting.cpp -o Src/CurveFitting.o
 echo Creating Static Library (libmatrix.a)...
-ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o Src/CurveFitting.o
+ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o
 echo SUCCESS: Static Library built!
 goto menu
 
@@ -70,9 +67,8 @@ g++ -std=c++17 -Wall -IInclude -fPIC -c Src/LU.cpp -o Src/LU.o
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Iterative.cpp -o Src/Iterative.o
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Eigenvalues.cpp -o Src/Eigenvalues.o
 g++ -std=c++17 -Wall -IInclude -fPIC -c Src/Interpolation.cpp -o Src/Interpolation.o
-g++ -std=c++17 -Wall -IInclude -fPIC -c Src/CurveFitting.cpp -o Src/CurveFitting.o
 echo Creating Dynamic Library (matrix.dll)...
-g++ -shared -o matrix.dll Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o Src/CurveFitting.o
+g++ -shared -o matrix.dll Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o
 echo SUCCESS: Dynamic Library built!
 goto menu
 
@@ -123,36 +119,12 @@ main_gershgorin_static.exe
 goto menu
 
 :run_interpolation_static
-if exist libmatrix.a del /f /q libmatrix.a >nul 2>nul
-g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Methods.cpp -o Src/Matrix_Methods.o
-g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Algorithms.cpp -o Src/Matrix_Algorithms.o
-g++ -std=c++17 -Wall -IInclude -c Src/LU.cpp -o Src/LU.o
-g++ -std=c++17 -Wall -IInclude -c Src/Iterative.cpp -o Src/Iterative.o
-g++ -std=c++17 -Wall -IInclude -c Src/Eigenvalues.cpp -o Src/Eigenvalues.o
-g++ -std=c++17 -Wall -IInclude -c Src/Interpolation.cpp -o Src/Interpolation.o
-ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o
+if not exist libmatrix.a call :build_static
 echo.
 echo Compiling Main_Interpolation.cpp (Static)...
 g++ Main_Interpolation.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_interpolation_static.exe
-echo Running Interpolation Demo (input-file mode)...
+echo Running Interpolation Demo...
 main_interpolation_static.exe
-goto menu
-
-:run_curvefitting_static
-if exist libmatrix.a del /f /q libmatrix.a >nul 2>nul
-g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Methods.cpp -o Src/Matrix_Methods.o
-g++ -std=c++17 -Wall -IInclude -c Src/Matrix_Algorithms.cpp -o Src/Matrix_Algorithms.o
-g++ -std=c++17 -Wall -IInclude -c Src/LU.cpp -o Src/LU.o
-g++ -std=c++17 -Wall -IInclude -c Src/Iterative.cpp -o Src/Iterative.o
-g++ -std=c++17 -Wall -IInclude -c Src/Eigenvalues.cpp -o Src/Eigenvalues.o
-g++ -std=c++17 -Wall -IInclude -c Src/Interpolation.cpp -o Src/Interpolation.o
-g++ -std=c++17 -Wall -IInclude -c Src/CurveFitting.cpp -o Src/CurveFitting.o
-ar rcs libmatrix.a Src/Matrix_Methods.o Src/Matrix_Algorithms.o Src/LU.o Src/Iterative.o Src/Eigenvalues.o Src/Interpolation.o Src/CurveFitting.o
-echo.
-echo Compiling Main_CurveFitting.cpp (Static)...
-g++ Main_CurveFitting.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_curvefitting_static.exe
-echo Running Curve Fitting Demo...
-main_curvefitting_static.exe
 goto menu
 
 :clean
@@ -172,7 +144,6 @@ g++ Main_Iterative.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_iterative
 g++ Main_Gaussian.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_gaussian_static.exe
 g++ Main_Gershgorin.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_gershgorin_static.exe
 g++ Main_Interpolation.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_interpolation_static.exe
-g++ Main_CurveFitting.cpp -L. -lmatrix -std=c++17 -Wall -IInclude -o main_curvefitting_static.exe
 echo Fresh rebuild completed.
 goto menu
 

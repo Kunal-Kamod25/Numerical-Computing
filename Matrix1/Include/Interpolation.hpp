@@ -8,17 +8,21 @@
 // Interpolation base class inheriting matrix behavior.
 class Interpolation : public Matrix
 {
+protected:
+    std::vector<long double> xData;
+    std::vector<long double> yData;
+
 public:
     Interpolation();
     Interpolation(const std::vector<long double> &x, const std::vector<long double> &y);
-    virtual ~Interpolation() = default;
+    virtual ~Interpolation() = default; // Virtual destructor for proper cleanup in derived classes
 
     void setData(const std::vector<long double> &x, const std::vector<long double> &y);
     int pointCount() const;
-    std::vector<long double> getX() const;
-    std::vector<long double> getY() const;
+    const std::vector<long double> &getX() const;
+    const std::vector<long double> &getY() const;
 
-    virtual long double evaluate(long double x) const = 0;
+    virtual long double evaluate(long double x) const = 0;// Pure virtual method to evaluate the interpolation at a given x.
     virtual std::vector<std::pair<long double, long double>> evaluateRange(long double xMin, long double xMax, int samples) const = 0;
 };
 

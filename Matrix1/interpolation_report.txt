@@ -1,6 +1,9 @@
-Interpolation input file: Large_Matrix/interpolation_check_data.txt
-Interpolation points: 7
-Evaluation at x=1.5000000000: 6.2500000000
-Output data files:
-  interpolation_points.dat
-  lagrange_curve.dat
+=== Lagrange Interpolation Report ===
+Data source: Large_Matrix/interp_quadratic.txt
+Number of points: 7
+X range: [0.0000000000]
+Evaluation at midpoint: 1.0000000000
+
+Output files generated:
+  - interpolation_points.dat (original data points)
+  - lagrange_curve.dat (smooth interpolated curve)

@@ -2,7 +2,7 @@
 #include "SLE.hpp"
 #include "Iterative.hpp"
 #include "Eigenvalues.hpp"
-#include "Gershgorin.hpp"
+#include "Eigenvalues.hpp"
 #include "Interpolation.hpp"
 #include <algorithm>
 #include <cctype>
@@ -93,6 +93,32 @@ static int chooseFileIndex(const vector<fs::path> &files, const string &prompt)
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+}
+
+// Extract matrix dimensions from file (assumes header: rows cols or just counts values).
+static pair<int, int> getMatrixDimensions(const fs::path &filePath)
+{
+    ifstream fin(filePath);
+    if (!fin)
+        throw runtime_error("Error opening file: " + filePath.string());
+
+    vector<long double> values;
+    long double value;
+    while (fin >> value)
+        values.push_back(value);
+
+    if (values.size() >= 2)
+    {
+        int potentialRows = static_cast<int>(values[0]);
+        int potentialCols = static_cast<int>(values[1]);
+        if (potentialRows > 0 && potentialCols > 0 &&
+            values.size() == 2 + static_cast<size_t>(potentialRows) * static_cast<size_t>(potentialCols))
+        {
+            return {potentialRows, potentialCols};
+        }
+    }
+
+    return {0, 0};
 }
 
 static Matrix loadMatrixFlexible(const fs::path &filePath, int rows, int cols)
@@ -413,38 +439,86 @@ int main()
 {
     try
     {
-        int n;
-        cout << "Enter size of system: ";
-        cin >> n;
+        cout << "\n╔════════════════════════════════════════════╗\n";
+        cout << "║  Linear System Solver - File Selection    ║\n";
+        cout << "╚════════════════════════════════════════════╝\n";
 
-        int m;
-        cout << "Enter number of RHS columns: ";
-        cin >> m;
-
+        // Step 1: List all available files.
         vector<fs::path> files = listTextFiles("Large_Matrix");
         if (files.empty())
             throw runtime_error("No .txt input files found in Large_Matrix/");
 
-        vector<fs::path> leftFiles = filterFilesForShape(files, n, n, false);
-        vector<fs::path> rightFiles = filterFilesForShape(files, n, m, true);
+        cout << "\nAvailable matrix files:\n";
+        for (size_t i = 0; i < files.size(); ++i)
+        {
+            auto dims = getMatrixDimensions(files[i]);
+            cout << "  " << (i + 1) << ". " << files[i].filename().string();
+            if (dims.first > 0)
+                cout << " (" << dims.first << "x" << dims.second << ")";
+            cout << endl;
+        }
 
-        if (leftFiles.empty() || rightFiles.empty())
-            throw runtime_error("No compatible input files found for the chosen size. Check n and m.");
+        // Step 2: User selects LEFT file (matrix A).
+        cout << "\n=== Select LEFT Matrix File (A) ===\n";
+        int leftChoice;
+        cout << "Enter file number (1-" << files.size() << "): ";
+        cin >> leftChoice;
 
-        cout << "\nCompatible LEFT matrix files (" << n << "x" << n << "):\n";
-        for (size_t i = 0; i < leftFiles.size(); ++i)
-            cout << "  " << (i + 1) << ". " << leftFiles[i].filename().string() << endl;
+        if (leftChoice < 1 || leftChoice > (int)files.size())
+            throw runtime_error("Invalid file choice for LEFT matrix");
 
-        cout << "\nCompatible RIGHT matrix files (" << n << "x" << m << "):\n";
-        for (size_t i = 0; i < rightFiles.size(); ++i)
-            cout << "  " << (i + 1) << ". " << rightFiles[i].filename().string() << endl;
+        fs::path leftFilePath = files[leftChoice - 1];
+        auto [n, _] = getMatrixDimensions(leftFilePath);
 
-        int leftIndex = chooseFileIndex(leftFiles, "\nChoose the LEFT matrix file (A):");
-        int rightIndex = chooseFileIndex(rightFiles, "\nChoose the RIGHT matrix file (B):");
+        if (n <= 0)
+            throw runtime_error("Could not determine dimensions of LEFT matrix file");
 
-        Matrix A = loadMatrixFlexible(leftFiles[leftIndex], n, n);
-        Matrix B = loadMatrixFlexible(rightFiles[rightIndex], n, m);
+        cout << "Selected LEFT: " << leftFilePath.filename().string() << " (size: " << n << "x" << n << ")\n";
 
+        // Step 3: User selects RIGHT file (matrix B).
+        cout << "\n=== Select RIGHT Matrix File (B) ===\n";
+
+        vector<fs::path> compatibleRightFiles;
+        for (const auto &f : files)
+        {
+            auto dims = getMatrixDimensions(f);
+            if (dims.first == n)
+                compatibleRightFiles.push_back(f);
+        }
+
+        if (compatibleRightFiles.empty())
+            throw runtime_error("No compatible RIGHT matrix files found for size " + to_string(n) + "x?");
+
+        cout << "Compatible RIGHT files (rows=" << n << "):\n";
+        for (size_t i = 0; i < compatibleRightFiles.size(); ++i)
+        {
+            auto dims = getMatrixDimensions(compatibleRightFiles[i]);
+            cout << "  " << (i + 1) << ". " << compatibleRightFiles[i].filename().string()
+                 << " (" << dims.first << "x" << dims.second << ")\n";
+        }
+
+        int rightChoice;
+        cout << "Enter file number (1-" << compatibleRightFiles.size() << "): ";
+        cin >> rightChoice;
+
+        if (rightChoice < 1 || rightChoice > (int)compatibleRightFiles.size())
+            throw runtime_error("Invalid file choice for RIGHT matrix");
+
+        fs::path rightFilePath = compatibleRightFiles[rightChoice - 1];
+        auto [nCheck, m] = getMatrixDimensions(rightFilePath);
+
+        if (nCheck != n)
+            throw runtime_error("RIGHT matrix row count does not match LEFT matrix");
+
+        cout << "Selected RIGHT: " << rightFilePath.filename().string() << " (size: " << n << "x" << m << ")\n";
+
+        // Step 4: Load matrices.
+        cout << "\nLoading matrices...\n";
+        Matrix A = loadMatrixFlexible(leftFilePath, n, n);
+        Matrix B = loadMatrixFlexible(rightFilePath, n, m);
+
+        cout << "Matrices loaded successfully.\n";
+        cout << "System: " << n << " equations, " << m << " RHS column(s)\n";
         cout << "\nChecking matrix properties...";
         A.displayProperties();
 

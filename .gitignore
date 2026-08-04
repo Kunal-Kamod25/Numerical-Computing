@@ -5,6 +5,8 @@ __pycache__/
 *.exe
 *.o
 *.a
+*.dll
+*.zip
 *.dat
-*.png
 results/
+Python/

@@ -1,5 +1,6 @@
 #include "Interpolation.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -7,6 +8,7 @@
 #include <vector>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 // ============================================================================
 // SECTION 1: DATA LOADING & FILE OPERATIONS
@@ -29,6 +31,71 @@ static bool loadInterpolationFile(const string &fileName,
     }
 
     return !x.empty();
+}
+
+static bool isInterpolationInputCandidate(const fs::path &path)
+{
+    if (!path.has_extension() || path.extension() != ".txt")
+        return false;
+
+    string name = path.filename().string();
+    transform(name.begin(), name.end(), name.begin(), [](unsigned char ch)
+              { return static_cast<char>(tolower(ch)); });
+
+    return name.find("interp") != string::npos ||
+           name.find("lagrange") != string::npos ||
+           name.find("check") != string::npos;
+}
+
+static vector<fs::path> discoverInterpolationInputFiles()
+{
+    vector<fs::path> files;
+
+    const vector<fs::path> roots = {fs::path("."), fs::path("Large_Matrix")};
+    for (const auto &root : roots)
+    {
+        if (!fs::exists(root) || !fs::is_directory(root))
+            continue;
+
+        for (const auto &entry : fs::directory_iterator(root))
+        {
+            if (!entry.is_regular_file())
+                continue;
+
+            const fs::path p = entry.path();
+            if (isInterpolationInputCandidate(p))
+                files.push_back(p);
+        }
+    }
+
+    sort(files.begin(), files.end());
+    files.erase(unique(files.begin(), files.end()), files.end());
+    return files;
+}
+
+static string chooseInterpolationInputFile()
+{
+    const vector<fs::path> files = discoverInterpolationInputFiles();
+
+    if (!files.empty())
+    {
+        cout << "\nAvailable interpolation input files:\n";
+        for (size_t i = 0; i < files.size(); ++i)
+            cout << "  " << (i + 1) << ". " << files[i].generic_string() << "\n";
+
+        cout << "Select file number (1-" << files.size() << ") or 0 for custom path: ";
+        int choice = -1;
+        if (cin >> choice && choice >= 1 && choice <= static_cast<int>(files.size()))
+            return files[static_cast<size_t>(choice - 1)].generic_string();
+
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    string dataFile;
+    cout << "Enter interpolation data file path (x y pairs): ";
+    cin >> dataFile;
+    return dataFile;
 }
 
 // Save x, y data points to a file.
@@ -66,8 +133,8 @@ static void saveInterpolatedCurve(const string &fileName,
 static void saveReport(const string &fileName,
                       const string &dataSource,
                       int pointCount,
-                      long double midX,
-                      long double midY)
+                      long double evalX,
+                      long double evalY)
 {
     ofstream out(fileName);
     if (!out)
@@ -77,8 +144,7 @@ static void saveReport(const string &fileName,
     out << "=== Lagrange Interpolation Report ===\n";
     out << "Data source: " << dataSource << "\n";
     out << "Number of points: " << pointCount << "\n";
-    out << "X range: [" << midX << "]\n";
-    out << "Evaluation at midpoint: " << midY << "\n";
+    out << "Evaluation at x=" << evalX << ": " << evalY << "\n";
     out << "\nOutput files generated:\n";
     out << "  - interpolation_points.dat (original data points)\n";
     out << "  - lagrange_curve.dat (smooth interpolated curve)\n";
@@ -97,6 +163,8 @@ static void displayTestFileMenu()
     cout << "1. Quadratic (y = x²)\n";
     cout << "2. Exponential (y = e^x)\n";
     cout << "3. Sine (y = sin(x))\n";
+    cout << "4. Discover / Select available data file\n";
+    cout << "5. Custom file path\n";
     cout << "=========================================\n";
 }
 
@@ -105,7 +173,12 @@ static int getUserChoice(int minVal, int maxVal)
 {
     int choice;
     cout << "Enter choice (" << minVal << "-" << maxVal << "): ";
-    cin >> choice;
+    if (!(cin >> choice))
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return minVal;
+    }
     return choice;
 }
 
@@ -123,6 +196,15 @@ static string selectInterpolationFile(int choice)
     case 3:
         cout << "Selected: Sine (y = sin(x))\n";
         return "Large_Matrix/interp_sine.txt";
+    case 4:
+        return chooseInterpolationInputFile();
+    case 5:
+    {
+        string path;
+        cout << "Enter custom file path: ";
+        cin >> path;
+        return path;
+    }
     default:
         cout << "Invalid choice! Using Quadratic.\n";
         return "Large_Matrix/interp_quadratic.txt";
@@ -143,18 +225,34 @@ static void runLagrangeInterpolation(const string &dataFile)
     if (!loadInterpolationFile(dataFile, xData, yData))
         throw runtime_error("Failed to load interpolation file: " + dataFile);
 
+    if (xData.size() < 2)
+        throw runtime_error("Interpolation file must contain at least 2 points.");
+
     cout << "Loaded " << xData.size() << " data points.\n";
 
     // Create Lagrange interpolator.
     Lagrange lag(xData, yData);
 
-    // Evaluate at midpoint for testing.
+    // Evaluate at midpoint or custom x.
     const long double xMid = (xData.front() + xData.back()) / 2.0L;
-    const long double yMid = lag.evaluate(xMid);
+    long double evalX = xMid;
+    
+    cout << "Enter custom x to evaluate (or enter " << xMid << " for midpoint): ";
+    if (cin >> evalX)
+    {
+        // Accepted user input
+    }
+    else
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        evalX = xMid;
+    }
 
-    cout << "Evaluation at x_mid=" << xMid << " -> y=" << yMid << "\n";
+    const long double evalY = lag.evaluate(evalX);
+    cout << "Evaluation at x=" << evalX << " -> y=" << evalY << "\n";
 
-    // Generate smooth curve by sampling many points.
+    // Generate smooth curve by sampling points across data range.
     const vector<pair<long double, long double>> curve = 
         lag.evaluateRange(xData.front(), xData.back(), 200);
 
@@ -163,7 +261,7 @@ static void runLagrangeInterpolation(const string &dataFile)
     // Save results to files.
     saveDataPoints("interpolation_points.dat", xData, yData);
     saveInterpolatedCurve("lagrange_curve.dat", curve);
-    saveReport("interpolation_report.txt", dataFile, lag.pointCount(), xMid, yMid);
+    saveReport("interpolation_report.txt", dataFile, lag.pointCount(), evalX, evalY);
 
     cout << "\n*** Output Files Created ***\n";
     cout << "1. interpolation_points.dat   (original data points)\n";
@@ -186,10 +284,10 @@ int main()
 
         // Display menu and get user choice.
         displayTestFileMenu();
-        int choice = getUserChoice(1, 3);
+        int choice = getUserChoice(1, 5);
         string dataFile = selectInterpolationFile(choice);
 
-        cout << "\nStarting Lagrange interpolation...\n";
+        cout << "\nStarting Lagrange interpolation on: " << dataFile << "\n";
 
         // Run interpolation pipeline.
         runLagrangeInterpolation(dataFile);

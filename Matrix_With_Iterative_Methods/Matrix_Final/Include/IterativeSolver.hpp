@@ -4,13 +4,10 @@
 #include "SLE.hpp"
 #include <vector>
 
-/**
- * ===============================================
- * LINEAR SYSTEM BASE CLASS
- * ===============================================
- * Base class for all linear system solvers.
- * Provides common functionality for solving Ax = b
- */
+// LINEAR SYSTEM BASE CLASS
+//  * Base class for all linear system solvers.
+//  * Provides common functionality for solving Ax = b
+ 
 class LinearSystem : public SLE
 {
 protected:
@@ -43,9 +40,7 @@ public:
 
 
 /**
- * ===============================================
- * ITERATIVE SOLVER BASE CLASS
- * ===============================================
+ ITERATIVE SOLVER BASE CLASS
  * Base class for iterative methods (Jacobi, Gauss-Seidel, SOR, etc.)
  * Provides common convergence checking and initialization
  */
@@ -83,14 +78,9 @@ public:
     virtual ~IterativeSolver();
 };
 
-
 /**
- * ===============================================
  * JACOBI METHOD
- * ===============================================
  * Iterative solver using Jacobi method:
- * x_i^(k+1) = (b_i - Σ(a_ij * x_j^k)) / a_ii  for j ≠ i
- * 
  * All components of x are updated simultaneously using values from previous iteration
  */
 class JacobiSolver : public IterativeSolver
@@ -105,15 +95,9 @@ public:
     void performIteration() override;
 };
 
-
 /**
- * ===============================================
  * GAUSS-SEIDEL METHOD
- * ===============================================
  * Iterative solver using Gauss-Seidel method:
- * x_i^(k+1) = (b_i - Σ(a_ij * x_j^(k+1)) - Σ(a_ij * x_j^k)) / a_ii
- *             for j < i (new)        for j > i (old)
- * 
  * Components are updated sequentially, using latest available values
  * Generally converges faster than Jacobi
  */

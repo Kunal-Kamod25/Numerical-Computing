@@ -1,5 +1,4 @@
 #include "Interpolation.hpp"
-#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
@@ -24,23 +23,38 @@ void Interpolation::setData(const vector<long double> &x, const vector<long doub
             if (fabsl(x[i] - x[j]) < 1e-18L)
                 throw invalid_argument("Interpolation x-values must be unique.");
 
-    xData = x;
-    yData = y;
+    // Store interpolation points directly in inherited Matrix storage as n x 2.
+    rows = static_cast<int>(x.size());
+    cols = 2;
+    mat.assign(static_cast<size_t>(rows), vector<long double>(static_cast<size_t>(cols), 0.0L));
+    for (int i = 0; i < rows; ++i)
+    {
+        mat[static_cast<size_t>(i)][0] = x[static_cast<size_t>(i)];
+        mat[static_cast<size_t>(i)][1] = y[static_cast<size_t>(i)];
+    }
 }
 
 int Interpolation::pointCount() const
 {
-    return static_cast<int>(xData.size());
+    return rows;
 }
 
-const vector<long double> &Interpolation::getX() const
+vector<long double> Interpolation::getX() const
 {
-    return xData;
+    vector<long double> x;
+    x.reserve(static_cast<size_t>(rows));
+    for (int i = 0; i < rows; ++i)
+        x.push_back(mat[static_cast<size_t>(i)][0]);
+    return x;
 }
 
-const vector<long double> &Interpolation::getY() const
+vector<long double> Interpolation::getY() const
 {
-    return yData;
+    vector<long double> y;
+    y.reserve(static_cast<size_t>(rows));
+    for (int i = 0; i < rows; ++i)
+        y.push_back(mat[static_cast<size_t>(i)][1]);
+    return y;
 }
 
 Lagrange::Lagrange() : Interpolation() {}
@@ -49,28 +63,28 @@ Lagrange::Lagrange(const vector<long double> &x, const vector<long double> &y) :
 
 long double Lagrange::evaluate(long double x) const
 {
-    if (xData.empty())
+    if (rows <= 0 || cols < 2 || mat.empty())
         throw runtime_error("No interpolation data is set.");
 
     long double result = 0.0L;
 
-    for (size_t i = 0; i < xData.size(); ++i)
+    for (int i = 0; i < rows; ++i)
     {
         long double basis = 1.0L;
 
-        for (size_t j = 0; j < xData.size(); ++j)
+        for (int j = 0; j < rows; ++j)
         {
             if (i == j)
                 continue;
 
-            const long double den = xData[i] - xData[j];
+            const long double den = mat[static_cast<size_t>(i)][0] - mat[static_cast<size_t>(j)][0];
             if (fabsl(den) < 1e-18L)
                 throw runtime_error("Duplicate x-values found during evaluation.");
 
-            basis *= (x - xData[j]) / den;
+            basis *= (x - mat[static_cast<size_t>(j)][0]) / den;
         }
 
-        result += yData[i] * basis;
+        result += mat[static_cast<size_t>(i)][1] * basis;
     }
 
     return result;
